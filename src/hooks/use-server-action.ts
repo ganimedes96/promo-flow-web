@@ -3,7 +3,7 @@
 import { handleServerActionError } from "@/api/client";
 import { HandleError } from "@/api/error";
 import type { ApiResponse, ApiResponseError } from "@/api/types";
-import { invalidateQuery } from "@/lib/tanstack-query/methods";
+import { invalidateQuery, refetchQuery } from "@/lib/tanstack-query/methods";
 import { toast } from "@/lib/toast";
 import {
   type QueryKey,
@@ -35,6 +35,9 @@ interface UseServerActionProps<
 
   /** Queries que devem ser invalidadas após uma mutação bem-sucedida */
   invalidateQueries?: readonly QueryKey[];
+
+  /** Queries que devem ser recarregadas após uma mutação bem-sucedida */
+  refetchQueries?: readonly QueryKey[];
 }
 
 export function useServerAction<TData, TVariables = void, TContext = unknown>({
@@ -43,6 +46,7 @@ export function useServerAction<TData, TVariables = void, TContext = unknown>({
   successMessage,
   disableSuccessToast,
   invalidateQueries,
+  refetchQueries,
   onError,
   onSuccess,
   ...options
@@ -63,6 +67,11 @@ export function useServerAction<TData, TVariables = void, TContext = unknown>({
       if (invalidateQueries?.length) {
         await Promise.all(
           invalidateQueries.map((queryKey) => invalidateQuery(queryKey))
+        );
+      }
+      if (refetchQueries?.length) {
+        await Promise.all(
+          refetchQueries.map((queryKey) => refetchQuery(queryKey))
         );
       }
       await onSuccess?.(data, variables, onMutateResult, context);
