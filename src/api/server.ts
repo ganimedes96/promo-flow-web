@@ -19,9 +19,11 @@ const configURL = () => {
 
 export async function fetchServer<T>(
   path: string,
-  options?: Omit<RequestInit, "body"> & { body?: object }
+  options?: Omit<RequestInit, "body"> & { body?: object },
+  authentication: "required" | "public" = "required"
 ) {
-  const session = await getServerSession(authOptions);
+  const session =
+    authentication === "required" ? await getServerSession(authOptions) : null;
   const jwt = session?.user?.token || "";
   const baseUrl = configURL();
   const url = `${baseUrl}${path}`;

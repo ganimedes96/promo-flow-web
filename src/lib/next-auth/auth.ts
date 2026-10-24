@@ -21,14 +21,13 @@ export const authOptions: NextAuthOptions = {
           email: credentials.email,
           password: credentials.password,
         });
-        const permissions =
-          auth.user.role === Role.admin ? [Permission.all] : [];
+        const permissions: Permission[] = [];
 
         return {
           id: auth.user.id,
           email: auth.user.email,
           name: auth.user.name,
-          role: auth.user.role,
+          role: Role.member,
           permissions,
           token: auth.token,
         };
@@ -65,7 +64,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60 * 7, // 7 days
+    maxAge: 24 * 60 * 60, // Mesmo prazo do JWT da API
   },
 };
 

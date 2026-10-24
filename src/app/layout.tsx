@@ -10,11 +10,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://next-template.vercel.app"),
   title: {
-    default: "Next Template | Next.js",
-    template: "%s | Next Template",
+    default: "PromoFlow",
+    template: "%s | PromoFlow",
   },
-  description: "Template Next.js para futuros projetos na Syslae Solutions",
-  applicationName: "Next Template",
+  description: "Conecte seu WhatsApp e organize suas ofertas.",
+  applicationName: "PromoFlow",
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
   keywords: [

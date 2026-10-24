@@ -628,3 +628,51 @@ pnpm format:fix    # corrige
 | `pnpm lint`       | Executa o ESLint                                   |
 | `pnpm format`     | Verifica a formatação com Prettier                 |
 | `pnpm format:fix` | Corrige a formatação com Prettier                  |
+
+## PromoFlow: integração local
+
+O login usa POST /api/auth/login da API NestJS. A home em /dashboard consulta a sessão, exibe o QR Code e lista os grupos do usuário autenticado. Os formulários reutilizam os controllers existentes; as ações de conexão usam Server Actions e as consultas usam TanStack Query.
+
+1. Configure a API em localhost:3333 e aplique as migrations do Prisma.
+2. Configure o worker com a URL da API e o mesmo WORKER_API_TOKEN da API.
+3. Copie env.example para .env.local e gere um NEXTAUTH_SECRET próprio.
+4. Execute pnpm dev no frontend e entre com uma conta cadastrada na API.
+5. Na home, clique em Conectar WhatsApp e leia o QR Code pelo celular.
+
+O frontend não recebe o WORKER_API_TOKEN. Ele usa o JWT do usuário, com sessão NextAuth limitada a 24 horas para acompanhar a validade do token da API. Como a API atual não fornece roles ou permissões, a sessão usa o papel member sem conceder privilégios administrativos.
+
+O componente de QR Code usa qrcode.react, pois o template não tinha um gerador de QR. As demais telas reutilizam componentes de UI, formulário, autenticação, ações e consultas existentes.
+
+## Grupo de destino e ofertas manuais
+
+Na home, selecione o grupo padrão no campo controlado e salve. Em Ofertas, use Nova oferta para abrir o FormSheet existente, preencher os dados e conferir a prévia. O grupo padrão vem selecionado, mas pode ser substituído para aquela oferta.
+
+O cadastro usa ControlledSelect, ControlledInput, ControlledInputCurrency e ControlledTextarea; as mutações usam Server Actions e useServerAction. A listagem reutiliza DataTable e usePaginatedList, com chaves centralizadas em queryKeys.offers.
+
+As ofertas são salvas como Prontas. Esta etapa não envia mensagens nem agenda publicações. Não é necessário instalar dependências adicionais.
+
+## Favoritos e cadastro de ofertas
+
+Na home, use a estrela ao lado de cada grupo para adicioná-lo ou removê-lo dos favoritos. Apenas os favoritos aparecem no cadastro de ofertas; se a lista estiver vazia, o formulário orienta a escolher os favoritos na home. O grupo padrão existente é mantido como favorito na atualização.
+
+O cadastro reutiliza ControlledCombobox com busca, padding e borda. O FormSheet de ofertas tem largura ampliada com rolagem vertical, sem alterar o tamanho dos demais sheets do template.
+
+## Agendar e cancelar
+
+Na listagem de Ofertas, use Agendar para reservar o próximo horário disponível do grupo. A coluna Horário previsto mostra a data em America/Sao_Paulo. Cada grupo tem sua própria fila, com intervalo de 2 minutos entre reservas.
+
+Cancelar agendamento mantém a oferta salva como Cancelada; Agendar novamente a coloca no próximo horário disponível. Nenhuma dessas ações envia mensagens nesta etapa. O publicador do worker será integrado depois.
+
+## Resultados de publicação
+
+A listagem de ofertas atualiza automaticamente a cada cinco segundos e exibe horário previsto, data de publicação e observações. Falhas conhecidas permitem Tentar novamente. Um envio sem confirmação aparece como Conferir envio e não disponibiliza reenvio automático.
+
+O publicador precisa ser habilitado no worker local com ENABLE_PUBLISHING=true. A publicação vem desativada por padrão.
+
+Na coluna Agendamento, ofertas com envio sem confirmação mostram Conferir envio. Confira a mensagem no grupo e escolha Chegou ao grupo ou Não foi enviado. A segunda opção permite usar Tentar novamente posteriormente e não dispara reenvio automaticamente.
+
+A tabela informa na Observação quando uma oferta está aguardando envio anterior ou conferência manual do grupo. Em Ações, o botão Editar abre o FormSheet existente para revisar preço, cupom e links antes de agendar ou republicar. Cancele o agendamento antes de editar uma oferta agendada.
+
+Na home, Publicador de ofertas mostra Worker ativo, Envios desativados, Worker sem comunicação ou Aguardando worker, com o horário do último contato. O estado do worker vem da API e é independente da sessão salva do WhatsApp. Sem worker online, a sessão salva não aparece como conexão ativa. Envios interrompidos são resolvidos na tabela por Conferir envio, sem reenvio automático.
+
+No cadastro e na edição, cole o Link do produto e use Buscar dados do link. A busca tenta preencher apenas campos vazios de título, descrição, imagem e preço, mantendo cupom, grupo e link de afiliado. As informações devem ser revisadas antes de salvar. Se a loja bloquear a leitura ou não disponibilizar algum metadado, os campos continuam editáveis manualmente. A busca não salva nem publica mensagens.

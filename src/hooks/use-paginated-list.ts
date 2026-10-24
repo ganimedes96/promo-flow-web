@@ -11,12 +11,14 @@ import { useEffect } from "react";
 
 type UsePaginatedListParams<T> = {
   queryKey: QueryKey;
+  refetchInterval?: number | false;
   queryFn: (params: { page: number }) => Promise<ApiResponsePaginated<T[]>>;
 };
 
 export function usePaginatedList<T>({
   queryKey,
   queryFn,
+  refetchInterval,
 }: UsePaginatedListParams<T>) {
   const queryPaginated = useInfiniteQuery<
     ApiResponsePaginated<T[]>,
@@ -26,6 +28,7 @@ export function usePaginatedList<T>({
     number
   >({
     queryKey: [...queryKey],
+    refetchInterval,
     queryFn: ({ pageParam: page }) => queryFn({ page }),
     getNextPageParam: (lastPage) => {
       if (!lastPage?.pagination) return undefined;

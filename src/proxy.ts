@@ -13,7 +13,7 @@ type PublicRoute = {
 const publicRoutes: PublicRoute[] = [
   { path: "/login", whenAuthed: "redirect" },
   { path: "/register", whenAuthed: "not-redirect" },
-  { path: "/", whenAuthed: "not-redirect" },
+  { path: "/", whenAuthed: "redirect" },
   { path: "/policy-and-privacy", whenAuthed: "not-redirect" },
   { path: "/terms", whenAuthed: "not-redirect" },
 ] as const;
