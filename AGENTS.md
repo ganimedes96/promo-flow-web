@@ -37,18 +37,18 @@ Do not perform unrelated refactors while implementing a feature.
 
 The application uses:
 
-* Next.js with App Router
-* React
-* TypeScript
-* Tailwind CSS
-* shadcn/ui / Radix UI
-* TanStack Query
-* NextAuth
-* React Hook Form
-* Zod
-* Sonner
-* date-fns
-* Lucide React
+- Next.js with App Router
+- React
+- TypeScript
+- Tailwind CSS
+- shadcn/ui / Radix UI
+- TanStack Query
+- NextAuth
+- React Hook Form
+- Zod
+- Sonner
+- date-fns
+- Lucide React
 
 Check `package.json` for exact installed versions before relying on version-specific behavior.
 
@@ -96,11 +96,11 @@ Before creating a new domain, inspect existing domains.
 
 A domain may contain:
 
-* `types.ts`
-* `enums.ts`
-* `client.ts`
-* `server.ts`
-* `actions.ts`
+- `types.ts`
+- `enums.ts`
+- `client.ts`
+- `server.ts`
+- `actions.ts`
 
 Follow existing domain conventions instead of creating repositories, services, API folders, or alternative abstractions without need.
 
@@ -114,8 +114,8 @@ Never call the external backend API using raw `fetch` directly from pages or com
 
 Use:
 
-* `fetchClient` for client-side requests
-* `fetchServer` for server-side requests and Server Actions
+- `fetchClient` for client-side requests
+- `fetchServer` for server-side requests and Server Actions
 
 Keep API functions inside the appropriate domain.
 
@@ -157,10 +157,10 @@ Mutations should follow the existing Server Action architecture.
 
 When appropriate:
 
-* create/update/delete functions belong in `domains/[domain]/actions.ts`
-* use the existing `useServerAction` abstraction from client components
-* reuse the project's API response/error types
-* invalidate/refetch queries using the project's TanStack Query utilities
+- create/update/delete functions belong in `domains/[domain]/actions.ts`
+- use the existing `useServerAction` abstraction from client components
+- reuse the project's API response/error types
+- invalidate/refetch queries using the project's TanStack Query utilities
 
 Do not introduce a second mutation pattern without a technical reason.
 
@@ -176,9 +176,9 @@ Do not create arbitrary string query keys inside components.
 
 Reuse the existing helpers for:
 
-* query keys
-* query refetch/invalidation
-* paginated lists
+- query keys
+- query refetch/invalidation
+- paginated lists
 
 Use `usePaginatedList` when the feature matches its intended pagination behavior.
 
@@ -192,11 +192,11 @@ Prefer derived state over duplicated state.
 
 Avoid `useEffect` for state synchronization when the value can be:
 
-* calculated during render
-* handled through an event
-* obtained from TanStack Query
-* handled by React Hook Form
-* represented by URL state
+- calculated during render
+- handled through an event
+- obtained from TanStack Query
+- handled by React Hook Form
+- represented by URL state
 
 Do not introduce global state for local component concerns.
 
@@ -248,8 +248,8 @@ Use the project's permission architecture.
 
 Use:
 
-* `CanServer` in Server Components
-* `CanClient` in Client Components
+- `CanServer` in Server Components
+- `CanClient` in Client Components
 
 When adding routes/features requiring permissions, inspect the existing permission map and enums.
 
@@ -275,8 +275,8 @@ When changing session/token fields, check the project's NextAuth type augmentati
 
 Respect the distinction between:
 
-* `(public)`
-* `(private)`
+- `(public)`
+- `(private)`
 
 Follow the existing route structure when creating list, detail, create, and update pages.
 
@@ -306,9 +306,9 @@ Use English for code identifiers.
 
 Use:
 
-* PascalCase for React components and types
-* camelCase for variables and functions
-* kebab-case for file names
+- PascalCase for React components and types
+- camelCase for variables and functions
+- kebab-case for file names
 
 Follow existing naming conventions before introducing new ones.
 
@@ -328,10 +328,10 @@ Do not fix timezone problems by manually adding or subtracting hours.
 
 Be explicit about whether a value represents:
 
-* an instant
-* a date without time
-* local time
-* UTC
+- an instant
+- a date without time
+- local time
+- UTC
 
 ---
 
@@ -404,13 +404,13 @@ Keep the diff focused.
 
 Before finishing, review the diff for:
 
-* accidental modifications
-* duplicated logic
-* unused imports
-* dead code
-* debug logs
-* temporary code
-* unrelated formatting changes
+- accidental modifications
+- duplicated logic
+- unused imports
+- dead code
+- debug logs
+- temporary code
+- unrelated formatting changes
 
 ---
 
@@ -418,9 +418,9 @@ Before finishing, review the diff for:
 
 For non-trivial changes, summarize:
 
-* what changed
-* relevant architecture decisions
-* validations executed
-* any important remaining consideration
+- what changed
+- relevant architecture decisions
+- validations executed
+- any important remaining consideration
 
 Do not provide a line-by-line explanation unless requested.
