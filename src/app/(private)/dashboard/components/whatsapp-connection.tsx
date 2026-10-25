@@ -48,14 +48,17 @@ export function WhatsAppConnection() {
     refetchInterval: 3000,
   });
   const groups = useQuery({
-    queryKey: queryKeys.whatsapp.groups,
+    queryKey: [
+      ...queryKeys.whatsapp.groups,
+      session.data?.connectedPhone ?? null,
+    ],
     queryFn: getWhatsAppGroups,
     enabled: session.data?.status === "READY",
     refetchInterval: 5000,
   });
   const connect = useServerAction({
     mutationFn: connectWhatsApp,
-    invalidateQueries: [queryKeys.whatsapp.session],
+    invalidateQueries: [queryKeys.whatsapp.session, queryKeys.whatsapp.groups],
     successMessage: "Conexão solicitada. Aguarde o QR Code.",
   });
   const disconnect = useServerAction({
@@ -263,7 +266,9 @@ export function WhatsAppConnection() {
         <CardHeader>
           <CardTitle>Grupos do WhatsApp</CardTitle>
           <CardDescription>
-            Os grupos aparecem após a conexão e a sincronização da conta.
+            {status === "READY" && session.data?.connectedPhone
+              ? "Grupos vinculados ao WhatsApp +" + session.data.connectedPhone
+              : "Os grupos aparecem após a conexão e a sincronização da conta."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -283,7 +288,10 @@ export function WhatsAppConnection() {
                 key={groups.data.find((group) => group.isDefault)?.id ?? "none"}
                 groups={groups.data}
               />
-              <GroupFavorites groups={groups.data} />
+              <GroupFavorites
+                key={session.data?.connectedPhone}
+                groups={groups.data}
+              />
             </div>
           ) : (
             <p className="text-muted-foreground">

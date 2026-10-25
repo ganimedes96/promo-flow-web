@@ -22,6 +22,7 @@ export const sessionSchema = z.object({
   lastError: z.string().nullable().optional(),
 });
 export const groupSchema = z.object({
+  accountPhone: z.string().optional(),
   isDefault: z.boolean(),
   isFavorite: z.boolean(),
   id: z.string(),
