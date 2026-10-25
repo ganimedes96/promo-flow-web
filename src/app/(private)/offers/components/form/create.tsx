@@ -99,6 +99,7 @@ function OfferFields({
     },
   });
   const values = useWatch({ control });
+  const [importImages, setImportImages] = useState<string[]>([]);
   const [importNotice, setImportNotice] = useState<string | null>(null);
   const product = useServerAction<ProductPreview, string>({
     mutationFn: previewProduct,
@@ -111,6 +112,7 @@ function OfferFields({
         return;
       }
       const data = response.data;
+      setImportImages(data.imageUrls ?? (data.imageUrl ? [data.imageUrl] : []));
       let filled = 0;
       if (data.title && !getValues("title").trim()) {
         setValue("title", data.title, {
@@ -139,6 +141,30 @@ function OfferFields({
           shouldValidate: true,
         });
         filled++;
+      }
+      const effectivePrice = getValues("currentPrice");
+      if (
+        data.originalPrice != null &&
+        getValues("originalPrice") == null &&
+        effectivePrice != null &&
+        data.originalPrice > effectivePrice
+      ) {
+        setValue("originalPrice", data.originalPrice, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+        filled++;
+      }
+      if (data.sourceUrl && data.sourceUrl !== requestedUrl) {
+        const sourceHost = new URL(requestedUrl).hostname.toLowerCase();
+        if (sourceHost === "meli.la" || sourceHost === "www.meli.la") {
+          if (!getValues("affiliateUrl").trim())
+            setValue("affiliateUrl", requestedUrl, { shouldDirty: true });
+          setValue("sourceUrl", data.sourceUrl, {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+        }
       }
       setImportNotice(
         (filled
@@ -214,7 +240,7 @@ function OfferFields({
           control={control}
           name="sourceUrl"
           label="Link do produto"
-          placeholder="https://loja.com/produto"
+          placeholder="Cole o link do produto ou meli.la"
           type="url"
           rules={{ required: "Informe o link do produto.", ...urlRule }}
         />
@@ -235,6 +261,7 @@ function OfferFields({
           disabled={product.isPending || save.isPending}
           onClick={() => {
             setImportNotice(null);
+            setImportImages([]);
             const parsed = createOfferSchema.shape.sourceUrl.safeParse(
               getValues("sourceUrl")
             );
@@ -252,8 +279,8 @@ function OfferFields({
           Buscar dados do link
         </Button>
         <p className="text-muted-foreground text-xs">
-          Preenche título, descrição, imagem e preço quando disponíveis. Os
-          campos já preenchidos são preservados.
+          No Mercado Livre, busca título, descrição, imagens e preços atual e
+          original quando disponíveis. Os campos preenchidos são preservados.
         </p>
         {importNotice && (
           <Alert>
@@ -311,6 +338,44 @@ function OfferFields({
           placeholder="0,00"
         />
       </div>
+      {importImages.length > 1 && (
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium">
+            Escolha a imagem da oferta
+          </legend>
+          <div className="flex gap-3 overflow-x-auto py-2">
+            {importImages.map((image, index) => (
+              <button
+                key={image}
+                type="button"
+                aria-label={"Usar imagem " + (index + 1)}
+                aria-pressed={values.imageUrl === image}
+                onClick={() =>
+                  setValue("imageUrl", image, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                className={
+                  "bg-card focus-visible:outline-ring size-24 shrink-0 overflow-hidden rounded-md border-2 p-1 focus-visible:outline-2 " +
+                  (values.imageUrl === image
+                    ? "border-primary"
+                    : "border-border")
+                }
+              >
+                <Image
+                  src={image}
+                  alt={"Imagem " + (index + 1) + " do produto"}
+                  width={88}
+                  height={88}
+                  unoptimized
+                  className="size-full object-contain"
+                />
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      )}
       <ControlledInput
         control={control}
         name="imageUrl"

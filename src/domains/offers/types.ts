@@ -83,5 +83,8 @@ export interface ProductPreview {
   description: string | null;
   imageUrl: string | null;
   currentPrice: number | null;
+  originalPrice?: number | null;
+  imageUrls?: string[];
+  sourceUrl?: string | null;
   warnings: string[];
 }
