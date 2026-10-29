@@ -86,3 +86,23 @@ result={"v":"5.12.2","fr":FPS,"ip":0,"op":END,"w":640,"h":460,"nm":"PromoFlow â€
 output=Path(__file__).resolve().parents[1]/'public/animations/promoflow-capybara.json'
 output.write_text(json.dumps(result,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
 print(f'Created {output.name}: {len(layers)} vector layers, 8s loop')
+
+# Character-only composition for the home scene; keep the full scene export above.
+import copy
+character = copy.deepcopy(result)
+character['w'], character['h'] = 280, 300
+character['layers'] = [item for item in character['layers'] if item.get('parent') == root or item['ind'] == root or item['nm'] == 'Soft floor shadow']
+for item in character['layers']:
+    if 'parent' in item: continue
+    position = item['ks']['p']
+    if position['a']:
+        for frame in position['k']:
+            for field in ('s', 'e'):
+                if field in frame:
+                    # Adjacent keyframes share endpoint lists; replace instead of mutating twice.
+                    x, y, z = frame[field]
+                    frame[field] = [x - 180, y - 130, z]
+    else:
+        position['k'][0] -= 180
+        position['k'][1] -= 130
+output.with_name('promoflow-capybara-character.json').write_text(json.dumps(character,separators=(',',':')),encoding='utf-8')
