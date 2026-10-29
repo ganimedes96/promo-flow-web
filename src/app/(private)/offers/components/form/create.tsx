@@ -1,4 +1,5 @@
 "use client";
+import type { ImportedOfferDraft } from "@/domains/offers/extension-import";
 import { useState } from "react";
 import { Download } from "lucide-react";
 import { previewProduct } from "@/domains/offers/actions";
@@ -30,9 +31,11 @@ import { queryKeys } from "@/lib/tanstack-query/keys";
 export function CreateOfferForm({
   onSuccess,
   offer,
+  initialDraft,
 }: {
   onSuccess?: () => void;
   offer?: Offer;
+  initialDraft?: ImportedOfferDraft;
 }) {
   const groups = useQuery({
     queryKey: queryKeys.whatsapp.groups,
@@ -59,16 +62,25 @@ export function CreateOfferForm({
         </AlertDescription>
       </Alert>
     );
-  return <OfferFields groups={favorites} onSuccess={onSuccess} offer={offer} />;
+  return (
+    <OfferFields
+      groups={favorites}
+      onSuccess={onSuccess}
+      offer={offer}
+      initialDraft={initialDraft}
+    />
+  );
 }
 function OfferFields({
   offer,
   groups,
   onSuccess,
+  initialDraft,
 }: {
   groups: WhatsAppGroup[];
   offer?: Offer;
   onSuccess?: () => void;
+  initialDraft?: ImportedOfferDraft;
 }) {
   const {
     control,
@@ -80,18 +92,18 @@ function OfferFields({
     formState: { errors },
   } = useForm<OfferFormValues>({
     defaultValues: {
-      title: offer?.title || "",
-      description: offer?.description || "",
-      sourceUrl: offer?.sourceUrl || "",
-      affiliateUrl: offer?.affiliateUrl || "",
-      couponCode: offer?.couponCode || "",
-      imageUrl: offer?.imageUrl || "",
+      title: offer?.title || initialDraft?.title || "",
+      description: offer?.description || initialDraft?.description || "",
+      sourceUrl: offer?.sourceUrl || initialDraft?.sourceUrl || "",
+      affiliateUrl: offer?.affiliateUrl || initialDraft?.affiliateUrl || "",
+      couponCode: offer?.couponCode || initialDraft?.couponCode || "",
+      imageUrl: offer?.imageUrl || initialDraft?.imageUrls[0] || "",
       currentPrice: offer?.currentPrice
         ? Number(offer.currentPrice)
-        : undefined,
+        : (initialDraft?.currentPrice ?? undefined),
       originalPrice: offer?.originalPrice
         ? Number(offer.originalPrice)
-        : undefined,
+        : (initialDraft?.originalPrice ?? undefined),
       whatsappGroupId:
         offer?.whatsappGroup?.id ??
         groups.find((group) => group.isDefault)?.id ??
@@ -99,7 +111,9 @@ function OfferFields({
     },
   });
   const values = useWatch({ control });
-  const [importImages, setImportImages] = useState<string[]>([]);
+  const [importImages, setImportImages] = useState<string[]>(
+    initialDraft?.imageUrls ?? []
+  );
   const [importNotice, setImportNotice] = useState<string | null>(null);
   const product = useServerAction<ProductPreview, string>({
     mutationFn: previewProduct,

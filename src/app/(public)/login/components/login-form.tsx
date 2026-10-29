@@ -32,7 +32,9 @@ export function LoginForm() {
         );
         return;
       }
-      router.replace("/dashboard");
+      const importing =
+        new URLSearchParams(window.location.search).get("import") === "product";
+      router.replace(importing ? "/import-product" : "/dashboard");
       router.refresh();
     } catch (error) {
       console.error("Login error:", error);

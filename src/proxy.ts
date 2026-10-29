@@ -12,6 +12,7 @@ type PublicRoute = {
 
 const publicRoutes: PublicRoute[] = [
   { path: "/login", whenAuthed: "redirect" },
+  { path: "/import-product", whenAuthed: "not-redirect" },
   { path: "/register", whenAuthed: "not-redirect" },
   { path: "/", whenAuthed: "redirect" },
   { path: "/policy-and-privacy", whenAuthed: "not-redirect" },
@@ -45,7 +46,12 @@ export default async function proxy(request: NextRequest) {
   // Usuário autenticado em rota pública que deve redirecionar
   if (publicRoute && publicRoute.whenAuthed === "redirect") {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/dashboard";
+    redirectUrl.pathname =
+      path === "/login" &&
+      request.nextUrl.searchParams.get("import") === "product"
+        ? "/import-product"
+        : "/dashboard";
+    redirectUrl.search = "";
     return NextResponse.redirect(redirectUrl);
   }
 
