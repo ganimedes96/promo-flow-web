@@ -1303,3 +1303,134 @@
     translate: 85% 0;
   }
 }
+
+.flow-mascot-scene {
+  position: relative;
+  min-width: 0;
+  background:
+    radial-gradient(ellipse at 50% 48%, #426d3745, transparent 70%), #182f27;
+  border: 1px solid #79928055;
+  border-radius: 22px;
+  box-shadow: 12px 18px 0 #081d1750;
+  padding: 20px;
+}
+.flow-mascot-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #ffffff15;
+  padding-bottom: 12px;
+}
+.flow-mascot-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font:
+    8px ui-monospace,
+    monospace;
+  letter-spacing: 0.08em;
+  color: #d7fa72;
+}
+.flow-mascot-heading button {
+  color: #c4d7c8;
+}
+.flow-mascot-heading button:hover {
+  background: #ffffff10;
+  color: #d7fa72;
+}
+.flow-mascot-art {
+  position: relative;
+  margin: 14px -24px 0;
+  min-height: 240px;
+}
+.flow-mascot-art > div {
+  width: 100%;
+  aspect-ratio: 640/460;
+}
+.flow-mascot-art svg {
+  width: 100%;
+  height: 100%;
+}
+.flow-mascot-source,
+.flow-mascot-groups {
+  position: absolute;
+  font:
+    7px ui-monospace,
+    monospace;
+  letter-spacing: 0.08em;
+  color: #c1d5bc;
+  top: 29%;
+}
+.flow-mascot-source {
+  left: 6%;
+}
+.flow-mascot-groups {
+  right: 6%;
+  top: 15%;
+}
+.flow-mascot-caption {
+  text-align: center;
+  margin: -8px 0 18px;
+  position: relative;
+}
+.flow-mascot-caption strong {
+  font-family: var(--font-unbounded), sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.flow-mascot-caption p {
+  font-size: 10px;
+  color: #afc5b5;
+  margin-top: 8px;
+}
+.flow-mascot-future {
+  border: 1px solid #d7fa7235;
+  border-radius: 8px;
+  padding: 12px;
+  color: #d1e4ba;
+  background: #d7fa7206;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  font-size: 10px;
+}
+.flow-mascot-future span {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+  justify-content: space-between;
+}
+.flow-mascot-future b {
+  color: #d7fa72;
+  font:
+    7px ui-monospace,
+    monospace;
+  padding: 4px 6px;
+  background: #d7fa7210;
+  border-radius: 3px;
+}
+.flow-mascot-note {
+  font-size: 8px;
+  line-height: 1.7;
+  color: #a2b8a8;
+  margin-top: 10px;
+  text-align: center;
+}
+.flow-mascot-fallback {
+  position: absolute;
+  inset: 30% 10%;
+  font-size: 12px;
+  color: #c1d5bc;
+  text-align: center;
+}
+@media (max-width: 900px) {
+  .flow-mascot-scene {
+    max-width: 520px;
+    width: 100%;
+    margin: auto;
+  }
+}

@@ -1,7 +1,7 @@
 import { ArrowDown, ArrowUpRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { FlowDemo } from "./flow-demo";
+import { CapybaraMascot } from "./capybara-mascot";
 export function Hero() {
   return (
     <section className="flow-hero">
@@ -46,7 +46,7 @@ export function Hero() {
             </div>
           </div>
         </div>
-        <FlowDemo />
+        <CapybaraMascot />
       </div>
       <div
         className="flow-ticker"

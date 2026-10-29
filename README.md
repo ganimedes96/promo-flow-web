@@ -686,3 +686,7 @@ Após alterar a extensão, execute `powershell -ExecutionPolicy Bypass -File scr
 ### Home pública do PromoFlow
 
 A rota `/` apresenta o produto para visitantes e usuários autenticados, com demonstração ilustrativa, etapas de importação e publicação, recursos e dúvidas frequentes. Os componentes ficam em `src/app/(public)/(landing)/components`. O acesso ao sistema permanece em `/login`, com redirecionamento após autenticação para `/control-panel`. A página explica a dependência do publicador local e usa apenas funcionalidades disponíveis, sem planos ou métricas comerciais fictícias.
+
+### Mascote animado da home
+
+O mascote original é vetorial, com loop de 8 segundos em `public/animations/promoflow-capybara.json`, reproduzido por `lottie-web` carregado apenas no navegador. O componente `capybara-mascot.tsx` substitui o card inicial, oferece pausa, respeita movimento reduzido e destrói o player ao desmontar. A cena mostra captura, conferência e distribuição conceitual entre grupos; seleção automática e conexão a vários grupos estão identificadas como futuras. Para editar formas, cores ou quadros e regenerar o JSON, execute `python scripts/generate-mascot.py`.
