@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DashboardPreview } from "./components/dashboard-preview";
 import { Hero } from "./components/hero";
 import { Features } from "./components/features";
 import { Started } from "./components/started";
@@ -38,6 +39,12 @@ export default function LandingPage() {
               Como funciona
             </a>
             <a
+              href="#painel"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              O painel
+            </a>
+            <a
               href="#recursos"
               className="text-muted-foreground hover:text-foreground"
             >
@@ -60,6 +67,7 @@ export default function LandingPage() {
       </header>
       <main id="conteudo">
         <Hero />
+        <DashboardPreview />
         <Features />
         <Started />
       </main>

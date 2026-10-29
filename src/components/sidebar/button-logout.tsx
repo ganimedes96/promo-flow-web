@@ -22,7 +22,7 @@ interface ButtonLogoutProps {
 
 export function ButtonLogout({ showDialog = true }: ButtonLogoutProps) {
   const logout = async () => {
-    signOut({ callbackUrl: "/login" });
+    signOut({ callbackUrl: "/" });
   };
 
   if (!showDialog) {

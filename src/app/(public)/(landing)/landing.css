@@ -562,3 +562,520 @@
     scroll-behavior: auto !important;
   }
 }
+
+.flow-dashboard-section {
+  background:
+    radial-gradient(ellipse at 50% 100%, #d5e4b860, transparent 65%),
+    var(--background);
+  border-bottom: 1px solid var(--border);
+  scroll-margin-top: 100px;
+}
+.flow-dashboard-intro {
+  display: flex;
+  justify-content: space-between;
+  gap: 28px;
+  align-items: end;
+  margin-bottom: 44px;
+}
+.flow-coming-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #e4ebd7;
+  color: #40622e;
+  border: 1px solid #c3d0ac;
+  border-radius: 5px;
+  padding: 7px 10px;
+}
+.flow-coming-badge svg {
+  animation: flow-icon-spark 3s ease-in-out infinite;
+}
+.flow-dashboard-window {
+  border: 1px solid #48664a;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #11251e;
+  color: #f4f3eb;
+  box-shadow:
+    0 30px 65px -35px #11251e90,
+    8px 8px 0 #cdd8ba;
+}
+.flow-dashboard-browser {
+  background: #1a3026;
+  border-bottom: 1px solid #ffffff15;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.flow-dashboard-browser > div {
+  display: flex;
+  gap: 6px;
+}
+.flow-dashboard-browser i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #607e65;
+}
+.flow-dashboard-browser i:first-child {
+  background: #d7fa72;
+}
+.flow-dashboard-browser > span {
+  font-family: monospace;
+  font-size: 10px;
+  color: #abc0af;
+}
+.flow-dashboard-browser button {
+  color: #bdcbbf;
+  font-size: 10px;
+  height: 28px;
+}
+.flow-dashboard-browser button:hover {
+  color: #d7fa72;
+  background: #ffffff10;
+}
+.flow-dashboard-browser button svg {
+  width: 12px;
+  height: 12px;
+}
+.flow-dashboard-shell {
+  display: grid;
+  grid-template-columns: 65px 1fr;
+}
+.flow-dashboard-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 26px 0;
+  border-right: 1px solid #ffffff10;
+  color: #819d88;
+}
+.flow-dashboard-rail > svg {
+  width: 18px;
+  height: 18px;
+}
+.flow-dashboard-rail > svg:first-of-type {
+  color: #d7fa72;
+}
+.flow-rail-logo {
+  font-family: var(--font-unbounded), sans-serif;
+  font-size: 21px;
+  letter-spacing: -0.1em;
+  color: #d7fa72;
+  margin-bottom: 12px;
+}
+.flow-rail-bottom {
+  margin-top: auto;
+  color: #d7fa72;
+}
+.flow-rail-bottom svg {
+  width: 18px;
+}
+.flow-dashboard-content {
+  padding: 28px;
+  min-width: 0;
+}
+.flow-dashboard-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.flow-dashboard-heading .flow-mono {
+  font-size: 8px;
+  color: #9bb49f;
+}
+.flow-dashboard-heading h3 {
+  font-family: var(--font-unbounded), sans-serif;
+  font-size: 20px;
+  letter-spacing: -0.05em;
+  margin-top: 8px;
+}
+.flow-dashboard-heading h3 > span {
+  color: #d7fa72;
+  margin-left: 12px;
+}
+.flow-dashboard-period {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #ffffff20;
+  border-radius: 7px;
+}
+.flow-dashboard-period button {
+  color: #a9bdad;
+  font-size: 10px;
+  height: 27px;
+}
+.flow-dashboard-period button[aria-pressed="true"] {
+  color: #11251e;
+  background: #d7fa72;
+}
+.flow-dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.flow-stat {
+  background: #1c3529;
+  border: 1px solid #36503d;
+  border-radius: 9px;
+  padding: 18px;
+  animation: flow-panel-enter 0.7s ease both;
+}
+.flow-stat:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.flow-stat:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.flow-stat-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  color: #b5c7b8;
+}
+.flow-stat-label svg {
+  color: #d7fa72;
+  animation: flow-icon-bob 4s ease-in-out infinite;
+}
+.flow-stat:nth-child(2) .flow-stat-label svg {
+  animation-delay: 0.7s;
+}
+.flow-stat:nth-child(3) .flow-stat-label svg {
+  animation-delay: 1.4s;
+}
+.flow-stat strong {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0 9px;
+  font-family: var(--font-unbounded), sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.07em;
+}
+.flow-stat strong svg {
+  color: #d7fa72;
+}
+.flow-stat-note {
+  font-size: 9px;
+  color: #94ae9b;
+}
+.flow-dashboard-panels {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+}
+.flow-chart-panel,
+.flow-queue-panel {
+  min-width: 0;
+  border: 1px solid #36503d;
+  background: #162e23;
+  border-radius: 9px;
+  padding: 18px;
+}
+.flow-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 10px;
+  margin-bottom: 22px;
+}
+.flow-panel-heading > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.flow-panel-heading svg {
+  color: #b4cd9e;
+}
+.flow-chart-legend {
+  color: #a6beaa;
+  font-size: 8px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.flow-chart-legend i {
+  background: #d7fa72;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+.flow-bars {
+  position: relative;
+  display: flex;
+  align-items: end;
+  height: 150px;
+  gap: 8px;
+  padding: 10px 4px 0;
+}
+.flow-chart-grid {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to top,
+    #ffffff12 0,
+    #ffffff12 1px,
+    transparent 1px,
+    transparent 37px
+  );
+  pointer-events: none;
+}
+.flow-bar-track {
+  display: flex;
+  align-items: end;
+  position: relative;
+  height: 100%;
+  flex: 1;
+}
+.flow-bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(to top, #709644, #d7fa72);
+  transform-origin: bottom;
+  animation: flow-bar-rise 1.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.flow-bar-track:nth-child(3n) .flow-bar {
+  background: linear-gradient(to top, #446b49, #86ba79);
+}
+.flow-chart-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 8px;
+  color: #9db4a3;
+}
+.flow-chart-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid #ffffff15;
+  padding-top: 14px;
+  margin-top: 18px;
+  font-size: 9px;
+  color: #b9cbbd;
+}
+.flow-chart-summary > span:last-child {
+  margin-left: auto;
+  font-size: 7px;
+  color: #96ad9a;
+}
+.flow-signal {
+  color: #d7fa72;
+  animation: flow-signal-glow 3s ease-in-out infinite;
+}
+.flow-queue-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid #ffffff12;
+  animation: flow-panel-enter 0.8s ease both;
+}
+.flow-queue-art {
+  display: grid;
+  place-items: center;
+  background: #2b4430;
+  color: #d7fa72;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+.flow-queue-art svg {
+  animation: flow-icon-bob 4.5s ease-in-out infinite;
+}
+.flow-queue-item > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 5px;
+}
+.flow-queue-item strong {
+  font-size: 10px;
+  font-weight: 500;
+}
+.flow-queue-item > div > span {
+  color: #9cb5a2;
+  font-size: 8px;
+}
+.flow-queue-item time {
+  margin-left: auto;
+  color: #c7e199;
+  font-family: monospace;
+  font-size: 10px;
+}
+.flow-queue-footer {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #abc392;
+  font-size: 8px;
+}
+.flow-dashboard-footnote {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid #ffffff15;
+  background: #0d2019;
+  font-size: 9px;
+  color: #a4b9ab;
+}
+.flow-dashboard-footnote > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #d7fa72;
+}
+.flow-landing #como-funciona svg {
+  animation: flow-icon-bob 5s ease-in-out infinite;
+}
+.flow-landing #como-funciona > div > div:nth-child(2) svg {
+  animation-delay: 0.7s;
+}
+.flow-landing #como-funciona > div > div:nth-child(3) svg {
+  animation-delay: 1.4s;
+}
+.flow-landing #recursos [data-slot="card"]:hover svg {
+  animation: flow-icon-spark 0.7s ease;
+}
+.flow-paused *,
+.flow-paused *:before,
+.flow-paused *:after {
+  animation-play-state: paused !important;
+}
+@keyframes flow-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes flow-bar-rise {
+  from {
+    transform: scaleY(0.05);
+    opacity: 0.4;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+@keyframes flow-icon-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-3px) rotate(-5deg);
+  }
+}
+@keyframes flow-icon-spark {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  35% {
+    transform: rotate(-12deg) scale(1.15);
+  }
+  65% {
+    transform: rotate(8deg) scale(1.05);
+  }
+}
+@keyframes flow-signal-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (max-width: 760px) {
+  .flow-dashboard-intro {
+    flex-direction: column;
+    align-items: start;
+  }
+  .flow-dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+  .flow-dashboard-rail {
+    display: none;
+  }
+  .flow-dashboard-content {
+    padding: 18px;
+  }
+  .flow-dashboard-panels {
+    grid-template-columns: 1fr;
+  }
+  .flow-stat {
+    padding: 12px;
+  }
+  .flow-stat-label {
+    font-size: 9px;
+  }
+  .flow-stat strong {
+    font-size: 26px;
+  }
+  .flow-stat-note {
+    font-size: 8px;
+  }
+  .flow-dashboard-heading h3 {
+    font-size: 16px;
+  }
+  .flow-dashboard-browser {
+    padding: 10px 12px;
+  }
+  .flow-dashboard-browser > span {
+    display: none;
+  }
+}
+@media (max-width: 420px) {
+  .flow-dashboard-stats {
+    gap: 7px;
+  }
+  .flow-stat-label svg {
+    display: none;
+  }
+  .flow-stat strong svg {
+    display: none;
+  }
+  .flow-stat strong {
+    font-size: 23px;
+  }
+  .flow-stat-note {
+    line-height: 1.6;
+    display: block;
+  }
+  .flow-dashboard-heading {
+    align-items: start;
+  }
+  .flow-dashboard-heading h3 {
+    font-size: 13px;
+  }
+  .flow-dashboard-heading h3 > span {
+    display: none;
+  }
+  .flow-dashboard-period button {
+    padding: 0 8px;
+    font-size: 9px;
+  }
+}
