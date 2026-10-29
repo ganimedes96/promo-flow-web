@@ -1079,3 +1079,155 @@
     font-size: 9px;
   }
 }
+
+/* Continuous demo: six 68px rows, followed by three matching rows for a seamless loop. */
+.flow-queue-arrival {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #c9dfa7;
+  font-size: 8px;
+  margin: -7px 0 12px;
+}
+.flow-arrival-dots {
+  margin-left: auto;
+  letter-spacing: 3px;
+  animation: flow-signal-glow 1.8s ease-in-out infinite;
+}
+.flow-queue-viewport {
+  height: 204px;
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 7%,
+    #000 90%,
+    transparent
+  );
+}
+.flow-queue-scroll {
+  animation: flow-queue-conveyor 24s linear infinite;
+  will-change: transform;
+}
+.flow-queue-scroll .flow-queue-item {
+  height: 68px;
+  box-sizing: border-box;
+  padding: 12px 0;
+  animation: none;
+}
+.flow-queue-scroll .flow-queue-time {
+  margin-left: auto;
+  align-items: end;
+  flex-shrink: 0;
+}
+.flow-queue-time > span {
+  color: #b7d68e !important;
+  font-size: 7px !important;
+}
+.flow-queue-panel {
+  overflow: hidden;
+}
+.flow-stat-number {
+  display: inline-block;
+  animation: flow-number-update 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  font-variant-numeric: tabular-nums;
+}
+.flow-dashboard-section .flow-bar {
+  animation:
+    flow-bar-rise 1.3s cubic-bezier(0.2, 0.8, 0.2, 1) both,
+    flow-bar-live 5s ease-in-out infinite;
+}
+.flow-dashboard-section .flow-chart-panel {
+  position: relative;
+  overflow: hidden;
+}
+.flow-dashboard-section .flow-chart-panel:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 25%,
+    #d7fa7207 45%,
+    #d7fa7210 50%,
+    transparent 65%
+  );
+  transform: translateX(-100%);
+  animation: flow-chart-sweep 8s ease-in-out infinite;
+}
+.flow-paused .flow-queue-scroll {
+  animation-play-state: paused;
+}
+@keyframes flow-queue-conveyor {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-408px);
+  }
+}
+@keyframes flow-number-update {
+  from {
+    opacity: 0.3;
+    transform: translateY(7px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+@keyframes flow-bar-live {
+  0%,
+  100% {
+    scale: 1 1;
+    opacity: 1;
+  }
+  45% {
+    scale: 1 0.78;
+    opacity: 0.78;
+  }
+  70% {
+    scale: 1 0.94;
+    opacity: 0.95;
+  }
+}
+@keyframes flow-chart-sweep {
+  0%,
+  20% {
+    transform: translateX(-100%);
+  }
+  75%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.flow-dashboard-section {
+  background-image:
+    radial-gradient(#40622e26 0.7px, transparent 0.7px),
+    linear-gradient(#40622e05 1px, transparent 1px),
+    linear-gradient(90deg, #40622e05 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 100%, #d5e4b880, transparent 70%);
+  background-size:
+    18px 18px,
+    90px 90px,
+    90px 90px,
+    100% 100%;
+  background-color: var(--background);
+}
+.flow-dashboard-content {
+  background-image:
+    radial-gradient(#c6e4aa12 0.7px, transparent 0.7px),
+    linear-gradient(#9bbb8a04 1px, transparent 1px),
+    linear-gradient(90deg, #9bbb8a04 1px, transparent 1px),
+    radial-gradient(ellipse at 80% 0%, #5e82321c, transparent 65%);
+  background-size:
+    18px 18px,
+    72px 72px,
+    72px 72px,
+    100% 100%;
+}

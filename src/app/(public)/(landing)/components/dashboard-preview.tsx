@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Activity,
   ArrowUpRight,
@@ -34,10 +34,69 @@ const periods = {
     labels: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
   },
 };
+const demoProducts = [
+  {
+    title: "Fone Bluetooth",
+    group: "Achados de tecnologia",
+    time: "14:32",
+    icon: Headphones,
+  },
+  {
+    title: "Kit de camisetas",
+    group: "Ofertas do dia",
+    time: "14:34",
+    icon: ShoppingBag,
+  },
+  {
+    title: "Acessórios para casa",
+    group: "Casa & boas compras",
+    time: "14:36",
+    icon: ShoppingBag,
+  },
+  {
+    title: "Headset sem fio",
+    group: "Achados de tecnologia",
+    time: "14:38",
+    icon: Headphones,
+  },
+  {
+    title: "Mochila para notebook",
+    group: "Ofertas do dia",
+    time: "14:40",
+    icon: ShoppingBag,
+  },
+  {
+    title: "Kit organizador",
+    group: "Casa & boas compras",
+    time: "14:42",
+    icon: ShoppingBag,
+  },
+];
+const queueProducts = [...demoProducts, ...demoProducts.slice(0, 3)];
 type Period = keyof typeof periods;
 export function DashboardPreview() {
   const [period, setPeriod] = useState<Period>("Hoje");
   const [paused, setPaused] = useState(false);
+  const [publishedCount, setPublishedCount] = useState(0);
+  useEffect(() => {
+    if (paused) return;
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let timer: ReturnType<typeof setInterval> | undefined;
+    function updateTimer() {
+      clearInterval(timer);
+      if (!motion.matches)
+        timer = setInterval(
+          () => setPublishedCount((value) => value + 1),
+          4000
+        );
+    }
+    updateTimer();
+    motion.addEventListener("change", updateTimer);
+    return () => {
+      clearInterval(timer);
+      motion.removeEventListener("change", updateTimer);
+    };
+  }, [paused]);
   const data = periods[period];
   return (
     <section
@@ -126,7 +185,7 @@ export function DashboardPreview() {
                 {[
                   {
                     label: "Ofertas publicadas",
-                    value: data.published,
+                    value: data.published + publishedCount,
                     icon: Send,
                     note: "Publicações concluídas",
                   },
@@ -149,7 +208,9 @@ export function DashboardPreview() {
                       <Icon size={16} />
                     </span>
                     <strong>
-                      {value.toString().padStart(2, "0")}
+                      <span key={value} className="flow-stat-number">
+                        {value.toString().padStart(2, "0")}
+                      </span>
                       <ArrowUpRight size={20} />
                     </strong>
                     <span className="flow-stat-note">{note}</span>
@@ -172,7 +233,7 @@ export function DashboardPreview() {
                     className="flow-bars"
                     key={period}
                     role="img"
-                    aria-label={`Gráfico ilustrativo: ${data.published} publicações no período ${period.toLowerCase()}`}
+                    aria-label={`Gráfico ilustrativo: ${data.published + publishedCount} publicações no período ${period.toLowerCase()}`}
                   >
                     <div className="flow-chart-grid" aria-hidden="true" />
                     {data.bars.map((height, index) => (
@@ -211,44 +272,44 @@ export function DashboardPreview() {
                     </span>
                     <span>03</span>
                   </div>
-                  {[
-                    {
-                      title: "Fone Bluetooth",
-                      group: "Achados de tecnologia",
-                      time: "14:32",
-                      icon: Headphones,
-                    },
-                    {
-                      title: "Kit de camisetas",
-                      group: "Ofertas do dia",
-                      time: "14:34",
-                      icon: ShoppingBag,
-                    },
-                    {
-                      title: "Acessórios para casa",
-                      group: "Casa & boas compras",
-                      time: "14:36",
-                      icon: ShoppingBag,
-                    },
-                  ].map(({ title, group, time, icon: Icon }, index) => (
-                    <div
-                      className="flow-queue-item"
-                      key={title}
-                      style={{ animationDelay: `${index * 130}ms` }}
-                    >
-                      <span className="flow-queue-art">
-                        <Icon size={20} />
-                      </span>
-                      <div>
-                        <strong>{title}</strong>
-                        <span>{group}</span>
-                      </div>
-                      <time>{time}</time>
+                  <div className="flow-queue-arrival">
+                    <span className="flow-status-dot" />
+                    <span>Novos produtos entrando na fila</span>
+                    <span className="flow-arrival-dots" aria-hidden="true">
+                      •••
+                    </span>
+                  </div>
+                  <div
+                    className="flow-queue-viewport"
+                    role="img"
+                    aria-label="Demonstração contínua: produtos entram na fila e avançam para publicação."
+                  >
+                    <div className="flow-queue-scroll" aria-hidden="true">
+                      {queueProducts.map(
+                        ({ title, group, time, icon: Icon }, index) => (
+                          <div
+                            className="flow-queue-item"
+                            key={`${title}-${index}`}
+                          >
+                            <span className="flow-queue-art">
+                              <Icon size={20} />
+                            </span>
+                            <div>
+                              <strong>{title}</strong>
+                              <span>{group}</span>
+                            </div>
+                            <div className="flow-queue-time">
+                              <time>{time}</time>
+                              <span>Na fila</span>
+                            </div>
+                          </div>
+                        )
+                      )}
                     </div>
-                  ))}
+                  </div>
                   <div className="flow-queue-footer">
                     <CheckCheck size={16} />
-                    <span>Horários organizados por grupo</span>
+                    <span>Capturando → cadastrando → publicando</span>
                   </div>
                 </div>
               </div>
