@@ -56,8 +56,8 @@ export function ProductImport({ authenticated }: { authenticated: boolean }) {
         <CardHeader>
           <CardTitle>Revisar produto importado</CardTitle>
           <CardDescription>
-            Confira os dados do Mercado Livre. A oferta só será cadastrada
-            quando você clicar em salvar.
+            Confira os dados da loja. A oferta só será cadastrada quando você
+            clicar em salvar.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -70,7 +70,7 @@ export function ProductImport({ authenticated }: { authenticated: boolean }) {
           ) : !authenticated ? (
             <div className="space-y-4">
               <p className="font-medium">
-                {draft.draft.title || "Produto do Mercado Livre"}
+                {draft.draft.title || "Produto importado"}
               </p>
               <p className="text-muted-foreground text-sm">
                 Faça login para escolher o grupo e concluir o cadastro. O

@@ -1,53 +1,51 @@
 import { z } from "zod";
-const mercadoLivreUrl = z
-  .string()
-  .max(2048)
-  .url()
-  .refine((value) => {
+const matchesHost = (host: string, domain: string) =>
+  host === domain || host.endsWith("." + domain);
+function allowedHttps(value: string, hosts: readonly string[]): boolean {
+  try {
     const url = new URL(value);
-    const host = url.hostname.toLowerCase();
     return (
       url.protocol === "https:" &&
       !url.username &&
       !url.password &&
-      (host === "mercadolivre.com.br" || host.endsWith(".mercadolivre.com.br"))
+      hosts.some((host) => matchesHost(url.hostname, host))
     );
-  }, "O produto deve ser um link HTTPS do Mercado Livre.");
+  } catch {
+    return false;
+  }
+}
+const productHosts = ["mercadolivre.com.br", "amazon.com.br"];
+const productUrl = z
+  .string()
+  .max(2048)
+  .url()
+  .refine(
+    (value) => allowedHttps(value, productHosts),
+    "Use um link HTTPS do Mercado Livre ou da Amazon Brasil."
+  );
 const affiliateUrl = z
   .string()
   .max(2048)
-  .refine((value) => {
-    if (!value) return true;
-    try {
-      const url = new URL(value),
-        host = url.hostname.toLowerCase();
-      return (
-        url.protocol === "https:" &&
-        !url.username &&
-        !url.password &&
-        (host === "meli.la" ||
-          host === "www.meli.la" ||
-          host === "mercadolivre.com.br" ||
-          host.endsWith(".mercadolivre.com.br"))
-      );
-    } catch {
-      return false;
-    }
-  }, "Link de afiliado inválido.");
+  .refine(
+    (value) =>
+      !value ||
+      allowedHttps(value, [...productHosts, "meli.la", "amzn.to", "a.co"]),
+    "Link de afiliado inválido."
+  );
 const imageUrl = z
   .string()
   .max(2048)
   .url()
-  .refine((value) => {
-    const url = new URL(value);
-    return (
-      url.protocol === "https:" &&
-      !url.username &&
-      !url.password &&
-      (url.hostname === "mlstatic.com" ||
-        url.hostname.endsWith(".mlstatic.com"))
-    );
-  });
+  .refine(
+    (value) =>
+      allowedHttps(value, [
+        "mlstatic.com",
+        "media-amazon.com",
+        "ssl-images-amazon.com",
+        "images-amazon.com",
+      ]),
+    "Imagem da loja inválida."
+  );
 const price = z
   .number()
   .positive()
@@ -59,7 +57,7 @@ export const extensionImportSchema = z.object({
   version: z.literal(1),
   capturedAt: z.string().datetime(),
   draft: z.object({
-    sourceUrl: mercadoLivreUrl,
+    sourceUrl: productUrl,
     title: z.string().max(200).default(""),
     description: z.string().max(2000).default(""),
     imageUrls: z.array(imageUrl).max(8).default([]),
