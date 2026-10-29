@@ -192,6 +192,19 @@ function OfferFields({
       style: "currency",
       currency: "BRL",
     }).format(value);
+  const currentCents =
+    typeof values.currentPrice === "number"
+      ? Math.round(values.currentPrice * 100)
+      : 0;
+  const originalCents =
+    typeof values.originalPrice === "number"
+      ? Math.round(values.originalPrice * 100)
+      : 0;
+  const discount =
+    currentCents > 0 && originalCents > currentCents
+      ? Math.round(((originalCents - currentCents) / originalCents) * 10000) /
+        100
+      : null;
   const urlRule = {
     validate: (value: unknown) =>
       !value ||
@@ -419,12 +432,22 @@ function OfferFields({
             />
           )}
           <p className="font-semibold">{values.title || "Título do produto"}</p>
+          {discount !== null && typeof values.originalPrice === "number" && (
+            <p className="text-muted-foreground">
+              De: <s>{money(values.originalPrice)}</s>
+            </p>
+          )}
           <p>
             💵 Por:{" "}
             {typeof values.currentPrice === "number"
               ? money(values.currentPrice)
               : "Preço atual"}
           </p>
+          {discount !== null && (
+            <p className="text-success font-semibold">
+              🔥 {discount.toLocaleString("pt-BR")}% de desconto
+            </p>
+          )}
           {values.couponCode?.trim() && (
             <p>🎟️ Cupom: {values.couponCode.trim()}</p>
           )}
