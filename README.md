@@ -682,3 +682,7 @@ No cadastro e na edição, cole o Link do produto e use Buscar dados do link. A 
 A página autenticada `/extension` disponibiliza o ZIP e orienta a instalação manual no Chrome, o atalho e a atualização. O pacote contém apenas os arquivos compilados necessários ao navegador.
 
 Após alterar a extensão, execute `powershell -ExecutionPolicy Bypass -File scripts/package-web.ps1` na pasta `promo-flow-extension`. O comando compila a extensão e atualiza o ZIP versionado e `extension-release.json` em `promo-flow-web/public/downloads`. Inclua esses arquivos no commit e publique novamente o frontend. O build da Vercel usa o pacote já incluído no repositório e não depende da pasta irmã.
+
+### Home pública do PromoFlow
+
+A rota `/` apresenta o produto para visitantes e usuários autenticados, com demonstração ilustrativa, etapas de importação e publicação, recursos e dúvidas frequentes. Os componentes ficam em `src/app/(public)/(landing)/components`. O acesso ao sistema permanece em `/login`, com redirecionamento após autenticação para `/control-panel`. A página explica a dependência do publicador local e usa apenas funcionalidades disponíveis, sem planos ou métricas comerciais fictícias.

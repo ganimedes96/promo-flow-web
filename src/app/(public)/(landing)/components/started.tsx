@@ -1,92 +1,82 @@
-"use client";
-
-import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const commands = [
+import Link from "next/link";
+const questions = [
   {
-    label: "Clone o repositório",
-    command: "git clone https://github.com/syslae-solutions/next-template.git",
+    question: "Preciso deixar o computador ligado?",
+    answer:
+      "Sim. Nesta versão, os envios dependem do publicador local em execução, com acesso à internet e o WhatsApp conectado. O site permite organizar e acompanhar suas ofertas.",
   },
   {
-    label: "Instale as dependências",
-    command: "cd next-template && pnpm install",
+    question: "A extensão publica assim que eu capturo?",
+    answer:
+      "Não. Ela abre um rascunho com os dados disponíveis na página. Você confere, escolhe o grupo e salva a oferta antes de agendar a publicação.",
   },
   {
-    label: "Inicie o servidor de desenvolvimento",
-    command: "pnpm dev",
+    question: "Quais lojas funcionam com a extensão?",
+    answer:
+      "Mercado Livre e Amazon Brasil. Os campos capturados dependem das informações exibidas em cada página. Confira variação, preço, frete e condições de cupom antes de salvar.",
+  },
+  {
+    question: "Meu link de afiliado é criado automaticamente?",
+    answer:
+      "Você informa o seu próprio link de afiliado no cadastro da oferta. Ele é usado na mensagem publicada no WhatsApp.",
+  },
+  {
+    question: "Posso publicar uma oferta de novo?",
+    answer:
+      "Sim. A ação de republicar permite colocar uma oferta publicada novamente na fila. Você acompanha os horários e os resultados na tela de ofertas.",
   },
 ];
-
 export function Started() {
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-
-  const handleCopy = async (command: string, index: number) => {
-    await navigator.clipboard.writeText(command);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
-  };
-
   return (
-    <section id="get-started" className="border-border border-t py-24">
-      <div className="mx-auto max-w-3xl px-6">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            <span className="text-foreground">Comece em</span>{" "}
-            <span className="text-muted-foreground">segundos</span>
+    <>
+      <section id="duvidas" className="bg-muted/40 scroll-mt-20 border-y">
+        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-[1fr_1.4fr]">
+          <div>
+            <p className="text-primary text-xs font-semibold tracking-widest uppercase">
+              Sem complicação
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+              Antes de começar,
+              <br />
+              tire suas dúvidas.
+            </h2>
+          </div>
+          <div className="divide-y">
+            {questions.map(({ question, answer }) => (
+              <details key={question} className="group py-5 first:pt-0">
+                <summary className="marker:text-primary cursor-pointer text-sm font-medium">
+                  {question}
+                </summary>
+                <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
+                  {answer}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <div className="bg-primary/10 rounded-3xl border p-8 text-center sm:p-14">
+          <p className="text-primary text-xs font-semibold tracking-widest uppercase">
+            Seu próximo achado já tem destino
+          </p>
+          <h2 className="mx-auto mt-4 max-w-xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+            Dê mais fluidez à sua rotina de ofertas.
           </h2>
-          <p className="text-muted-foreground mx-auto mt-4 max-w-xl">
-            Três comandos simples para ter seu projeto rodando.
+          <p className="text-muted-foreground mx-auto mt-4 max-w-lg">
+            Entre no PromoFlow, conecte seu WhatsApp e prepare sua próxima
+            publicação.
           </p>
+          <Button asChild size="lg" className="mt-7 h-12 rounded-full px-7">
+            <Link href="/login">
+              Acessar minha conta
+              <ArrowRight />
+            </Link>
+          </Button>
         </div>
-
-        <div className="mt-12 space-y-4">
-          {commands.map((item, index) => (
-            <div
-              key={index}
-              className="border-border bg-card overflow-hidden rounded-lg border"
-            >
-              <div className="border-border bg-secondary/30 flex items-center justify-between border-b px-4 py-2">
-                <span className="text-muted-foreground text-sm">
-                  {index + 1}. {item.label}
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-4 p-4">
-                <code className="text-foreground flex-1 overflow-x-auto font-mono text-sm">
-                  <span className="text-muted-foreground mr-2">$</span>
-                  {item.command}
-                </code>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="shrink-0"
-                  onClick={() => handleCopy(item.command, index)}
-                >
-                  {copiedIndex === index ? (
-                    <Check className="h-4 w-4 text-emerald-500" />
-                  ) : (
-                    <Copy className="text-muted-foreground h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="border-border from-secondary/50 to-card mt-12 rounded-xl border bg-linear-to-b p-8 text-center">
-          <p className="text-foreground text-lg font-medium">
-            Pronto para começar?
-          </p>
-          <p className="text-muted-foreground mt-2">
-            Abra em{" "}
-            <code className="bg-secondary rounded px-2 py-1 text-sm">
-              http://localhost:3000
-            </code>{" "}
-            e comece a construir.
-          </p>
-        </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
