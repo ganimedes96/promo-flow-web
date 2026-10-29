@@ -1,3 +1,5 @@
+import { unbounded } from "@/fonts";
+import "./landing.css";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
@@ -13,21 +15,17 @@ export const metadata: Metadata = {
 };
 export default function LandingPage() {
   return (
-    <div className="bg-background text-foreground min-h-svh">
+    <div className={`${unbounded.variable} flow-landing min-h-svh`}>
       <a
         href="#conteudo"
         className="bg-card focus:ring-primary sr-only z-50 rounded-md p-3 focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:ring-2"
       >
         Ir para o conteúdo
       </a>
-      <header className="bg-background/95 sticky top-0 z-30 border-b backdrop-blur">
+      <header className="flow-nav sticky top-0 z-30 border-b backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
-          <Link
-            href="/"
-            aria-label="PromoFlow início"
-            className="text-2xl font-semibold tracking-tight"
-          >
-            Promo<span className="text-primary">Flow</span>
+          <Link href="/" aria-label="PromoFlow início" className="flow-brand">
+            Promo<span>Flow</span>
           </Link>
           <nav
             aria-label="Navegação principal"
