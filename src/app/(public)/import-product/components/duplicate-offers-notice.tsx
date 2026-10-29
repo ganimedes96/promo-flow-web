@@ -44,8 +44,9 @@ export function DuplicateOffersNotice({ sourceUrl }: { sourceUrl: string }) {
           Este produto já possui cadastro na sua conta.
         </p>
         <p>
-          Você pode abrir um cadastro existente para revisar os dados. Se quiser
-          uma oferta separada, continue no formulário abaixo.
+          Você pode abrir um cadastro existente para revisar os dados. O
+          cadastro repetido no mesmo grupo é bloqueado. Para divulgar em outro
+          grupo, selecione um destino diferente no formulário abaixo.
         </p>
         {duplicates.data.map((offer) => (
           <div

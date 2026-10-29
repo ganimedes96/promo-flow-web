@@ -459,6 +459,11 @@ function OfferFields({
           <p>👉 Link do grupo na descrição</p>
         </CardContent>
       </Card>
+      {save.error && (
+        <Alert variant="destructive">
+          <AlertDescription>{save.error.message}</AlertDescription>
+        </Alert>
+      )}
       {errors.root?.server?.message && (
         <Alert variant="destructive">
           <AlertDescription>{errors.root.server.message}</AlertDescription>
