@@ -1080,7 +1080,7 @@
   }
 }
 
-/* Continuous demo: six 68px rows, followed by three matching rows for a seamless loop. */
+/* Stable product keys let existing rows glide down when a new item arrives. */
 .flow-queue-arrival {
   display: flex;
   align-items: center;
@@ -1107,7 +1107,8 @@
   );
 }
 .flow-queue-scroll {
-  animation: flow-queue-conveyor 24s linear infinite;
+  position: relative;
+  height: 272px;
   will-change: transform;
 }
 .flow-queue-scroll .flow-queue-item {
@@ -1160,14 +1161,6 @@
 .flow-paused .flow-queue-scroll {
   animation-play-state: paused;
 }
-@keyframes flow-queue-conveyor {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-408px);
-  }
-}
 @keyframes flow-number-update {
   from {
     opacity: 0.3;
@@ -1209,8 +1202,8 @@
 .flow-dashboard-section {
   background-image:
     radial-gradient(#40622e26 0.7px, transparent 0.7px),
-    linear-gradient(#40622e05 1px, transparent 1px),
-    linear-gradient(90deg, #40622e05 1px, transparent 1px),
+    linear-gradient(#40622e18 1px, transparent 1px),
+    linear-gradient(90deg, #40622e18 1px, transparent 1px),
     radial-gradient(ellipse at 50% 100%, #d5e4b880, transparent 70%);
   background-size:
     18px 18px,
@@ -1222,12 +1215,91 @@
 .flow-dashboard-content {
   background-image:
     radial-gradient(#c6e4aa12 0.7px, transparent 0.7px),
-    linear-gradient(#9bbb8a04 1px, transparent 1px),
-    linear-gradient(90deg, #9bbb8a04 1px, transparent 1px),
+    linear-gradient(#9bbb8a19 1px, transparent 1px),
+    linear-gradient(90deg, #9bbb8a19 1px, transparent 1px),
     radial-gradient(ellipse at 80% 0%, #5e82321c, transparent 65%);
   background-size:
     18px 18px,
     72px 72px,
     72px 72px,
     100% 100%;
+}
+
+.flow-queue-scroll .flow-queue-item {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border: 1px solid transparent;
+  border-top-color: #ffffff14;
+  border-radius: 8px;
+  padding: 10px 8px;
+  transition:
+    top 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.7s ease,
+    background-color 0.8s ease;
+}
+.flow-queue-scroll .flow-queue-slot-0 {
+  animation: flow-product-arrive 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  background: #d7fa7210;
+  border-color: #d7fa7245;
+  box-shadow: inset 3px 0 0 #d7fa72;
+}
+.flow-queue-scroll .flow-queue-slot-0:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 10%,
+    #d7fa7225 45%,
+    transparent 75%
+  );
+  animation: flow-product-shine 1.3s ease-out both;
+}
+.flow-queue-scroll .flow-queue-slot-3 {
+  opacity: 0;
+}
+.flow-queue-scroll .flow-queue-slot-0 .flow-queue-art {
+  background: #d7fa72;
+  color: #183326;
+}
+.flow-queue-scroll .flow-queue-slot-0 .flow-queue-time > span {
+  color: #d7fa72 !important;
+}
+.flow-queue-viewport {
+  mask-image: linear-gradient(to bottom, #000 85%, transparent);
+}
+@keyframes flow-product-arrive {
+  0% {
+    opacity: 0;
+    transform: translate(28px, -18px) scale(0.94);
+    filter: blur(4px);
+  }
+  55% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  78% {
+    transform: translate(-2px, 1px) scale(1.008);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+@keyframes flow-product-shine {
+  from {
+    opacity: 0;
+    translate: -85% 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    translate: 85% 0;
+  }
 }

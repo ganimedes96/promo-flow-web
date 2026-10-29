@@ -72,7 +72,7 @@ const demoProducts = [
     icon: ShoppingBag,
   },
 ];
-const queueProducts = [...demoProducts, ...demoProducts.slice(0, 3)];
+
 type Period = keyof typeof periods;
 export function DashboardPreview() {
   const [period, setPeriod] = useState<Period>("Hoje");
@@ -98,6 +98,13 @@ export function DashboardPreview() {
     };
   }, [paused]);
   const data = periods[period];
+  const visibleProducts = Array.from({ length: 4 }, (_, index) => ({
+    ...demoProducts[
+      (((publishedCount - index) % demoProducts.length) + demoProducts.length) %
+        demoProducts.length
+    ],
+    id: publishedCount - index,
+  }));
   return (
     <section
       id="painel"
@@ -285,11 +292,12 @@ export function DashboardPreview() {
                     aria-label="Demonstração contínua: produtos entram na fila e avançam para publicação."
                   >
                     <div className="flow-queue-scroll" aria-hidden="true">
-                      {queueProducts.map(
-                        ({ title, group, time, icon: Icon }, index) => (
+                      {visibleProducts.map(
+                        ({ title, group, time, icon: Icon, id }, index) => (
                           <div
-                            className="flow-queue-item"
-                            key={`${title}-${index}`}
+                            className={`flow-queue-item flow-queue-slot-${index}`}
+                            key={id}
+                            style={{ top: `${index * 68}px` }}
                           >
                             <span className="flow-queue-art">
                               <Icon size={20} />
@@ -300,7 +308,13 @@ export function DashboardPreview() {
                             </div>
                             <div className="flow-queue-time">
                               <time>{time}</time>
-                              <span>Na fila</span>
+                              <span>
+                                {index === 0
+                                  ? "Novo na fila"
+                                  : index === 3
+                                    ? "Publicando"
+                                    : "Na fila"}
+                              </span>
                             </div>
                           </div>
                         )
