@@ -50,18 +50,6 @@ export function CreateOfferForm({
       </Alert>
     );
   const favorites = groups.data?.filter((group) => group.isFavorite) ?? [];
-  if (!favorites.length)
-    return (
-      <Alert>
-        <AlertDescription>
-          Marque pelo menos um grupo como favorito na home para cadastrar uma
-          oferta.{" "}
-          <Link href="/dashboard" className="underline">
-            Ir para o início
-          </Link>
-        </AlertDescription>
-      </Alert>
-    );
   return (
     <OfferFields
       groups={favorites}
@@ -238,6 +226,23 @@ function OfferFields({
         save.mutate(parsed.data);
       })}
     >
+      {!groups.length && (
+        <Alert>
+          <AlertDescription>
+            Você pode revisar os dados abaixo. Para salvar, conecte o WhatsApp e
+            marque um grupo como favorito.{" "}
+            <Link
+              href="/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Abrir início em outra aba
+            </Link>{" "}
+            Depois volte aqui; a lista será atualizada automaticamente.
+          </AlertDescription>
+        </Alert>
+      )}
       <ControlledCombobox
         control={control}
         name="whatsappGroupId"
@@ -444,7 +449,7 @@ function OfferFields({
       <Button
         type="submit"
         loading={save.isPending}
-        disabled={save.isPending || product.isPending}
+        disabled={save.isPending || product.isPending || !groups.length}
         className="w-full"
       >
         {offer ? "Salvar alterações" : "Salvar oferta"}
