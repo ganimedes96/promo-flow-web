@@ -1,8 +1,5 @@
 "use client";
 import type { ImportedOfferDraft } from "@/domains/offers/extension-import";
-import { useState } from "react";
-import { Download } from "lucide-react";
-import { previewProduct } from "@/domains/offers/actions";
 import { useQuery } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
 import Image from "next/image";
@@ -22,7 +19,6 @@ import {
   reviseOfferSchema,
   Offer,
   OfferFormValues,
-  ProductPreview,
 } from "@/domains/offers/types";
 import { getWhatsAppGroups } from "@/domains/whatsapp/client";
 import { WhatsAppGroup } from "@/domains/whatsapp/types";
@@ -75,8 +71,6 @@ function OfferFields({
     handleSubmit,
     setError,
     setValue,
-    getValues,
-    clearErrors,
     formState: { errors },
   } = useForm<OfferFormValues>({
     defaultValues: {
@@ -99,83 +93,7 @@ function OfferFields({
     },
   });
   const values = useWatch({ control });
-  const [importImages, setImportImages] = useState<string[]>(
-    initialDraft?.imageUrls ?? []
-  );
-  const [importNotice, setImportNotice] = useState<string | null>(null);
-  const product = useServerAction<ProductPreview, string>({
-    mutationFn: previewProduct,
-    disableSuccessToast: true,
-    onSuccess: (response, requestedUrl) => {
-      if (getValues("sourceUrl").trim() !== requestedUrl.trim()) {
-        setImportNotice(
-          "O link mudou durante a busca. Busque novamente para preencher os dados desse produto."
-        );
-        return;
-      }
-      const data = response.data;
-      setImportImages(data.imageUrls ?? (data.imageUrl ? [data.imageUrl] : []));
-      let filled = 0;
-      if (data.title && !getValues("title").trim()) {
-        setValue("title", data.title, {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-        filled++;
-      }
-      if (data.description && !getValues("description").trim()) {
-        setValue("description", data.description, {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-        filled++;
-      }
-      if (data.imageUrl && !getValues("imageUrl").trim()) {
-        setValue("imageUrl", data.imageUrl, {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-        filled++;
-      }
-      if (data.currentPrice !== null && getValues("currentPrice") == null) {
-        setValue("currentPrice", data.currentPrice, {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-        filled++;
-      }
-      const effectivePrice = getValues("currentPrice");
-      if (
-        data.originalPrice != null &&
-        getValues("originalPrice") == null &&
-        effectivePrice != null &&
-        data.originalPrice > effectivePrice
-      ) {
-        setValue("originalPrice", data.originalPrice, {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-        filled++;
-      }
-      if (data.sourceUrl && data.sourceUrl !== requestedUrl) {
-        const sourceHost = new URL(requestedUrl).hostname.toLowerCase();
-        if (sourceHost === "meli.la" || sourceHost === "www.meli.la") {
-          if (!getValues("affiliateUrl").trim())
-            setValue("affiliateUrl", requestedUrl, { shouldDirty: true });
-          setValue("sourceUrl", data.sourceUrl, {
-            shouldDirty: true,
-            shouldValidate: true,
-          });
-        }
-      }
-      setImportNotice(
-        (filled
-          ? filled + " campo(s) preenchido(s). Revise os dados antes de salvar."
-          : "Os campos já preenchidos foram preservados. Limpe os campos que deseja buscar novamente.") +
-          (data.warnings.length ? " " + data.warnings.join(" ") : "")
-      );
-    },
-  });
+  const importImages = initialDraft?.imageUrls ?? [];
   const save = useServerAction<Offer, CreateOffer>({
     mutationFn: (body) =>
       offer
@@ -285,50 +203,6 @@ function OfferFields({
           rules={urlRule}
         />
       </div>
-      <div className="space-y-2">
-        <Button
-          type="button"
-          variant="outline"
-          loading={product.isPending}
-          disabled={product.isPending || save.isPending}
-          onClick={() => {
-            setImportNotice(null);
-            setImportImages([]);
-            const parsed = createOfferSchema.shape.sourceUrl.safeParse(
-              getValues("sourceUrl")
-            );
-            if (!parsed.success) {
-              setError("sourceUrl", {
-                message: "Informe o link do produto antes de buscar os dados.",
-              });
-              return;
-            }
-            clearErrors("sourceUrl");
-            product.mutate(parsed.data);
-          }}
-        >
-          <Download className="size-4" aria-hidden="true" />
-          Buscar dados do link
-        </Button>
-        <p className="text-muted-foreground text-xs">
-          No Mercado Livre, busca título, descrição, imagens e preços atual e
-          original quando disponíveis. Os campos preenchidos são preservados.
-        </p>
-        {importNotice && (
-          <Alert>
-            <AlertDescription>{importNotice}</AlertDescription>
-          </Alert>
-        )}
-        {product.error && (
-          <Alert variant="destructive">
-            <AlertDescription>
-              {product.error.message} Você pode continuar preenchendo
-              manualmente.
-            </AlertDescription>
-          </Alert>
-        )}
-      </div>
-
       <ControlledInput
         control={control}
         name="title"
@@ -477,7 +351,7 @@ function OfferFields({
       <Button
         type="submit"
         loading={save.isPending}
-        disabled={save.isPending || product.isPending || !groups.length}
+        disabled={save.isPending || !groups.length}
         className="w-full"
       >
         {offer ? "Salvar alterações" : "Salvar oferta"}

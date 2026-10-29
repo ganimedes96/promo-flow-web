@@ -676,3 +676,9 @@ A tabela informa na Observação quando uma oferta está aguardando envio anteri
 Na home, Publicador de ofertas mostra Worker ativo, Envios desativados, Worker sem comunicação ou Aguardando worker, com o horário do último contato. O estado do worker vem da API e é independente da sessão salva do WhatsApp. Sem worker online, a sessão salva não aparece como conexão ativa. Envios interrompidos são resolvidos na tabela por Conferir envio, sem reenvio automático.
 
 No cadastro e na edição, cole o Link do produto e use Buscar dados do link. A busca tenta preencher apenas campos vazios de título, descrição, imagem e preço, mantendo cupom, grupo e link de afiliado. As informações devem ser revisadas antes de salvar. Se a loja bloquear a leitura ou não disponibilizar algum metadado, os campos continuam editáveis manualmente. A busca não salva nem publica mensagens.
+
+### Download da extensão no sistema
+
+A página autenticada `/extension` disponibiliza o ZIP e orienta a instalação manual no Chrome, o atalho e a atualização. O pacote contém apenas os arquivos compilados necessários ao navegador.
+
+Após alterar a extensão, execute `powershell -ExecutionPolicy Bypass -File scripts/package-web.ps1` na pasta `promo-flow-extension`. O comando compila a extensão e atualiza o ZIP versionado e `extension-release.json` em `promo-flow-web/public/downloads`. Inclua esses arquivos no commit e publique novamente o frontend. O build da Vercel usa o pacote já incluído no repositório e não depende da pasta irmã.

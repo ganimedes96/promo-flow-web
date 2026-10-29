@@ -1,10 +1,11 @@
 import { Permission } from "@/domains/auth/enums";
 import { hasPermission } from "@/utils/permissions";
-import { LayoutDashboard, Users, Tags } from "lucide-react";
+import { LayoutDashboard, Users, Tags, Puzzle } from "lucide-react";
 
 export const identifierLinks: { [key: string]: string } = {
   "/dashboard": "Início",
   "/offers": "Ofertas",
+  "/extension": "Extensão",
   "/users": "Usuários",
   "/users/create": "Adicionar usuário",
   "/users/[id]/update": "Editar usuário",
@@ -18,6 +19,12 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
+  {
+    title: "Extensão",
+    icon: <Puzzle />,
+    href: "/extension",
+    requiredPermissions: [],
+  },
   {
     title: "Ofertas",
     icon: <Tags />,
