@@ -3,7 +3,7 @@ import { hasPermission } from "@/utils/permissions";
 import { LayoutDashboard, Users, Tags, Puzzle } from "lucide-react";
 
 export const identifierLinks: { [key: string]: string } = {
-  "/dashboard": "Início",
+  "/control-panel": "Painel de controle",
   "/offers": "Ofertas",
   "/extension": "Extensão",
   "/users": "Usuários",
@@ -32,9 +32,9 @@ export const navItems: NavItem[] = [
     requiredPermissions: [],
   },
   {
-    title: "Início",
+    title: "Painel de controle",
     icon: <LayoutDashboard />,
-    href: "/dashboard",
+    href: "/control-panel",
     requiredPermissions: [],
   },
   {

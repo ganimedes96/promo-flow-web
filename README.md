@@ -94,7 +94,7 @@ src/
 ├── app/
 │   ├── (private)/          # Rotas protegidas (requer autenticação)
 │   │   ├── layout.tsx      # Layout com sidebar e header
-│   │   ├── dashboard/
+│   │   ├── control-panel/
 │   │   └── events/         # Exemplo de módulo completo (listagem, detalhe, criar, editar)
 │   ├── (public)/           # Rotas públicas (landing page, login)
 │   ├── api/auth/           # Handler do NextAuth
@@ -171,13 +171,13 @@ O arquivo `src/proxy.ts` (equivalente ao `middleware.ts` do Next.js) protege as 
 ```ts
 // src/proxy.ts
 const publicRoutes: PublicRoute[] = [
-  { path: "/login", whenAuthed: "redirect" }, // redireciona para /dashboard se autenticado
+  { path: "/login", whenAuthed: "redirect" }, // redireciona para /control-panel se autenticado
   { path: "/", whenAuthed: "not-redirect" }, // permanece acessível mesmo autenticado
 ];
 ```
 
 - Usuários **não autenticados** em rotas privadas são redirecionados para `/login`.
-- Usuários **autenticados** em `/login` são redirecionados para `/dashboard`.
+- Usuários **autenticados** em `/login` são redirecionados para `/control-panel`.
 
 Para adicionar novas rotas públicas, inclua-as no array `publicRoutes` de `src/proxy.ts`.
 
@@ -631,7 +631,7 @@ pnpm format:fix    # corrige
 
 ## PromoFlow: integração local
 
-O login usa POST /api/auth/login da API NestJS. A home em /dashboard consulta a sessão, exibe o QR Code e lista os grupos do usuário autenticado. Os formulários reutilizam os controllers existentes; as ações de conexão usam Server Actions e as consultas usam TanStack Query.
+O login usa POST /api/auth/login da API NestJS. A home em /control-panel consulta a sessão, exibe o QR Code e lista os grupos do usuário autenticado. Os formulários reutilizam os controllers existentes; as ações de conexão usam Server Actions e as consultas usam TanStack Query.
 
 1. Configure a API em localhost:3333 e aplique as migrations do Prisma.
 2. Configure o worker com a URL da API e o mesmo WORKER_API_TOKEN da API.

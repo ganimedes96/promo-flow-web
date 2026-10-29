@@ -50,7 +50,7 @@ export default async function proxy(request: NextRequest) {
       path === "/login" &&
       request.nextUrl.searchParams.get("import") === "product"
         ? "/import-product"
-        : "/dashboard";
+        : "/control-panel";
     redirectUrl.search = "";
     return NextResponse.redirect(redirectUrl);
   }

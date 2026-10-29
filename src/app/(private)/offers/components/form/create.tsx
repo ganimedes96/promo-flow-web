@@ -163,7 +163,7 @@ function OfferFields({
             Você pode revisar os dados abaixo. Para salvar, conecte o WhatsApp e
             marque um grupo como favorito.{" "}
             <Link
-              href="/dashboard"
+              href="/control-panel"
               target="_blank"
               rel="noopener noreferrer"
               className="underline"
