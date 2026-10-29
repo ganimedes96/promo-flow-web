@@ -1,4 +1,5 @@
 "use client";
+import { DuplicateOffersNotice } from "./duplicate-offers-notice";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -90,6 +91,7 @@ export function ProductImport({ authenticated }: { authenticated: boolean }) {
                   ].join(" ")}
                 </AlertDescription>
               </Alert>
+              <DuplicateOffersNotice sourceUrl={draft.draft.sourceUrl} />
               <CreateOfferForm
                 initialDraft={draft.draft}
                 onSuccess={() => {

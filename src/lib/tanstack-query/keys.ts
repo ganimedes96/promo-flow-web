@@ -10,6 +10,8 @@ export const queryKeys = {
   users: usersKeys,
   offers: {
     all: ["offers"] as const,
+    duplicates: (sourceUrl: string) =>
+      ["offers", "duplicates", sourceUrl] as const,
     list: (params?: Params) => ["offers", "list", params ?? {}] as const,
   },
   whatsapp: {
