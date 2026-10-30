@@ -4,6 +4,8 @@ import { ApiResponse, ApiResponseError } from "@/api/types";
 import { getServerSession } from "@/lib/next-auth/auth";
 import {
   CreateOffer,
+  CreateOffers,
+  createOffersSchema,
   createOfferSchema,
   Offer,
   ProductPreview,
@@ -31,6 +33,48 @@ export async function createOffer(
     };
   try {
     return await fetchServer<ApiResponse<Offer>>("/offers", {
+      method: "POST",
+      body: parsed.data,
+    });
+  } catch (error: unknown) {
+    return {
+      status: "error",
+      message:
+        error instanceof Error
+          ? error.message
+          : typeof error === "object" &&
+              error !== null &&
+              "message" in error &&
+              typeof error.message === "string"
+            ? error.message
+            : "Não foi possível salvar a oferta.",
+      code: 500,
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+
+export async function createOffers(
+  body: CreateOffers
+): Promise<ApiResponse<Offer[]> | ApiResponseError> {
+  const session = await getServerSession();
+  if (!session?.user)
+    return {
+      status: "error",
+      message: "Faça login para continuar.",
+      code: 401,
+      timestamp: new Date().toISOString(),
+    };
+  const parsed = createOffersSchema.safeParse(body);
+  if (!parsed.success)
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+      code: 400,
+      timestamp: new Date().toISOString(),
+    };
+  try {
+    return await fetchServer<ApiResponse<Offer[]>>("/offers/batch", {
       method: "POST",
       body: parsed.data,
     });

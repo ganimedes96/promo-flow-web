@@ -690,3 +690,9 @@ A rota `/` apresenta o produto para visitantes e usuários autenticados, com dem
 ### Mascote animado da home
 
 O mascote original é vetorial, com loop de 8 segundos em `public/animations/promoflow-capybara.json`, reproduzido por `lottie-web` carregado apenas no navegador. O componente `capybara-mascot.tsx` substitui o card inicial, oferece pausa, respeita movimento reduzido e destrói o player ao desmontar. A cena mostra captura, conferência e distribuição conceitual entre grupos; seleção automática e conexão a vários grupos estão identificadas como futuras. Para editar formas, cores ou quadros e regenerar o JSON, execute `python scripts/generate-mascot.py`.
+
+### Cadastro de oferta para vários grupos
+
+O sheet de nova oferta e a revisão de produtos da extensão usam o mesmo formulário. Selecione de 1 a 20 grupos favoritos no multiselect com busca. O grupo padrão começa selecionado; o usuário pode trocar os destinos. Salvar sem marcar agendamento cria uma oferta READY por grupo, sem enviar mensagens. A opção "Adicionar a oferta à fila de todos os grupos selecionados" cadastra e agenda todos os destinos em uma única operação; a fila mantém 2 minutos por grupo e pode começar a publicar quando houver worker ativo.
+
+Cada linha da tabela representa um destino, com status, horário, edição e ações independentes. A criação é atômica: qualquer destino inválido ou duplicado cancela o cadastro inteiro e apresenta o erro. O endpoint novo é `POST /api/offers/batch`; publique a API antes do frontend. Não requer migração nem mudanças no worker. O componente ControlledMultiSelect reutiliza o MultiSelect existente com seleção controlada, busca, limite e seleção em conjunto.

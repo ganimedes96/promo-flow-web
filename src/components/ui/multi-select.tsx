@@ -55,6 +55,9 @@ interface MultiSelectProps
 
   onValueChange: (value: string[]) => void;
   defaultValue?: string[];
+  selected?: string[];
+  maxSelected?: number;
+  searchable?: boolean;
   placeholder?: string;
   maxCount?: number;
   modalPopover?: boolean;
@@ -71,6 +74,9 @@ export const MultiSelect = React.forwardRef<
       onValueChange,
       variant,
       defaultValue = [],
+      selected,
+      maxSelected,
+      searchable = options.length > 10,
       placeholder = "Selecione...",
       maxCount = 3,
       modalPopover = false,
@@ -79,8 +85,12 @@ export const MultiSelect = React.forwardRef<
     },
     ref
   ) => {
-    const [selectedValues, setSelectedValues] =
+    const [internalValues, setInternalValues] =
       useState<string[]>(defaultValue);
+    const selectedValues = selected ?? internalValues;
+    const setSelectedValues = (next: string[]) => {
+      if (selected === undefined) setInternalValues(next);
+    };
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const clearButtonRef = useRef<HTMLDivElement>(null);
 
@@ -98,6 +108,12 @@ export const MultiSelect = React.forwardRef<
     };
 
     const toggleOption = (option: string) => {
+      if (
+        maxSelected &&
+        selectedValues.length >= maxSelected &&
+        !selectedValues.includes(option)
+      )
+        return;
       const newSelectedValues = selectedValues.includes(option)
         ? selectedValues.filter((value) => value !== option)
         : [...selectedValues, option];
@@ -124,14 +140,16 @@ export const MultiSelect = React.forwardRef<
     };
 
     const toggleAll = () => {
-      if (selectedValues.length === options.length) {
-        setSelectedValues([]);
-        onValueChange([]);
-      } else {
-        const allValues = options.map((option) => String(option.id));
-        setSelectedValues(allValues);
-        onValueChange(allValues);
-      }
+      const allValues = options
+        .map((option) => String(option.id))
+        .slice(0, maxSelected ?? options.length);
+      const next =
+        allValues.length === selectedValues.length &&
+        allValues.every((value) => selectedValues.includes(value))
+          ? []
+          : allValues;
+      setSelectedValues(next);
+      onValueChange(next);
     };
 
     const handleRemoveItem = (value: string, e: React.MouseEvent) => {
@@ -212,19 +230,19 @@ export const MultiSelect = React.forwardRef<
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-auto p-0"
+          className="w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] p-0"
           align="start"
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
         >
-          <Command className="w-[--radix-popover-trigger-width]">
-            {options.length > 10 && (
+          <Command>
+            {searchable && (
               <CommandInput
                 placeholder="Pesquisar..."
                 onKeyDown={handleInputKeyDown}
               />
             )}
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>Nenhuma opção encontrada.</CommandEmpty>
               <CommandGroup>
                 <CommandItem
                   key="all"
@@ -234,20 +252,30 @@ export const MultiSelect = React.forwardRef<
                   <div
                     className={cn(
                       "border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border",
-                      selectedValues.length === options.length
+                      selectedValues.length ===
+                        Math.min(options.length, maxSelected ?? options.length)
                         ? "bg-primary text-primary-foreground"
                         : "opacity-50 [&_svg]:invisible"
                     )}
                   >
                     <CheckIcon className="h-4 w-4" />
                   </div>
-                  <span>(Selecionar tudo)</span>
+                  <span>
+                    {maxSelected && options.length > maxSelected
+                      ? `Selecionar os primeiros ${maxSelected}`
+                      : "Selecionar todos"}
+                  </span>
                 </CommandItem>
                 {options.map((option) => {
                   const isSelected = selectedValues.includes(String(option.id));
                   return (
                     <CommandItem
                       key={option.id}
+                      disabled={
+                        !!maxSelected &&
+                        selectedValues.length >= maxSelected &&
+                        !isSelected
+                      }
                       onSelect={() => toggleOption(String(option.id))}
                       className="cursor-pointer"
                     >

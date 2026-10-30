@@ -5,49 +5,70 @@ const httpUrl = z
   .max(2048)
   .url("Informe uma URL válida.")
   .refine((value) => /^https?:\/\//i.test(value), "Use um link http ou https.");
-export const createOfferSchema = z
-  .object({
-    sourceUrl: httpUrl,
-    affiliateUrl: httpUrl.optional(),
-    couponCode: z
-      .string()
-      .trim()
-      .max(100, "O cupom deve ter até 100 caracteres.")
-      .optional(),
-    imageUrl: httpUrl,
-    title: z.string().trim().min(1, "Informe o título.").max(200),
-    description: z.string().trim().min(1, "Informe a descrição.").max(2000),
-    currentPrice: z
-      .number()
-      .positive("Informe o preço atual.")
-      .max(9999999999.99)
-      .multipleOf(0.01),
-    originalPrice: z
-      .number()
-      .positive()
-      .max(9999999999.99)
-      .multipleOf(0.01)
-      .optional(),
+const offerProductSchema = z.object({
+  sourceUrl: httpUrl,
+  affiliateUrl: httpUrl.optional(),
+  couponCode: z
+    .string()
+    .trim()
+    .max(100, "O cupom deve ter até 100 caracteres.")
+    .optional(),
+  imageUrl: httpUrl,
+  title: z.string().trim().min(1, "Informe o título.").max(200),
+  description: z.string().trim().min(1, "Informe a descrição.").max(2000),
+  currentPrice: z
+    .number()
+    .positive("Informe o preço atual.")
+    .max(9999999999.99)
+    .multipleOf(0.01),
+  originalPrice: z
+    .number()
+    .positive()
+    .max(9999999999.99)
+    .multipleOf(0.01)
+    .optional(),
+});
+const validPrice = (values: { originalPrice?: number; currentPrice: number }) =>
+  values.originalPrice === undefined ||
+  values.originalPrice >= values.currentPrice;
+const priceError = {
+  message: "O preço original deve ser maior ou igual ao preço atual.",
+  path: ["originalPrice"],
+};
+export const createOfferSchema = offerProductSchema
+  .extend({
     whatsappGroupId: z.string().uuid("Selecione um grupo.").optional(),
   })
-  .refine(
-    (values) =>
-      values.originalPrice === undefined ||
-      values.originalPrice >= values.currentPrice,
-    {
-      message: "O preço original deve ser maior ou igual ao preço atual.",
-      path: ["originalPrice"],
-    }
-  );
+  .refine(validPrice, priceError);
+export const createOffersSchema = offerProductSchema
+  .extend({
+    whatsappGroupIds: z
+      .array(z.string().uuid("Selecione grupos válidos."))
+      .min(1, "Selecione pelo menos um grupo favorito.")
+      .max(20, "Selecione no máximo 20 grupos por cadastro.")
+      .refine(
+        (ids) => new Set(ids).size === ids.length,
+        "Não repita grupos na seleção."
+      ),
+    addToQueue: z.boolean(),
+  })
+  .refine(validPrice, priceError);
 export const reviseOfferSchema = createOfferSchema.safeExtend({
   whatsappGroupId: z.string().uuid("Selecione um grupo."),
 });
 export type ReviseOffer = z.infer<typeof reviseOfferSchema>;
 export type CreateOffer = z.infer<typeof createOfferSchema>;
+export type CreateOffers = z.infer<typeof createOffersSchema>;
 export type OfferFormValues = Omit<
   CreateOffer,
   "currentPrice" | "affiliateUrl" | "whatsappGroupId"
-> & { currentPrice?: number; affiliateUrl: string; whatsappGroupId: string };
+> & {
+  currentPrice?: number;
+  affiliateUrl: string;
+  whatsappGroupId: string;
+  whatsappGroupIds: string[];
+  addToQueue: boolean;
+};
 export interface Offer {
   id: string;
   userId: string;

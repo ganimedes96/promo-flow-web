@@ -23,6 +23,8 @@ interface ControlledMultiSelectProps<FormType extends FieldValues> extends Omit<
   variant?: "default" | "inverted";
   maxCount?: number;
   loading?: boolean;
+  maxSelected?: number;
+  searchable?: boolean;
 }
 
 export function ControlledMultiSelect<FormType extends FieldValues>({
@@ -35,6 +37,8 @@ export function ControlledMultiSelect<FormType extends FieldValues>({
   variant = "inverted",
   maxCount,
   loading,
+  maxSelected,
+  searchable,
 }: ControlledMultiSelectProps<FormType>) {
   return (
     <div className="flex flex-col gap-1">
@@ -53,12 +57,23 @@ export function ControlledMultiSelect<FormType extends FieldValues>({
                 ref={field.ref}
                 options={options}
                 onValueChange={field.onChange}
-                value={field.value ? String(field.value) : [""]}
-                defaultValue={
-                  field.value
-                    ? field.value.map((value: number | string) => String(value))
+                onBlur={field.onBlur}
+                id={name}
+                aria-invalid={!!error}
+                type="button"
+                selected={
+                  Array.isArray(field.value)
+                    ? field.value
+                        .filter(
+                          (value: unknown) =>
+                            typeof value === "string" ||
+                            typeof value === "number"
+                        )
+                        .map(String)
                     : []
                 }
+                searchable={searchable}
+                maxSelected={maxSelected}
                 placeholder={loading ? "Carregando..." : placeholder}
                 variant={variant}
                 maxCount={maxCount}

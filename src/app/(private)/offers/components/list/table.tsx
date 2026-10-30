@@ -61,7 +61,7 @@ export function OffersTable() {
         <FormSheet
           className="gap-6 overflow-y-auto px-6 pb-6 data-[side=right]:w-full sm:px-8 data-[side=right]:sm:max-w-4xl"
           title="Cadastrar oferta"
-          description="Preencha os dados do produto e selecione o grupo de destino."
+          description="Preencha uma vez e selecione um ou mais grupos favoritos de destino."
           buttonText="Nova oferta"
           formComponent={CreateOfferForm}
           formProps={{}}

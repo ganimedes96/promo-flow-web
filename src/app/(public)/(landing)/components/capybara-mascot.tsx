@@ -219,12 +219,12 @@ export function CapybaraMascot() {
       <div className="flow-mascot-future">
         <Users size={16} />
         <span>
-          Vários grupos conectados <b>NO FUTURO</b>
+          Uma oferta, vários grupos <b>FAVORITOS</b>
         </span>
       </div>
       <p className="flow-mascot-note">
-        Animação conceitual. Seleção automática e distribuição para vários
-        grupos ainda não estão disponíveis.
+        Cena ilustrativa. Você escolhe as ofertas e os grupos de destino.
+        Seleção automática de promoções é um conceito futuro.
       </p>
     </div>
   );

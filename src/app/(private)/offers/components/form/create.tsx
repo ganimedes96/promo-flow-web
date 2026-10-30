@@ -7,15 +7,18 @@ import Link from "next/link";
 import { ControlledInput } from "@/components/form/controllers/controlled-input";
 import { ControlledInputCurrency } from "@/components/form/controllers/controlled-input-currency";
 import { ControlledTextarea } from "@/components/form/controllers/controlled-text-area";
+import { ControlledMultiSelect } from "@/components/form/controllers/controlled-multi-select";
+import { ControlledSingleCheckbox } from "@/components/form/controllers/controlled-single-checkbox";
 import { ControlledCombobox } from "@/components/form/controllers/controlled-combobox";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { reviseOffer } from "@/domains/offers/actions";
-import { createOffer } from "@/domains/offers/actions";
+import { createOffers } from "@/domains/offers/actions";
 import {
-  CreateOffer,
-  createOfferSchema,
+  CreateOffers,
+  createOffersSchema,
+  ReviseOffer,
   reviseOfferSchema,
   Offer,
   OfferFormValues,
@@ -90,21 +93,32 @@ function OfferFields({
         offer?.whatsappGroup?.id ??
         groups.find((group) => group.isDefault)?.id ??
         "",
+      whatsappGroupIds: groups
+        .filter((group) => group.isDefault)
+        .map((group) => group.id),
+      addToQueue: false,
     },
   });
   const values = useWatch({ control });
   const importImages = initialDraft?.imageUrls ?? [];
-  const save = useServerAction<Offer, CreateOffer>({
-    mutationFn: (body) =>
-      offer
-        ? reviseOffer(offer.id, reviseOfferSchema.parse(body))
-        : createOffer(body),
-    successMessage: offer
-      ? "Oferta atualizada."
-      : "Oferta cadastrada como pronta.",
+  const saveRevision = useServerAction<Offer, ReviseOffer>({
+    mutationFn: (body) => reviseOffer(offer!.id, body),
+    successMessage: "Oferta atualizada.",
     invalidateQueries: [queryKeys.offers.all],
     onSuccess: () => onSuccess?.(),
   });
+  const saveBatch = useServerAction<Offer[], CreateOffers>({
+    mutationFn: createOffers,
+    invalidateQueries: [queryKeys.offers.all],
+    onSuccess: () => onSuccess?.(),
+    successMessage: values.addToQueue
+      ? "Oferta adicionada à fila dos grupos selecionados."
+      : "Oferta cadastrada para os grupos selecionados.",
+  });
+  const save = offer ? saveRevision : saveBatch;
+  const selectedGroups = groups.filter((group) =>
+    values.whatsappGroupIds?.includes(group.id)
+  );
   const money = (value: number) =>
     new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -133,28 +147,51 @@ function OfferFields({
     <form
       className="space-y-5 pb-4"
       onSubmit={handleSubmit((values) => {
-        if (!groups.some((group) => group.id === values.whatsappGroupId)) {
-          setError("whatsappGroupId", {
-            message: "Selecione um grupo que continue nos seus favoritos.",
-          });
-          return;
-        }
-        const parsed = (
-          offer ? reviseOfferSchema : createOfferSchema
-        ).safeParse({
+        const product = {
           ...values,
           affiliateUrl: values.affiliateUrl || undefined,
           couponCode: values.couponCode?.trim() || undefined,
-          whatsappGroupId: values.whatsappGroupId || undefined,
-        });
-        if (!parsed.success) {
-          setError("root.server", {
-            message:
-              parsed.error.issues[0]?.message ?? "Confira os dados da oferta.",
-          });
-          return;
+        };
+        if (offer) {
+          if (!groups.some((group) => group.id === values.whatsappGroupId)) {
+            setError("whatsappGroupId", {
+              message: "Selecione um grupo que continue nos seus favoritos.",
+            });
+            return;
+          }
+          const parsed = reviseOfferSchema.safeParse(product);
+          if (!parsed.success) {
+            setError("root.server", {
+              message:
+                parsed.error.issues[0]?.message ??
+                "Confira os dados da oferta.",
+            });
+            return;
+          }
+          saveRevision.mutate(parsed.data);
+        } else {
+          if (
+            values.whatsappGroupIds.some(
+              (id) => !groups.some((group) => group.id === id)
+            )
+          ) {
+            setError("whatsappGroupIds", {
+              message:
+                "Um dos destinos deixou de ser favorito. Atualize a seleção.",
+            });
+            return;
+          }
+          const parsed = createOffersSchema.safeParse(product);
+          if (!parsed.success) {
+            setError("root.server", {
+              message:
+                parsed.error.issues[0]?.message ??
+                "Confira os dados da oferta.",
+            });
+            return;
+          }
+          saveBatch.mutate(parsed.data);
         }
-        save.mutate(parsed.data);
       })}
     >
       {!groups.length && (
@@ -174,17 +211,59 @@ function OfferFields({
           </AlertDescription>
         </Alert>
       )}
-      <ControlledCombobox
-        control={control}
-        name="whatsappGroupId"
-        label="Grupo favorito de destino *"
-        placeholder="Selecione um grupo favorito"
-        searchPlaceholder="Buscar nos favoritos..."
-        noOptionsMessage="Nenhum grupo favorito encontrado."
-        options={groups}
-        rules={{ required: "Selecione um grupo de destino." }}
-        className="w-full"
-      />
+      {offer ? (
+        <ControlledCombobox
+          control={control}
+          name="whatsappGroupId"
+          label="Grupo favorito de destino *"
+          placeholder="Selecione um grupo favorito"
+          searchPlaceholder="Buscar nos favoritos..."
+          noOptionsMessage="Nenhum grupo favorito encontrado."
+          options={groups}
+          rules={{ required: "Selecione um grupo de destino." }}
+          className="w-full"
+        />
+      ) : (
+        <div className="space-y-3">
+          <ControlledMultiSelect
+            control={control}
+            name="whatsappGroupIds"
+            label="Grupos favoritos de destino *"
+            options={groups}
+            placeholder="Selecione um ou mais grupos favoritos"
+            variant="default"
+            maxCount={3}
+            maxSelected={20}
+            searchable
+            rules={{
+              required: "Selecione pelo menos um grupo.",
+              validate: (ids) =>
+                (Array.isArray(ids) && ids.length > 0 && ids.length <= 20) ||
+                "Selecione de 1 a 20 grupos favoritos.",
+            }}
+          />
+          <p className="text-muted-foreground text-xs">
+            {selectedGroups.length} grupo(s) selecionado(s). Cada destino terá
+            seu próprio status e horário na tabela de ofertas. Máximo de 20
+            grupos.
+          </p>
+          <ControlledSingleCheckbox
+            control={control}
+            name="addToQueue"
+            label="Adicionar a oferta à fila de todos os grupos selecionados"
+            disabled={save.isPending}
+          />
+          {values.addToQueue && (
+            <Alert>
+              <AlertDescription>
+                Ao salvar, a publicação será agendada em cada grupo, respeitando
+                a fila e o intervalo de 2 minutos. Com o publicador ativo, os
+                envios poderão começar assim que chegar a vez da oferta.
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+      )}
       <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-2">
         <ControlledInput
           control={control}
@@ -346,7 +425,9 @@ function OfferFields({
       <p className="text-muted-foreground text-sm">
         {offer
           ? "Salvar atualiza os dados para o próximo envio. Mensagens já publicadas permanecem no grupo."
-          : "A oferta será salva como pronta. Nenhuma mensagem será enviada ao grupo agora."}
+          : values.addToQueue
+            ? "A oferta será cadastrada e agendada nos grupos selecionados."
+            : "A oferta será salva como pronta para cada grupo. Nenhuma mensagem será enviada agora."}
       </p>
       <Button
         type="submit"
@@ -354,7 +435,11 @@ function OfferFields({
         disabled={save.isPending || !groups.length}
         className="w-full"
       >
-        {offer ? "Salvar alterações" : "Salvar oferta"}
+        {offer
+          ? "Salvar alterações"
+          : values.addToQueue
+            ? "Salvar e agendar nos grupos"
+            : "Salvar para os grupos selecionados"}
       </Button>
     </form>
   );
