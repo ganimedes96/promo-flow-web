@@ -220,16 +220,17 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
           if (!open) setEditing(undefined);
         }}
       >
-        <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
-          <SheetHeader>
+        <SheetContent className="flex flex-col gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-5xl">
+          <SheetHeader className="bg-primary/5 shrink-0 border-b px-5 py-5 pr-12 sm:px-7">
             <SheetTitle>
               {editing ? "Editar promoção" : "Nova promoção"}
             </SheetTitle>
           </SheetHeader>
-          <div className="p-6">
+          <div className="flex min-h-0 flex-1 flex-col">
             <PromotionForm
               key={editing?.id || "new"}
               promotion={editing || undefined}
+              onCancel={() => setEditing(undefined)}
               onSuccess={() => {
                 setEditing(undefined);
                 refresh();
@@ -245,7 +246,7 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
         }}
       >
         <SheetContent className="w-full overflow-y-auto sm:max-w-3xl">
-          <SheetHeader>
+          <SheetHeader className="bg-primary/5 shrink-0 border-b px-5 py-5 pr-12 sm:px-7">
             <SheetTitle>Preparar minha oferta</SheetTitle>
           </SheetHeader>
           <div className="p-6">
