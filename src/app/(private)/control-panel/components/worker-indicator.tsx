@@ -26,7 +26,7 @@ export function WorkerIndicator({
           : "Envios desativados";
   return (
     <div
-      className={"rounded-xl border p-4 " + color}
+      className={"whatsapp-connection-subcard rounded-xl border p-4 " + color}
       role="status"
       aria-live="polite"
     >

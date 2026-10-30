@@ -200,3 +200,8 @@ body,
   background-color: var(--card);
   color: var(--card-foreground);
 }
+
+.whatsapp-connection-card .whatsapp-connection-subcard {
+  background-color: #ccdfb8;
+  border-color: #9cb685;
+}

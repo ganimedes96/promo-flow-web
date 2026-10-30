@@ -159,7 +159,7 @@ export function WhatsAppConnection() {
             </Alert>
           )}
           {connected && (
-            <div className="bg-background border-success/20 rounded-xl border p-5">
+            <div className="whatsapp-connection-subcard rounded-xl border p-5">
               <div className="flex items-center gap-4">
                 <div className="bg-success/10 text-success flex size-14 shrink-0 items-center justify-center rounded-full text-lg font-semibold">
                   {initials || (
