@@ -21,13 +21,14 @@ export const authOptions: NextAuthOptions = {
           email: credentials.email,
           password: credentials.password,
         });
-        const permissions: Permission[] = [];
+        const permissions: Permission[] =
+          auth.user.role === Role.admin ? [Permission.managePromotions] : [];
 
         return {
           id: auth.user.id,
           email: auth.user.email,
           name: auth.user.name,
-          role: Role.member,
+          role: auth.user.role === Role.admin ? Role.admin : Role.member,
           permissions,
           token: auth.token,
         };

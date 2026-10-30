@@ -4,6 +4,7 @@ export enum Role {
 }
 
 export enum Permission {
+  managePromotions = "managePromotions",
   all = "all",
   // User permissions
   viewUsers = "viewUsers",

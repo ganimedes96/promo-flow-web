@@ -1,0 +1,42 @@
+import { z } from "zod";
+export const promotionSchema = z
+  .object({
+    title: z.string().trim().min(1, "Informe o título.").max(200),
+    description: z.string().trim().min(1, "Informe a descrição.").max(2000),
+    sourceUrl: z
+      .string()
+      .url("Link inválido.")
+      .max(2048)
+      .startsWith("https://"),
+    imageUrl: z
+      .string()
+      .url("Imagem inválida.")
+      .max(2048)
+      .startsWith("https://"),
+    currentPrice: z
+      .number()
+      .positive("Informe o preço atual.")
+      .max(9999999999.99),
+    originalPrice: z.number().positive().max(9999999999.99).optional(),
+    couponCode: z.string().max(100).optional(),
+    marketplace: z.enum(["MERCADO_LIVRE", "AMAZON", "SHOPEE"]),
+    isPublished: z.boolean(),
+    expiresAt: z.string().datetime().optional(),
+  })
+  .refine((v) => !v.originalPrice || v.originalPrice >= v.currentPrice, {
+    message: "O preço original deve ser maior ou igual ao atual.",
+    path: ["originalPrice"],
+  });
+export type PromotionInput = z.infer<typeof promotionSchema>;
+export interface Promotion extends Omit<
+  PromotionInput,
+  "currentPrice" | "originalPrice" | "expiresAt" | "couponCode"
+> {
+  id: string;
+  currentPrice: string;
+  originalPrice: string | null;
+  couponCode: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

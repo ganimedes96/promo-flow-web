@@ -50,6 +50,7 @@ export const createOffersSchema = offerProductSchema
         (ids) => new Set(ids).size === ids.length,
         "Não repita grupos na seleção."
       ),
+    sourcePromotionId: z.string().uuid().optional(),
     addToQueue: z.boolean(),
   })
   .refine(validPrice, priceError);

@@ -31,10 +31,12 @@ export function CreateOfferForm({
   onSuccess,
   offer,
   initialDraft,
+  sourcePromotionId,
 }: {
   onSuccess?: () => void;
   offer?: Offer;
   initialDraft?: ImportedOfferDraft;
+  sourcePromotionId?: string;
 }) {
   const groups = useQuery({
     queryKey: queryKeys.whatsapp.groups,
@@ -55,6 +57,7 @@ export function CreateOfferForm({
       onSuccess={onSuccess}
       offer={offer}
       initialDraft={initialDraft}
+      sourcePromotionId={sourcePromotionId}
     />
   );
 }
@@ -63,11 +66,13 @@ function OfferFields({
   groups,
   onSuccess,
   initialDraft,
+  sourcePromotionId,
 }: {
   groups: WhatsAppGroup[];
   offer?: Offer;
   onSuccess?: () => void;
   initialDraft?: ImportedOfferDraft;
+  sourcePromotionId?: string;
 }) {
   const {
     control,
@@ -181,7 +186,10 @@ function OfferFields({
             });
             return;
           }
-          const parsed = createOffersSchema.safeParse(product);
+          const parsed = createOffersSchema.safeParse({
+            ...product,
+            sourcePromotionId,
+          });
           if (!parsed.success) {
             setError("root.server", {
               message:

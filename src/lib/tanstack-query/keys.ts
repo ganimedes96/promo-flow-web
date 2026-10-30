@@ -7,6 +7,11 @@ const usersKeys = {
 };
 
 export const queryKeys = {
+  promotions: {
+    all: ["promotions"] as const,
+    list: (page: number, manage: boolean, userId?: string) =>
+      ["promotions", page, manage, userId] as const,
+  },
   billing: {
     access: (userId?: string) => ["billing", "access", userId] as const,
     plans: ["billing", "plans"] as const,

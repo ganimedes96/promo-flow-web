@@ -5,6 +5,8 @@ import { LayoutDashboard, Users, Tags, Puzzle, CreditCard } from "lucide-react";
 export const identifierLinks: { [key: string]: string } = {
   "/control-panel": "Painel de controle",
   "/offers": "Ofertas",
+  "/promotions": "Central de promoções",
+  "/promotions/manage": "Gerenciar promoções",
   "/subscription": "Assinatura",
   "/extension": "Extensão",
   "/users": "Usuários",
@@ -20,6 +22,18 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
+  {
+    title: "Central de promoções",
+    icon: <Tags />,
+    href: "/promotions",
+    requiredPermissions: [],
+  },
+  {
+    title: "Gerenciar promoções",
+    icon: <Tags />,
+    href: "/promotions/manage",
+    requiredPermissions: [Permission.managePromotions],
+  },
   {
     title: "Assinatura",
     icon: <CreditCard />,

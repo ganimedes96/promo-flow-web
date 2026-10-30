@@ -3,7 +3,7 @@ export interface Auth {
   token: string;
   user: Pick<
     User,
-    "id" | "name" | "email" | "phone" | "createdAt" | "updatedAt"
+    "role" | "id" | "name" | "email" | "phone" | "createdAt" | "updatedAt"
   >;
 }
 export interface Credentials {
