@@ -696,3 +696,11 @@ O mascote original é vetorial, com loop de 8 segundos em `public/animations/pro
 O sheet de nova oferta e a revisão de produtos da extensão usam o mesmo formulário. Selecione de 1 a 20 grupos favoritos no multiselect com busca. O grupo padrão começa selecionado; o usuário pode trocar os destinos. Salvar sem marcar agendamento cria uma oferta READY por grupo, sem enviar mensagens. A opção "Adicionar a oferta à fila de todos os grupos selecionados" cadastra e agenda todos os destinos em uma única operação; a fila mantém 2 minutos por grupo e pode começar a publicar quando houver worker ativo.
 
 Cada linha da tabela representa um destino, com status, horário, edição e ações independentes. A criação é atômica: qualquer destino inválido ou duplicado cancela o cadastro inteiro e apresenta o erro. O endpoint novo é `POST /api/offers/batch`; publique a API antes do frontend. Não requer migração nem mudanças no worker. O componente ControlledMultiSelect reutiliza o MultiSelect existente com seleção controlada, busca, limite e seleção em conjunto.
+
+### Ofertas agrupadas e destinos expansíveis
+
+A tabela usa `GET /api/offers/grouped`, com paginação por oferta, e mostra produto, preço, quantidade de destinos, resumo dos status e próximo envio. Ao expandir, reutiliza a tabela e as ações por destino: editar, excluir, conferir envio, agendar, cancelar e republicar. Os destinos não são divididos entre páginas. Quando os preços divergem após edições individuais, a linha principal indica "Valores por destino".
+
+As ações gerais pedem confirmação: "Agendar pendentes" inclui somente prontos, cancelados e falhos; publicados e envios em andamento permanecem como estão. "Cancelar pendentes" afeta apenas SCHEDULED. Ambas revalidam o estado na API sob locks e atualizam os contadores da lista. Edições e exclusões individuais não desfazem o agrupamento.
+
+Requer a migração `20261029000000_offer_batches` antes do novo frontend. Publique primeiro a API com `pnpm prisma:deploy`, depois o frontend. O worker mantém o contrato atual. Registros antigos são agrupados conservadoramente quando compartilham usuário, instante de cadastro e dados exatos do produto; cadastros históricos independentes continuam separados.

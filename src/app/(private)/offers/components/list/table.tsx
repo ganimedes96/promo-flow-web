@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,17 +20,20 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
-import { getOffers } from "@/domains/offers/client";
+import { getGroupedOffers } from "@/domains/offers/client";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { CreateOfferForm } from "../form/create";
-import { OfferDeleteAction } from "./queue-actions";
-import { columns } from "./helpers";
+import {
+  OfferGroupActions,
+  OfferDestinations,
+  groupedColumns,
+} from "./grouped-offers";
 export function OffersTable() {
   const [page, setPage] = useState(1);
   const perPage = 10;
   const list = useQuery({
-    queryKey: queryKeys.offers.list({ page, perPage, mode: "paged" }),
-    queryFn: () => getOffers({ page, limit: perPage }),
+    queryKey: queryKeys.offers.grouped({ page, perPage }),
+    queryFn: () => getGroupedOffers({ page, limit: perPage }),
     refetchInterval: 5000,
     placeholderData: keepPreviousData,
   });
@@ -44,10 +47,8 @@ export function OffersTable() {
       )
     ),
   ].sort((a, b) => a - b);
-  useEffect(() => {
-    if (list.data && !list.isPlaceholderData && page > lastPage)
-      setPage(lastPage);
-  }, [list.data, list.isPlaceholderData, page, lastPage]);
+  if (list.data && !list.isPlaceholderData && page > lastPage)
+    setPage(lastPage);
   return (
     <Card className="max-w-full min-w-0 overflow-hidden">
       <CardHeader className="flex flex-wrap items-center justify-between gap-4">
@@ -55,7 +56,8 @@ export function OffersTable() {
           <CardTitle className="text-2xl">Ofertas</CardTitle>
           <CardDescription>
             Acompanhe horários e resultados das ofertas. O worker publica quando
-            o envio estiver habilitado, respeitando 2 minutos por grupo.
+            o envio estiver habilitado, respeitando 2 minutos por grupo. Expanda
+            uma oferta para acompanhar os destinos.
           </CardDescription>
         </div>
         <FormSheet
@@ -86,11 +88,13 @@ export function OffersTable() {
           tabIndex={0}
         >
           <DataTable
-            className="[&_thead]:bg-card max-w-full min-w-0 [&_[data-slot=table-container]]:max-h-[65vh] [&_[data-slot=table-container]]:overflow-auto [&_table]:min-w-[1120px] [&_thead]:sticky [&_thead]:top-0 [&_thead]:z-10"
+            className="[&_thead]:bg-card max-w-full min-w-0 [&_[data-slot=table-container]]:max-h-[65vh] [&_[data-slot=table-container]]:overflow-auto [&_table]:min-w-[920px] [&_thead]:sticky [&_thead]:top-0 [&_thead]:z-10"
             data={list.data?.data ?? []}
-            columns={columns}
-            actions={(offer) => <OfferDeleteAction offer={offer} />}
-            loadingActionsCount={1}
+            columns={groupedColumns}
+            actions={(group) => <OfferGroupActions group={group} />}
+            renderExpanded={(group) => <OfferDestinations group={group} />}
+            expandLabel="Ver destinos"
+            loadingActionsCount={2}
             loading={loading}
             getRowKey={(offer) => offer.id}
             emptyMessage="Nenhuma oferta cadastrada."

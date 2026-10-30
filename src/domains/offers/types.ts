@@ -109,3 +109,13 @@ export interface ProductPreview {
   sourceUrl?: string | null;
   warnings: string[];
 }
+
+export interface OfferGroup {
+  id: string;
+  product: Offer;
+  destinations: Offer[];
+}
+export interface OfferGroupActionResult {
+  updated: number;
+  unchanged: number;
+}

@@ -13,6 +13,7 @@ export const queryKeys = {
     duplicates: (sourceUrl: string) =>
       ["offers", "duplicates", sourceUrl] as const,
     list: (params?: Params) => ["offers", "list", params ?? {}] as const,
+    grouped: (params?: Params) => ["offers", "grouped", params ?? {}] as const,
   },
   whatsapp: {
     session: ["whatsapp", "session"] as const,

@@ -7,7 +7,7 @@ import {
   PaginationParams,
 } from "@/api/types";
 import { encodeQueryString } from "@/utils/queries";
-import { Offer } from "./types";
+import { Offer, OfferGroup } from "./types";
 export async function getOffers({ page = 1, limit = 10 }: PaginationParams) {
   const response = await fetchClient<ApiResponsePaginated<Offer[]>>(
     "/offers" + encodeQueryString({ page, perPage: limit })
@@ -23,4 +23,15 @@ export async function getDuplicateOffers(sourceUrl: string): Promise<Offer[]> {
   );
   if (response.status !== "success") throw new HandleError(response.message);
   return response.data;
+}
+
+export async function getGroupedOffers({
+  page = 1,
+  limit = 10,
+}: PaginationParams) {
+  const response = await fetchClient<ApiResponsePaginated<OfferGroup[]>>(
+    "/offers/grouped" + encodeQueryString({ page, perPage: limit })
+  );
+  if (response.status !== "success") throw new HandleError(response.message);
+  return response;
 }

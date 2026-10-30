@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { ColumnDef } from "@/components/ui/data-table";
 import { Offer } from "@/domains/offers/types";
 import { formatDate } from "@/utils/date";
-const statusLabels: Record<Offer["status"], string> = {
+export const statusLabels: Record<Offer["status"], string> = {
   PROCESSING: "Processando",
   READY: "Pronta",
   SCHEDULED: "Agendada",
@@ -12,7 +12,7 @@ const statusLabels: Record<Offer["status"], string> = {
   FAILED: "Falhou",
   CANCELLED: "Cancelada",
 };
-const statusColors: Record<Offer["status"], string> = {
+export const statusColors: Record<Offer["status"], string> = {
   PROCESSING: "border-info/25 bg-info/10 text-info",
   READY: "border-primary/25 bg-primary/10 text-primary",
   SCHEDULED: "border-info/25 bg-info/10 text-info",

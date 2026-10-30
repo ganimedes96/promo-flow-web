@@ -16,7 +16,9 @@ import {
   NestedKeyOf,
   PathValue,
 } from "@/utils/data-table";
-import { type ReactNode, useMemo } from "react";
+import { type ReactNode, Fragment, useId, useMemo, useState } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { Button } from "./button";
 import { LoadMore, LoadMoreMobile } from "./load-more";
 
 export interface ColumnDef<T, K extends NestedKeyOf<T> = NestedKeyOf<T>> {
@@ -34,6 +36,8 @@ export interface ColumnDef<T, K extends NestedKeyOf<T> = NestedKeyOf<T>> {
 
 export interface DataTableProps<T> {
   data: T[];
+  renderExpanded?: (row: T) => ReactNode;
+  expandLabel?: string;
   columns: ColumnDef<T>[];
   actions?: (row: T) => ReactNode;
   loadingActionsCount?: number;
@@ -52,6 +56,8 @@ export interface DataTableProps<T> {
 
 export function DataTable<T>({
   data,
+  renderExpanded,
+  expandLabel = "Ver detalhes",
   columns,
   actions,
   loadingActionsCount,
@@ -67,8 +73,20 @@ export function DataTable<T>({
   isFetchingNextPage = false,
   onLoadMore,
 }: DataTableProps<T>) {
+  const [expandedKeys, setExpandedKeys] = useState<Set<string | number>>(
+    new Set()
+  );
+  const tableId = useId();
+  const toggleExpanded = (key: string | number) =>
+    setExpandedKeys((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
   const hasActions = !!actions;
-  const totalColumns = columns.length + (hasActions ? 1 : 0);
+  const totalColumns =
+    columns.length + (hasActions ? 1 : 0) + (renderExpanded ? 1 : 0);
   const resolvedLoadingActionsCount = useMemo(() => {
     if (!hasActions) {
       return 0;
@@ -105,6 +123,11 @@ export function DataTable<T>({
         <Table>
           <TableHeader>
             <TableRow>
+              {renderExpanded && (
+                <TableHead className="w-12">
+                  <span className="sr-only">Detalhes</span>
+                </TableHead>
+              )}
               {columns.map((col) => (
                 <TableHead
                   key={String(col.key)}
@@ -126,6 +149,11 @@ export function DataTable<T>({
             {loading &&
               Array.from({ length: loadingRows }).map((_, rowIdx) => (
                 <TableRow key={`skeleton-${rowIdx}`}>
+                  {renderExpanded && (
+                    <TableCell>
+                      <Skeleton className="size-7" />
+                    </TableCell>
+                  )}
                   {columns.map((col) => (
                     <TableCell key={String(col.key)} className={col.className}>
                       <Skeleton className="h-4 w-[60%] rounded" />
@@ -165,32 +193,69 @@ export function DataTable<T>({
                 const key = getRowKey ? getRowKey(row, rowIdx) : rowIdx;
 
                 return (
-                  <TableRow key={key}>
-                    {columns.map((col) => {
-                      const value = getValueByColumnKey(row, col.key);
-
-                      return (
-                        <TableCell
-                          key={String(col.key)}
-                          className={col.className}
-                        >
-                          {col.render
-                            ? col.render(value, row)
-                            : String(value ?? "")}
+                  <Fragment key={key}>
+                    <TableRow>
+                      {renderExpanded && (
+                        <TableCell>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={
+                              expandedKeys.has(key)
+                                ? "Recolher detalhes"
+                                : expandLabel
+                            }
+                            aria-expanded={expandedKeys.has(key)}
+                            aria-controls={`${tableId}-desktop-${key}`}
+                            onClick={() => toggleExpanded(key)}
+                          >
+                            {expandedKeys.has(key) ? (
+                              <ChevronDown />
+                            ) : (
+                              <ChevronRight />
+                            )}
+                          </Button>
                         </TableCell>
-                      );
-                    })}
+                      )}
+                      {columns.map((col) => {
+                        const value = getValueByColumnKey(row, col.key);
 
-                    {hasActions && (
-                      <TableCell
-                        className={cn("text-center", actionsClassName)}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          {actions(row)}
-                        </div>
-                      </TableCell>
+                        return (
+                          <TableCell
+                            key={String(col.key)}
+                            className={col.className}
+                          >
+                            {col.render
+                              ? col.render(value, row)
+                              : String(value ?? "")}
+                          </TableCell>
+                        );
+                      })}
+
+                      {hasActions && (
+                        <TableCell
+                          className={cn("text-center", actionsClassName)}
+                        >
+                          <div className="flex items-center justify-center gap-2">
+                            {actions(row)}
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                    {renderExpanded && expandedKeys.has(key) && (
+                      <TableRow className="bg-muted/20 hover:bg-muted/20">
+                        <TableCell
+                          colSpan={totalColumns}
+                          className="whitespace-normal"
+                        >
+                          <div id={`${tableId}-desktop-${key}`} className="p-3">
+                            {renderExpanded(row)}
+                          </div>
+                        </TableCell>
+                      </TableRow>
                     )}
-                  </TableRow>
+                  </Fragment>
                 );
               })}
 
@@ -312,8 +377,35 @@ export function DataTable<T>({
                     </div>
                   )}
                   {hasActions && (
-                    <div className="border-border mt-3 flex justify-end gap-1 border-t pt-3">
+                    <div className="border-border mt-3 flex flex-wrap justify-end gap-2 border-t pt-3">
                       {actions(row)}
+                    </div>
+                  )}
+                  {renderExpanded && (
+                    <div className="mt-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        aria-expanded={expandedKeys.has(key)}
+                        aria-controls={`${tableId}-mobile-${key}`}
+                        onClick={() => toggleExpanded(key)}
+                      >
+                        {expandedKeys.has(key) ? (
+                          <ChevronDown />
+                        ) : (
+                          <ChevronRight />
+                        )}
+                        {expandedKeys.has(key)
+                          ? "Recolher detalhes"
+                          : expandLabel}
+                      </Button>
+                      {expandedKeys.has(key) && (
+                        <div id={`${tableId}-mobile-${key}`} className="mt-4">
+                          {renderExpanded(row)}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

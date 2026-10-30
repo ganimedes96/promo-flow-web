@@ -8,6 +8,7 @@ import {
   createOffersSchema,
   createOfferSchema,
   Offer,
+  OfferGroupActionResult,
   ProductPreview,
   ReviseOffer,
   reviseOfferSchema,
@@ -241,4 +242,48 @@ export async function previewProduct(
       timestamp: new Date().toISOString(),
     };
   }
+}
+
+async function changeOfferGroupSchedule(
+  batchId: string,
+  method: "POST" | "DELETE"
+): Promise<ApiResponse<OfferGroupActionResult> | ApiResponseError> {
+  const session = await getServerSession();
+  if (!session?.user)
+    return {
+      status: "error",
+      message: "Faça login para continuar.",
+      code: 401,
+      timestamp: new Date().toISOString(),
+    };
+  const parsed = createOfferSchema.shape.whatsappGroupId.safeParse(batchId);
+  if (!parsed.success || !parsed.data)
+    return {
+      status: "error",
+      message: "Oferta inválida.",
+      code: 400,
+      timestamp: new Date().toISOString(),
+    };
+  try {
+    return await fetchServer<ApiResponse<OfferGroupActionResult>>(
+      "/offers/grouped/" + encodeURIComponent(parsed.data) + "/schedule",
+      { method }
+    );
+  } catch (error: unknown) {
+    return {
+      status: "error",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Não foi possível alterar os destinos da oferta.",
+      code: 500,
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+export async function scheduleOfferGroup(batchId: string) {
+  return changeOfferGroupSchedule(batchId, "POST");
+}
+export async function cancelOfferGroupSchedule(batchId: string) {
+  return changeOfferGroupSchedule(batchId, "DELETE");
 }
