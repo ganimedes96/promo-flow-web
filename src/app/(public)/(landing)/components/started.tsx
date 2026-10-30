@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Plus, Sparkles, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 const questions = [
@@ -31,50 +31,75 @@ const questions = [
 export function Started() {
   return (
     <>
-      <section id="duvidas" className="bg-muted/40 scroll-mt-20 border-y">
-        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-[1fr_1.4fr]">
+      <section id="duvidas" className="flow-faq-section">
+        <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-[.85fr_1.15fr] lg:py-24">
           <div>
             <p className="text-primary text-xs font-semibold tracking-widest uppercase">
-              Sem complicação
+              PODE PERGUNTAR.
             </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Antes de começar,
+            <h2 className="mt-4 text-3xl sm:text-4xl">
+              Antes do primeiro
               <br />
-              tire suas dúvidas.
+              <span>bom achado.</span>
             </h2>
+            <p className="flow-faq-description">
+              Tudo o que você precisa saber para entrar no fluxo com
+              tranquilidade.
+            </p>
+            <div className="flow-faq-art" aria-hidden="true">
+              <span>?</span>
+              <MessageCircle />
+              <i>!</i>
+              <b>BOA PERGUNTA ↗</b>
+            </div>
           </div>
-          <div className="divide-y">
-            {questions.map(({ question, answer }) => (
-              <details key={question} className="group py-5 first:pt-0">
-                <summary className="marker:text-primary cursor-pointer text-sm font-medium">
-                  {question}
+          <div className="flow-faq-list">
+            {questions.map(({ question, answer }, index) => (
+              <details key={question}>
+                <summary>
+                  <span className="flow-faq-number">0{index + 1}</span>
+                  <span>{question}</span>
+                  <Plus size={17} />
                 </summary>
-                <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
-                  {answer}
-                </p>
+                <p>{answer}</p>
               </details>
             ))}
           </div>
         </div>
       </section>
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <div className="bg-primary/10 rounded-3xl border p-8 text-center sm:p-14">
-          <p className="text-primary text-xs font-semibold tracking-widest uppercase">
-            Seu próximo achado já tem destino
-          </p>
-          <h2 className="mx-auto mt-4 max-w-xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            Dê mais fluidez à sua rotina de ofertas.
+      <section id="comecar" className="flow-final-section">
+        <div className="flow-final-orbits" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
+        <div className="flow-final-stickers" aria-hidden="true">
+          <span>SEU PRÓXIMO ACHADO ↗</span>
+          <span>DESTINO: SEUS GRUPOS</span>
+        </div>
+        <div className="relative mx-auto max-w-3xl px-6 py-24 text-center lg:py-28">
+          <span className="flow-final-eyebrow">
+            <Sparkles size={15} />
+            ENCONTRE. PREPARE. COMPARTILHE.
+          </span>
+          <h2 className="mt-6 text-4xl text-balance sm:text-5xl">
+            A próxima boa oferta
+            <br />
+            <em>começa com você.</em>
           </h2>
-          <p className="text-muted-foreground mx-auto mt-4 max-w-lg">
-            Entre no PromoFlow, conecte seu WhatsApp e prepare sua próxima
-            publicação.
+          <p>
+            Entre no PromoFlow, conecte seu WhatsApp e dê mais fluidez à sua
+            rotina de publicações.
           </p>
-          <Button asChild size="lg" className="mt-7 h-12 rounded-full px-7">
+          <Button asChild size="lg" className="flow-final-button">
             <Link href="/login">
-              Acessar minha conta
+              Entrar no fluxo
               <ArrowRight />
             </Link>
           </Button>
+          <span className="flow-final-caption">
+            Você no controle. Seus achados em movimento.
+          </span>
         </div>
       </section>
     </>

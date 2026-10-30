@@ -8,6 +8,7 @@ import { DashboardPreview } from "./components/dashboard-preview";
 import { Hero } from "./components/hero";
 import { Features } from "./components/features";
 import { Started } from "./components/started";
+import { MascotGuide } from "./components/mascot-guide";
 import { Footer } from "./components/footer";
 export const metadata: Metadata = {
   title: "Organize suas ofertas e publique no WhatsApp",
@@ -72,6 +73,7 @@ export default function LandingPage() {
         <Started />
       </main>
       <Footer />
+      <MascotGuide />
     </div>
   );
 }

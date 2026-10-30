@@ -2,7 +2,7 @@ import { LoginForm } from "./components/login-form";
 
 export default function LoginPage() {
   return (
-    <div className="from-background via-background/90 to-muted flex min-h-svh flex-col items-center justify-center bg-linear-to-br p-6 md:p-10">
+    <div className="app-surface-bg flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
       <div className="bg-card border-border w-full max-w-md space-y-6 rounded-xl border p-8 shadow-lg transition-all duration-300 hover:shadow-xl md:p-10">
         <div className="mb-8 flex flex-col items-center gap-3 transition-opacity hover:opacity-90">
           <div className="flex items-center">

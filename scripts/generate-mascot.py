@@ -63,19 +63,30 @@ layer('Wide muzzle',rect(355,258,107,79,31,'light'),root)
 layer('Nose',rect(390,245,30,22,8,'ink'),root)
 layer('Nose glint',ellipse(386,240,8,4,'#617753'),root)
 layer('Cheek',ellipse(304,269,24,12,'#c29c76'),root)
-# Blink by animating ellipse dimensions, not the entire head.
-eye=ellipse(313,232,10,12,'ink')
-eye[0]['s']=animated([(0,[10,12]),(57,[10,12]),(60,[10,1]),(64,[10,12]),(170,[10,12]),(173,[10,1]),(177,[10,12]),(240,[10,12])])
-layer('Blinking eye',eye,root)
-layer('Eye highlight',ellipse(315,229,3,3,'paper'),root)
-layer('Gentle smile',path([[359,276],[370,280],[380,276]],'shade',2.5),root)
+# A curious look becomes a cheeky approving wink during the inspection.
+open_eye = animated([(0,[100]),(70,[100]),(76,[0]),(94,[0]),(100,[100]),(183,[100]),(187,[0]),(191,[100]),(240,[100])])
+closed_eye = animated([(0,[0]),(70,[0]),(76,[100]),(94,[100]),(100,[0]),(240,[0])])
+layer('Blinking eye',ellipse(313,232,10,12,'ink'),root,opacity=open_eye,position=animated([(0,[-2,0,0]),(45,[-3,1,0]),(65,[1,0,0]),(110,[2,-1,0]),(155,[0,0,0]),(240,[-2,0,0])]))
+layer('Eye highlight',ellipse(315,229,3,3,'paper'),root,opacity=open_eye)
+wink = path([[305,233],[313,228],[321,233]],'ink',2.8)
+wink[0]['ks']['k']['o'] = [[2,-4],[3,0],[0,0]]
+wink[0]['ks']['k']['i'] = [[0,0],[-3,0],[-2,-4]]
+layer('Happy approving wink',wink,root,opacity=closed_eye)
+layer('Curious raised eyebrow',path([[304,218],[313,214],[322,217]],'shade',2.5),root,position=animated([(0,[0,0,0]),(45,[0,-3,0]),(65,[0,-5,0]),(110,[0,0,0]),(240,[0,0,0])]))
+smile = path([[359,275],[369,281],[382,274]],'shade',2.8)
+smile[0]['ks']['k']['o'] = [[2,3],[4,0],[0,0]]
+smile[0]['ks']['k']['i'] = [[0,0],[-4,0],[-2,4]]
+layer('Confident crooked smile',smile,root)
+layer('Pleased rosy cheek',ellipse(307,263,21,10,'#c78963'),root,opacity=animated([(0,[20]),(65,[20]),(78,[65]),(105,[65]),(140,[20]),(240,[20])]))
 layer('Whiskers',path([[372,264],[376,265]],'shade',2)+path([[370,269],[374,270]],'shade',2),root)
 layer('Cap brim',rect(286,204,103,12,5,'lime'),root)
 layer('Green cap',rect(276,190,78,33,14,'green'),root)
 layer('Cap symbol',path([[270,187],[276,192],[284,182]],'lime',3),root)
-# Arms pivot at the shoulder during selection and throw.
-layer('Receiving paw',rect(253,319,40,68,18,'fur'),root,position=prop([251,293,0]),anchor=[251,293,0],rotation=animated([(0,[-13]),(40,[-38]),(70,[-13]),(240,[-13])]))
-layer('Sending paw',rect(373,315,37,70,17,'fur'),root,position=prop([368,292,0]),anchor=[368,292,0],rotation=animated([(0,[8]),(90,[8]),(114,[-65]),(140,[8]),(165,[-55]),(187,[8]),(210,[-60]),(235,[8]),(240,[8])]))
+# One 4.8-second playback cycle: reach left, inspect, wind up, flick right, settle.
+layer('Receiving paw',rect(253,319,40,68,18,'fur'),root,position=prop([251,293,0]),anchor=[251,293,0],rotation=animated([(0,[-8]),(12,[-8]),(35,[78]),(48,[75]),(67,[-65]),(95,[-60]),(112,[-15]),(145,[-8]),(240,[-8])]))
+throw = animated([(0,[8]),(48,[8]),(70,[60]),(98,[65]),(118,[-155]),(135,[-165]),(147,[-65]),(155,[-35]),(171,[-58]),(197,[8]),(240,[8])])
+layer('Sending paw',rect(373,315,37,70,17,'fur'),root,position=prop([368,292,0]),anchor=[368,292,0],rotation=throw)
+layer('Throw swoosh',path([[413,245],[425,251],[429,264]],'green',2)+path([[419,237],[435,249],[439,265]],'green',1.5),root,opacity=animated([(0,[0]),(135,[0]),(145,[80]),(160,[60]),(174,[0]),(240,[0])]))
 # Captured card moves towards the capybara, then fades once checked.
 layer('Offer being reviewed',rect(0,0,55,68,8,'paper')+rect(0,-10,38,25,4,'green')+rect(-4,16,30,4,2,'shade'),position=animated([(0,[110,250,0]),(36,[110,250,0]),(65,[253,276,0]),(95,[263,270,0]),(115,[300,270,0]),(240,[300,270,0])]),rotation=animated([(0,[-12]),(65,[8]),(95,[-4]),(240,[-4])]),opacity=animated([(0,[0]),(12,[100]),(95,[100]),(110,[0]),(240,[0])]))
 # Three small offer cards fly along curved paths to group placeholders.

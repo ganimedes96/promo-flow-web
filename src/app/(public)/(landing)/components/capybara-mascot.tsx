@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import type { AnimationItem } from "lottie-web";
-import animationData from "@/../public/animations/promoflow-capybara-character.json";
+import { useEffect, useState } from "react";
+import { MascotAnimation } from "./mascot-animation";
 import {
   Pause,
   Play,
@@ -64,11 +63,7 @@ const incomingProducts = [
 ];
 
 export function CapybaraMascot() {
-  const container = useRef<HTMLDivElement>(null);
-  const player = useRef<AnimationItem | null>(null);
   const [paused, setPaused] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const pausedRef = useRef(false);
   const [arrival, setArrival] = useState(0);
   useEffect(() => {
     if (paused) return;
@@ -77,7 +72,7 @@ export function CapybaraMascot() {
     function syncTimer() {
       clearInterval(timer);
       if (!motion.matches)
-        timer = setInterval(() => setArrival((value) => value + 1), 2400);
+        timer = setInterval(() => setArrival((value) => value + 1), 4800);
     }
     syncTimer();
     motion.addEventListener("change", syncTimer);
@@ -94,54 +89,6 @@ export function CapybaraMascot() {
     ],
     id: arrival - index,
   }));
-  useEffect(() => {
-    let disposed = false;
-    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    function updateMotion() {
-      if (motion.matches) player.current?.goToAndStop(75, true);
-      else if (!pausedRef.current) player.current?.play();
-    }
-    async function load() {
-      try {
-        const { default: lottie } = await import("lottie-web");
-        if (disposed || !container.current) return;
-        const animation = lottie.loadAnimation({
-          container: container.current,
-          renderer: "svg",
-          loop: true,
-          autoplay: !motion.matches && !pausedRef.current,
-          animationData: structuredClone(animationData),
-          rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
-        });
-        animation.setSpeed(1.65);
-        player.current = animation;
-        animation.addEventListener("DOMLoaded", () => {
-          if (motion.matches) animation.goToAndStop(75, true);
-        });
-        const handleFailure = () => {
-          if (!disposed) setFailed(true);
-        };
-        animation.addEventListener("data_failed", handleFailure);
-        animation.addEventListener("error", handleFailure);
-        motion.addEventListener("change", updateMotion);
-      } catch {
-        if (!disposed) setFailed(true);
-      }
-    }
-    void load();
-    return () => {
-      disposed = true;
-      motion.removeEventListener("change", updateMotion);
-      player.current?.destroy();
-      player.current = null;
-    };
-  }, []);
-  useEffect(() => {
-    pausedRef.current = paused;
-    if (paused) player.current?.pause();
-    else if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-      player.current?.play();
-  }, [paused]);
   return (
     <div
       className={`flow-mascot-scene flow-mascot-v2 ${paused ? "flow-paused" : ""}`}
@@ -211,19 +158,10 @@ export function CapybaraMascot() {
         </div>
         <div className="flow-capy-center">
           <div className="flow-capy-halo" />
-          <div
-            ref={container}
-            className="flow-capy-character"
-            aria-hidden="true"
-          />
-          {failed && (
-            <span className="flow-capy-error">
-              Recarregue para ver a capivara.
-            </span>
-          )}
+          <MascotAnimation className="flow-capy-character" paused={paused} />
           <span className="flow-capy-check">
             <CheckCheck size={12} />
-            Boa escolhida!
+            Essa vale o envio!
           </span>
         </div>
         <div className="flow-capy-destinations">

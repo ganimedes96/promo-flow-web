@@ -10,7 +10,7 @@ export default async function PrivateLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <div className="flex w-full flex-col overflow-hidden">
+      <div className="app-surface-bg flex min-h-svh w-full flex-col overflow-hidden">
         <Header />
         <div className="flex flex-col gap-6 p-8">{children}</div>
       </div>
