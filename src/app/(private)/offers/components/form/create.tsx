@@ -150,7 +150,7 @@ function OfferFields({
   };
   return (
     <form
-      className="space-y-5 pb-4"
+      className="flex min-h-0 flex-1 flex-col"
       onSubmit={handleSubmit((values) => {
         const product = {
           ...values,
@@ -202,253 +202,295 @@ function OfferFields({
         }
       })}
     >
-      {!groups.length && (
-        <Alert>
-          <AlertDescription>
-            Você pode revisar os dados abaixo. Para salvar, conecte o WhatsApp e
-            marque um grupo como favorito.{" "}
-            <Link
-              href="/control-panel"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
-            >
-              Abrir início em outra aba
-            </Link>{" "}
-            Depois volte aqui; a lista será atualizada automaticamente.
-          </AlertDescription>
-        </Alert>
-      )}
-      {offer ? (
-        <ControlledCombobox
-          control={control}
-          name="whatsappGroupId"
-          label="Grupo favorito de destino *"
-          placeholder="Selecione um grupo favorito"
-          searchPlaceholder="Buscar nos favoritos..."
-          noOptionsMessage="Nenhum grupo favorito encontrado."
-          options={groups}
-          rules={{ required: "Selecione um grupo de destino." }}
-          className="w-full"
-        />
-      ) : (
-        <div className="space-y-3">
-          <ControlledMultiSelect
-            control={control}
-            name="whatsappGroupIds"
-            label="Grupos favoritos de destino *"
-            options={groups}
-            placeholder="Selecione um ou mais grupos favoritos"
-            variant="default"
-            maxCount={3}
-            maxSelected={20}
-            searchable
-            rules={{
-              required: "Selecione pelo menos um grupo.",
-              validate: (ids) =>
-                (Array.isArray(ids) && ids.length > 0 && ids.length <= 20) ||
-                "Selecione de 1 a 20 grupos favoritos.",
-            }}
-          />
-          <p className="text-muted-foreground text-xs">
-            {selectedGroups.length} grupo(s) selecionado(s). Cada destino terá
-            seu próprio status e horário na tabela de ofertas. Máximo de 20
-            grupos.
-          </p>
-          <ControlledSingleCheckbox
-            control={control}
-            name="addToQueue"
-            label="Adicionar a oferta à fila de todos os grupos selecionados"
-            disabled={save.isPending}
-          />
-          {values.addToQueue && (
-            <Alert>
-              <AlertDescription>
-                Ao salvar, a publicação será agendada em cada grupo, respeitando
-                a fila e o intervalo de 2 minutos. Com o publicador ativo, os
-                envios poderão começar assim que chegar a vez da oferta.
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
-      )}
-      <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-2">
-        <ControlledInput
-          control={control}
-          name="sourceUrl"
-          label="Link do produto"
-          placeholder="Cole o link do produto ou meli.la"
-          type="url"
-          rules={{ required: "Informe o link do produto.", ...urlRule }}
-        />
-        <ControlledInput
-          control={control}
-          name="affiliateUrl"
-          label="Link de afiliado (opcional)"
-          placeholder="https://loja.com/link-afiliado"
-          type="url"
-          rules={urlRule}
-        />
-      </div>
-      <ControlledInput
-        control={control}
-        name="title"
-        label="Título"
-        placeholder="Nome do produto"
-        maxLength={200}
-        rules={{ required: "Informe o título." }}
-      />
-      <ControlledTextarea
-        control={control}
-        name="description"
-        label="Descrição"
-        placeholder="Descreva os principais detalhes do produto"
-        limit={2000}
-        rules={{ required: "Informe a descrição." }}
-      />
-      <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-3">
-        <ControlledInput
-          control={control}
-          name="couponCode"
-          label="Cupom (opcional)"
-          placeholder="Ex.: ARKSTORES"
-          maxLength={100}
-        />
-        <ControlledInputCurrency
-          control={control}
-          name="currentPrice"
-          label="Preço atual (R$)"
-          placeholder="0,00"
-          rules={{
-            required: "Informe o preço atual.",
-            min: { value: 0.01, message: "O preço deve ser maior que zero." },
-          }}
-        />
-        <ControlledInputCurrency
-          control={control}
-          name="originalPrice"
-          label="Preço original (opcional)"
-          placeholder="0,00"
-        />
-      </div>
-      {importImages.length > 1 && (
-        <fieldset className="space-y-2">
-          <legend className="text-sm font-medium">
-            Escolha a imagem da oferta
-          </legend>
-          <div className="flex gap-3 overflow-x-auto py-2">
-            {importImages.map((image, index) => (
-              <button
-                key={image}
-                type="button"
-                aria-label={"Usar imagem " + (index + 1)}
-                aria-pressed={values.imageUrl === image}
-                onClick={() =>
-                  setValue("imageUrl", image, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-                className={
-                  "bg-card focus-visible:outline-ring size-24 shrink-0 overflow-hidden rounded-md border-2 p-1 focus-visible:outline-2 " +
-                  (values.imageUrl === image
-                    ? "border-primary"
-                    : "border-border")
-                }
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-7">
+        {!groups.length && (
+          <Alert>
+            <AlertDescription>
+              Você pode revisar os dados abaixo. Para salvar, conecte o WhatsApp
+              e marque um grupo como favorito.{" "}
+              <Link
+                href="/control-panel"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
               >
-                <Image
-                  src={image}
-                  alt={"Imagem " + (index + 1) + " do produto"}
-                  width={88}
-                  height={88}
-                  unoptimized
-                  className="size-full object-contain"
+                Abrir início em outra aba
+              </Link>{" "}
+              Depois volte aqui; a lista será atualizada automaticamente.
+            </AlertDescription>
+          </Alert>
+        )}
+        <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="min-w-0 space-y-7">
+            <section className="space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold">Dados da oferta</h3>
+                <p className="text-muted-foreground mt-1 text-xs">
+                  Revise o produto e informe o link que vai usar na divulgação.
+                </p>
+              </div>
+              <ControlledInput
+                control={control}
+                name="title"
+                label="Título"
+                placeholder="Nome do produto"
+                maxLength={200}
+                rules={{ required: "Informe o título." }}
+              />
+              <ControlledTextarea
+                control={control}
+                name="description"
+                label="Descrição"
+                placeholder="Descreva os principais detalhes do produto"
+                limit={2000}
+                rules={{ required: "Informe a descrição." }}
+              />
+              <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-2">
+                <ControlledInput
+                  control={control}
+                  name="sourceUrl"
+                  label="Link do produto"
+                  placeholder="Cole o link do produto ou meli.la"
+                  type="url"
+                  rules={{ required: "Informe o link do produto.", ...urlRule }}
                 />
-              </button>
-            ))}
+                <ControlledInput
+                  control={control}
+                  name="affiliateUrl"
+                  label="Link de afiliado (opcional)"
+                  placeholder="https://loja.com/link-afiliado"
+                  type="url"
+                  rules={urlRule}
+                />
+              </div>
+              <ControlledInput
+                control={control}
+                name="imageUrl"
+                label="Link da imagem"
+                placeholder="https://loja.com/imagem.jpg"
+                type="url"
+                rules={{ required: "Informe a imagem.", ...urlRule }}
+              />
+            </section>
+            <section className="space-y-4 border-t pt-6">
+              <h3 className="text-sm font-semibold">Preço e cupom</h3>
+              <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-3">
+                <ControlledInput
+                  control={control}
+                  name="couponCode"
+                  label="Cupom (opcional)"
+                  placeholder="Ex.: ARKSTORES"
+                  maxLength={100}
+                />
+                <ControlledInputCurrency
+                  control={control}
+                  name="currentPrice"
+                  label="Preço atual (R$)"
+                  placeholder="0,00"
+                  rules={{
+                    required: "Informe o preço atual.",
+                    min: {
+                      value: 0.01,
+                      message: "O preço deve ser maior que zero.",
+                    },
+                  }}
+                />
+                <ControlledInputCurrency
+                  control={control}
+                  name="originalPrice"
+                  label="Preço original (opcional)"
+                  placeholder="0,00"
+                />
+              </div>
+            </section>
+            <section className="border-primary/20 bg-primary/5 space-y-4 rounded-2xl border p-5">
+              <div>
+                <h3 className="text-sm font-semibold">Destino e envio</h3>
+                <p className="text-muted-foreground mt-1 text-xs">
+                  Escolha quem vai receber esta oferta e quando ela entra na
+                  fila.
+                </p>
+              </div>
+              {offer ? (
+                <ControlledCombobox
+                  control={control}
+                  name="whatsappGroupId"
+                  label="Grupo favorito de destino *"
+                  placeholder="Selecione um grupo favorito"
+                  searchPlaceholder="Buscar nos favoritos..."
+                  noOptionsMessage="Nenhum grupo favorito encontrado."
+                  options={groups}
+                  rules={{ required: "Selecione um grupo de destino." }}
+                  className="w-full"
+                />
+              ) : (
+                <div className="space-y-3">
+                  <ControlledMultiSelect
+                    control={control}
+                    name="whatsappGroupIds"
+                    label="Selecione os grupos favoritos *"
+                    options={groups}
+                    placeholder="Selecione um ou mais grupos favoritos"
+                    variant="default"
+                    maxCount={3}
+                    maxSelected={20}
+                    searchable
+                    rules={{
+                      required: "Selecione pelo menos um grupo.",
+                      validate: (ids) =>
+                        (Array.isArray(ids) &&
+                          ids.length > 0 &&
+                          ids.length <= 20) ||
+                        "Selecione de 1 a 20 grupos favoritos.",
+                    }}
+                  />
+                  <p className="text-muted-foreground text-xs">
+                    {selectedGroups.length} grupo(s) selecionado(s). Cada
+                    destino terá seu próprio status e horário na tabela de
+                    ofertas. Máximo de 20 grupos.
+                  </p>
+                  <ControlledSingleCheckbox
+                    control={control}
+                    name="addToQueue"
+                    label="Agendar envio ao salvar"
+                    disabled={save.isPending}
+                  />
+                  {values.addToQueue && (
+                    <Alert>
+                      <AlertDescription>
+                        Ao salvar, a publicação será agendada em cada grupo,
+                        respeitando a fila e o intervalo de 2 minutos. Com o
+                        publicador ativo, os envios poderão começar assim que
+                        chegar a vez da oferta.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              )}
+            </section>
           </div>
-        </fieldset>
-      )}
-      <ControlledInput
-        control={control}
-        name="imageUrl"
-        label="Link da imagem"
-        placeholder="https://loja.com/imagem.jpg"
-        type="url"
-        rules={{ required: "Informe a imagem.", ...urlRule }}
-      />
-      <Card>
-        <CardHeader>
-          <CardTitle>Prévia da oferta</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {values.imageUrl && /^https?:\/\//i.test(values.imageUrl) && (
-            <Image
-              src={values.imageUrl}
-              alt={values.title || "Imagem do produto"}
-              width={300}
-              height={300}
-              unoptimized
-              className="max-h-56 w-full rounded-md object-contain"
-            />
-          )}
-          <p className="font-semibold">{values.title || "Título do produto"}</p>
-          {discount !== null && typeof values.originalPrice === "number" && (
-            <p className="text-muted-foreground">
-              De: <s>{money(values.originalPrice)}</s>
-            </p>
-          )}
-          <p>
-            💵 Por:{" "}
-            {typeof values.currentPrice === "number"
-              ? money(values.currentPrice)
-              : "Preço atual"}
-          </p>
-          {discount !== null && (
-            <p className="text-success font-semibold">
-              🔥 {discount.toLocaleString("pt-BR")}% de desconto
-            </p>
-          )}
-          {values.couponCode?.trim() && (
-            <p>🎟️ Cupom: {values.couponCode.trim()}</p>
-          )}
-          <p className="text-sm break-all">
-            🛒 Link:{" "}
-            {values.affiliateUrl || values.sourceUrl || "Link de compra"}
-          </p>
-          <p>❤️ Convide seus amigos</p>
-          <p>👉 Link do grupo na descrição</p>
-        </CardContent>
-      </Card>
-      {save.error && (
-        <Alert variant="destructive">
-          <AlertDescription>{save.error.message}</AlertDescription>
-        </Alert>
-      )}
-      {errors.root?.server?.message && (
-        <Alert variant="destructive">
-          <AlertDescription>{errors.root.server.message}</AlertDescription>
-        </Alert>
-      )}
-      <p className="text-muted-foreground text-sm">
-        {offer
-          ? "Salvar atualiza os dados para o próximo envio. Mensagens já publicadas permanecem no grupo."
-          : values.addToQueue
-            ? "A oferta será cadastrada e agendada nos grupos selecionados."
-            : "A oferta será salva como pronta para cada grupo. Nenhuma mensagem será enviada agora."}
-      </p>
-      <Button
-        type="submit"
-        loading={save.isPending}
-        disabled={save.isPending || !groups.length}
-        className="w-full"
-      >
-        {offer
-          ? "Salvar alterações"
-          : values.addToQueue
-            ? "Salvar e agendar nos grupos"
-            : "Salvar para os grupos selecionados"}
-      </Button>
+          <aside className="min-w-0 space-y-4 lg:sticky lg:top-0">
+            <Card className="border-primary/15 bg-muted/20 gap-0 overflow-hidden py-0 shadow-none">
+              <CardHeader className="border-b px-4 py-3">
+                <CardTitle className="text-muted-foreground text-xs font-medium">
+                  Mensagem no WhatsApp
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 p-4 text-sm">
+                {values.imageUrl && /^https?:\/\//i.test(values.imageUrl) && (
+                  <Image
+                    src={values.imageUrl}
+                    alt={values.title || "Imagem do produto"}
+                    width={300}
+                    height={300}
+                    unoptimized
+                    className="h-44 w-full rounded-xl bg-white object-contain p-3"
+                  />
+                )}
+                <p className="font-semibold">
+                  {values.title || "Título do produto"}
+                </p>
+                {discount !== null &&
+                  typeof values.originalPrice === "number" && (
+                    <p className="text-muted-foreground">
+                      De: <s>{money(values.originalPrice)}</s>
+                    </p>
+                  )}
+                <p>
+                  💵 Por:{" "}
+                  {typeof values.currentPrice === "number"
+                    ? money(values.currentPrice)
+                    : "Preço atual"}
+                </p>
+                {discount !== null && (
+                  <p className="text-success font-semibold">
+                    🔥 {discount.toLocaleString("pt-BR")}% de desconto
+                  </p>
+                )}
+                {values.couponCode?.trim() && (
+                  <p>🎟️ Cupom: {values.couponCode.trim()}</p>
+                )}
+                <p className="text-muted-foreground line-clamp-2 text-xs break-all">
+                  🛒 Link:{" "}
+                  {values.affiliateUrl || values.sourceUrl || "Link de compra"}
+                </p>
+                <p>❤️ Convide seus amigos</p>
+                <p>👉 Link do grupo na descrição</p>
+              </CardContent>
+            </Card>{" "}
+            {importImages.length > 1 && (
+              <fieldset className="space-y-2">
+                <legend className="text-sm font-medium">
+                  Escolha a imagem da oferta
+                </legend>
+                <div className="flex gap-3 overflow-x-auto py-2">
+                  {importImages.map((image, index) => (
+                    <button
+                      key={image}
+                      type="button"
+                      aria-label={"Usar imagem " + (index + 1)}
+                      aria-pressed={values.imageUrl === image}
+                      onClick={() =>
+                        setValue("imageUrl", image, {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        })
+                      }
+                      className={
+                        "bg-card focus-visible:outline-ring size-24 shrink-0 overflow-hidden rounded-md border-2 p-1 focus-visible:outline-2 " +
+                        (values.imageUrl === image
+                          ? "border-primary"
+                          : "border-border")
+                      }
+                    >
+                      <Image
+                        src={image}
+                        alt={"Imagem " + (index + 1) + " do produto"}
+                        width={88}
+                        height={88}
+                        unoptimized
+                        className="size-full object-contain"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+          </aside>
+        </div>
+
+        {save.error && (
+          <Alert variant="destructive">
+            <AlertDescription>{save.error.message}</AlertDescription>
+          </Alert>
+        )}
+        {errors.root?.server?.message && (
+          <Alert variant="destructive">
+            <AlertDescription>{errors.root.server.message}</AlertDescription>
+          </Alert>
+        )}
+      </div>
+      <div className="bg-background flex shrink-0 flex-col gap-4 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+        <p className="text-muted-foreground max-w-md text-xs leading-relaxed">
+          {offer
+            ? "Salvar atualiza os dados para o próximo envio. Mensagens já publicadas permanecem no grupo."
+            : values.addToQueue
+              ? "A oferta será cadastrada e agendada nos grupos selecionados."
+              : "A oferta será salva como pronta para cada grupo. Nenhuma mensagem será enviada agora."}
+        </p>
+        <Button
+          type="submit"
+          loading={save.isPending}
+          disabled={save.isPending || !groups.length}
+          className="w-full shrink-0 sm:w-auto"
+        >
+          {offer
+            ? "Salvar alterações"
+            : values.addToQueue
+              ? "Salvar e agendar nos grupos"
+              : "Salvar para os grupos selecionados"}
+        </Button>
+      </div>
     </form>
   );
 }

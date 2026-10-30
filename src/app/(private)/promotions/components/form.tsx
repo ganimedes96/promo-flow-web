@@ -27,6 +27,7 @@ import {
   promotionSchema,
 } from "@/domains/promotions/types";
 import { useServerAction } from "@/hooks/use-server-action";
+import { queryKeys } from "@/lib/tanstack-query/keys";
 
 const stores = [
   { id: "MERCADO_LIVRE", name: "Mercado Livre" },
@@ -98,6 +99,7 @@ export function PromotionForm({
   const validImage = /^https:\/\//i.test(image) && image !== failedImage;
   const action = useServerAction<Promotion, PromotionInput & { id?: string }>({
     mutationFn: savePromotion,
+    invalidateQueries: [queryKeys.promotions.all],
     onSuccess,
   });
 

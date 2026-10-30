@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,20 +37,18 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
   const [editing, setEditing] = useState<Promotion | null | undefined>();
   const [using, setUsing] = useState<Promotion | null>(null);
   const [removing, setRemoving] = useState<Promotion | null>(null);
-  const cache = useQueryClient();
+
   const list = useQuery({
     queryKey: queryKeys.promotions.list(page, manage, session?.user.id),
     queryFn: () => getPromotions(page, manage),
     enabled: !!session?.user,
+    refetchOnWindowFocus: "always",
   });
-  const refresh = () => {
-    void cache.invalidateQueries({ queryKey: queryKeys.promotions.all });
-  };
   const deletion = useServerAction<unknown, { id: string }>({
     mutationFn: deletePromotion,
+    invalidateQueries: [queryKeys.promotions.all],
     onSuccess: () => {
       setRemoving(null);
-      refresh();
     },
   });
   const items = list.data?.items || [];
@@ -232,8 +230,8 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
               promotion={editing || undefined}
               onCancel={() => setEditing(undefined)}
               onSuccess={() => {
+                if (!editing) setPage(1);
                 setEditing(undefined);
-                refresh();
               }}
             />
           </div>
@@ -245,11 +243,11 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
           if (!open) setUsing(null);
         }}
       >
-        <SheetContent className="w-full overflow-y-auto sm:max-w-3xl">
+        <SheetContent className="flex flex-col gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-5xl">
           <SheetHeader className="bg-primary/5 shrink-0 border-b px-5 py-5 pr-12 sm:px-7">
             <SheetTitle>Preparar minha oferta</SheetTitle>
           </SheetHeader>
-          <div className="p-6">
+          <div className="flex min-h-0 flex-1 flex-col">
             {using && (
               <CreateOfferForm
                 key={using.id}
