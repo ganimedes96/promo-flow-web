@@ -75,6 +75,19 @@ export function LoginForm() {
       <Button type="submit" className="mt-5 w-full" disabled={isSubmitting}>
         {isSubmitting ? "Carregando..." : "Entrar"}
       </Button>
+      <Button
+        type="button"
+        variant="link"
+        className="mt-3 w-full"
+        onClick={() => {
+          const importing =
+            new URLSearchParams(window.location.search).get("import") ===
+            "product";
+          router.push(importing ? "/register?import=product" : "/register");
+        }}
+      >
+        Criar conta e testar por 10 dias
+      </Button>
     </form>
   );
 }

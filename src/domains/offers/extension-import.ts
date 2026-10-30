@@ -14,14 +14,14 @@ function allowedHttps(value: string, hosts: readonly string[]): boolean {
     return false;
   }
 }
-const productHosts = ["mercadolivre.com.br", "amazon.com.br"];
+const productHosts = ["mercadolivre.com.br", "amazon.com.br", "shopee.com.br"];
 const productUrl = z
   .string()
   .max(2048)
   .url()
   .refine(
     (value) => allowedHttps(value, productHosts),
-    "Use um link HTTPS do Mercado Livre ou da Amazon Brasil."
+    "Use um link HTTPS do Mercado Livre, da Amazon Brasil ou da Shopee."
   );
 const affiliateUrl = z
   .string()
@@ -29,7 +29,14 @@ const affiliateUrl = z
   .refine(
     (value) =>
       !value ||
-      allowedHttps(value, [...productHosts, "meli.la", "amzn.to", "a.co"]),
+      allowedHttps(value, [
+        ...productHosts,
+        "meli.la",
+        "amzn.to",
+        "a.co",
+        "shope.ee",
+        "shp.ee",
+      ]),
     "Link de afiliado inválido."
   );
 const imageUrl = z
@@ -40,6 +47,8 @@ const imageUrl = z
     (value) =>
       allowedHttps(value, [
         "mlstatic.com",
+        "susercontent.com",
+        "shopee.com.br",
         "media-amazon.com",
         "ssl-images-amazon.com",
         "images-amazon.com",

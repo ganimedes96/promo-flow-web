@@ -58,12 +58,17 @@ export default function LandingPage() {
               Dúvidas
             </a>
           </nav>
-          <Button asChild size="sm" className="rounded-full">
-            <Link href="/login">
-              Entrar
-              <ArrowUpRight />
+          <div className="flex items-center gap-3">
+            <Link href="/register" className="text-xs font-medium">
+              Teste 10 dias
             </Link>
-          </Button>
+            <Button asChild size="sm" className="rounded-full">
+              <Link href="/login">
+                Entrar
+                <ArrowUpRight />
+              </Link>
+            </Button>
+          </div>
         </div>
       </header>
       <main id="conteudo">

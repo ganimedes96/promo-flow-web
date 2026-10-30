@@ -704,3 +704,7 @@ A tabela usa `GET /api/offers/grouped`, com paginação por oferta, e mostra pro
 As ações gerais pedem confirmação: "Agendar pendentes" inclui somente prontos, cancelados e falhos; publicados e envios em andamento permanecem como estão. "Cancelar pendentes" afeta apenas SCHEDULED. Ambas revalidam o estado na API sob locks e atualizam os contadores da lista. Edições e exclusões individuais não desfazem o agrupamento.
 
 Requer a migração `20261029000000_offer_batches` antes do novo frontend. Publique primeiro a API com `pnpm prisma:deploy`, depois o frontend. O worker mantém o contrato atual. Registros antigos são agrupados conservadoramente quando compartilham usuário, instante de cadastro e dados exatos do produto; cadastros históricos independentes continuam separados.
+
+### Shopee na extensão 0.5.0
+
+A validação do rascunho aceita produtos Shopee Brasil, imagens dos CDNs susercontent.com/Shopee Brasil e links afiliados s.shopee.com.br, shope.ee e shp.ee. A página de instalação e o download acompanham a versão 0.5.0. A revisão continua obrigatória; campos não encontrados ou faixas de preço devem ser conferidos pelo usuário antes de salvar. O contrato do rascunho permanece na versão 1. Publique o frontend para aceitar os novos domínios e a API para reconhecer vendedor + item na proteção de duplicados. Esta integração não cria migração adicional.

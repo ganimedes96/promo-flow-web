@@ -34,8 +34,8 @@ export default function ExtensionPage() {
       <div>
         <h1 className="text-2xl font-semibold">Extensão do PromoFlow</h1>
         <p className="text-muted-foreground mt-2">
-          Importe produtos do Mercado Livre e da Amazon Brasil com menos
-          preenchimento manual.
+          Importe produtos do Mercado Livre, da Amazon Brasil e da Shopee com
+          menos preenchimento manual.
         </p>
       </div>
       <Card>
@@ -101,8 +101,8 @@ export default function ExtensionPage() {
           </CardHeader>
           <CardContent className="text-muted-foreground space-y-3 text-sm">
             <p>
-              Abra um produto do Mercado Livre ou da Amazon Brasil, clique na
-              extensão e em “Capturar e abrir no PromoFlow”.
+              Abra um produto do Mercado Livre, da Amazon Brasil ou da Shopee,
+              clique na extensão e em “Capturar e abrir no PromoFlow”.
             </p>
             <p>
               Faça login se necessário, confira imagens, preços, variação e
