@@ -1,3 +1,4 @@
+import { RevokeExtensionConnections } from "./components/revoke-connections";
 import { Download, Puzzle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,7 @@ const steps = [
   },
   {
     title: "Fixe a extensão",
-    text: "Abra o ícone de quebra-cabeça ao lado da barra de endereços e fixe PromoFlow — Importar produtos. Pronto: agora abra a página de um produto para capturar os dados.",
+    text: "Abra o ícone de quebra-cabeça ao lado da barra de endereços e fixe PromoFlow — Importar produtos. Depois, clique em Conectar ao PromoFlow na extensão e autorize pelo site. Abra um produto e escolha Minha oferta ou, se você for administrador, Central de promoções.",
   },
 ];
 export default function ExtensionPage() {
@@ -38,6 +39,7 @@ export default function ExtensionPage() {
           menos preenchimento manual.
         </p>
       </div>
+      <RevokeExtensionConnections />
       <Card>
         <CardHeader>
           <div className="mb-3 flex flex-wrap items-center gap-2">

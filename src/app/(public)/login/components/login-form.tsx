@@ -34,7 +34,14 @@ export function LoginForm() {
       }
       const importing =
         new URLSearchParams(window.location.search).get("import") === "product";
-      router.replace(importing ? "/import-product" : "/control-panel");
+      router.replace(
+        new URLSearchParams(window.location.search).get("extension") ===
+          "connect"
+          ? "/extension/connect"
+          : importing
+            ? "/import-product"
+            : "/control-panel"
+      );
       router.refresh();
     } catch (error) {
       console.error("Login error:", error);
@@ -83,7 +90,14 @@ export function LoginForm() {
           const importing =
             new URLSearchParams(window.location.search).get("import") ===
             "product";
-          router.push(importing ? "/register?import=product" : "/register");
+          router.push(
+            new URLSearchParams(window.location.search).get("extension") ===
+              "connect"
+              ? "/register?extension=connect"
+              : importing
+                ? "/register?import=product"
+                : "/register"
+          );
         }}
       >
         Criar conta e testar por 10 dias

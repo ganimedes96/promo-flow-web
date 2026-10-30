@@ -63,6 +63,8 @@ const price = z
   .nullable()
   .optional();
 export const extensionImportSchema = z.object({
+  accountId: z.string().uuid().optional(),
+  target: z.enum(["offer", "central"]).default("offer"),
   version: z.literal(1),
   capturedAt: z.string().datetime(),
   draft: z.object({

@@ -17,8 +17,10 @@ import {
 import { useServerAction } from "@/hooks/use-server-action";
 export function RegisterFormFields({
   importingProduct,
+  connectingExtension = false,
 }: {
   importingProduct: boolean;
+  connectingExtension?: boolean;
 }) {
   const router = useRouter();
   const [created, setCreated] = useState(false);
@@ -52,7 +54,13 @@ export function RegisterFormFields({
           setLoginError("Conta criada. Faça login para continuar.");
           return;
         }
-        router.replace(importingProduct ? "/import-product" : "/control-panel");
+        router.replace(
+          connectingExtension
+            ? "/extension/connect"
+            : importingProduct
+              ? "/import-product"
+              : "/control-panel"
+        );
         router.refresh();
       } catch {
         setLoginError("Conta criada. Faça login para continuar.");
@@ -143,7 +151,13 @@ export function RegisterFormFields({
         Já tem uma conta?{" "}
         <Link
           className="text-primary font-medium underline"
-          href={importingProduct ? "/login?import=product" : "/login"}
+          href={
+            connectingExtension
+              ? "/login?extension=connect"
+              : importingProduct
+                ? "/login?import=product"
+                : "/login"
+          }
         >
           Entrar
         </Link>

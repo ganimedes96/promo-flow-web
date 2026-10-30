@@ -708,3 +708,11 @@ Requer a migração `20261029000000_offer_batches` antes do novo frontend. Publi
 ### Shopee na extensão 0.5.0
 
 A validação do rascunho aceita produtos Shopee Brasil, imagens dos CDNs susercontent.com/Shopee Brasil e links afiliados s.shopee.com.br, shope.ee e shp.ee. A página de instalação e o download acompanham a versão 0.5.0. A revisão continua obrigatória; campos não encontrados ou faixas de preço devem ser conferidos pelo usuário antes de salvar. O contrato do rascunho permanece na versão 1. Publique o frontend para aceitar os novos domínios e a API para reconhecer vendedor + item na proteção de duplicados. Esta integração não cria migração adicional.
+
+## Conexão da extensão 0.6.0
+
+A página pública /extension/connect pede autorização após login no site. A extensão recebe uma credencial própria, limitada à identificação da conexão e à sua revogação; nunca recebe a senha nem o JWT do site. /import-product exige a mesma conta conectada para continuar o rascunho. O administrador pode importar diretamente para o formulário da central; o cadastro só ocorre após revisão e salvar.
+
+A página /extension permite revogar todas as conexões da conta, inclusive após o período de teste. Login e cadastro preservam o retorno à autorização. A nova versão precisa da API atualizada e da migration 20261029030000_extension_connections. O ZIP 0.6.0 está em public/downloads e já é selecionado pelo JSON de versão.
+
+Publicar primeiro a API, depois o frontend; recarregar a extensão dist no Chrome ou substituir pelos arquivos do novo ZIP. A versão 0.6.0 pede identity, storage e acesso às APIs do PromoFlow. Não é necessário publicar na Chrome Web Store para usar o fluxo manual.

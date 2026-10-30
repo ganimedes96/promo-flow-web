@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { ImportedOfferDraft } from "@/domains/offers/extension-import";
 import { useForm, useWatch } from "react-hook-form";
 import {
   ImageIcon,
@@ -40,10 +41,12 @@ type FormValues = PromotionInput & { validUntil: string };
 
 export function PromotionForm({
   promotion,
+  initialDraft,
   onSuccess,
   onCancel,
 }: {
   promotion?: Promotion;
+  initialDraft?: ImportedOfferDraft;
   onSuccess: () => void;
   onCancel?: () => void;
 }) {
@@ -55,16 +58,24 @@ export function PromotionForm({
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
-      title: promotion?.title || "",
-      description: promotion?.description || "",
-      sourceUrl: promotion?.sourceUrl || "",
-      imageUrl: promotion?.imageUrl || "",
-      currentPrice: promotion ? Number(promotion.currentPrice) : undefined,
+      title: promotion?.title || initialDraft?.title || "",
+      description: promotion?.description || initialDraft?.description || "",
+      sourceUrl: promotion?.sourceUrl || initialDraft?.sourceUrl || "",
+      imageUrl: promotion?.imageUrl || initialDraft?.imageUrls[0] || "",
+      currentPrice: promotion
+        ? Number(promotion.currentPrice)
+        : (initialDraft?.currentPrice ?? undefined),
       originalPrice: promotion?.originalPrice
         ? Number(promotion.originalPrice)
-        : undefined,
-      couponCode: promotion?.couponCode || "",
-      marketplace: promotion?.marketplace || "MERCADO_LIVRE",
+        : (initialDraft?.originalPrice ?? undefined),
+      couponCode: promotion?.couponCode || initialDraft?.couponCode || "",
+      marketplace:
+        promotion?.marketplace ||
+        (initialDraft?.sourceUrl.includes("amazon.com.br")
+          ? "AMAZON"
+          : initialDraft?.sourceUrl.includes("shopee.com.br")
+            ? "SHOPEE"
+            : "MERCADO_LIVRE"),
       isPublished: promotion?.isPublished ?? false,
       validUntil: promotion?.expiresAt
         ? new Date(

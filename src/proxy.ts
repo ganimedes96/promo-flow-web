@@ -11,6 +11,7 @@ type PublicRoute = {
 };
 
 const publicRoutes: PublicRoute[] = [
+  { path: "/extension/connect", whenAuthed: "not-redirect" },
   { path: "/login", whenAuthed: "redirect" },
   { path: "/import-product", whenAuthed: "not-redirect" },
   { path: "/register", whenAuthed: "redirect" },
@@ -47,10 +48,12 @@ export default async function proxy(request: NextRequest) {
   if (publicRoute && publicRoute.whenAuthed === "redirect") {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname =
-      path === "/login" &&
-      request.nextUrl.searchParams.get("import") === "product"
-        ? "/import-product"
-        : "/control-panel";
+      request.nextUrl.searchParams.get("extension") === "connect"
+        ? "/extension/connect"
+        : path === "/login" &&
+            request.nextUrl.searchParams.get("import") === "product"
+          ? "/import-product"
+          : "/control-panel";
     redirectUrl.search = "";
     return NextResponse.redirect(redirectUrl);
   }

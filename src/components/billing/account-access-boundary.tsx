@@ -12,7 +12,8 @@ export function AccountAccessBoundary({
 }) {
   const access = useAccountAccess();
   const pathname = usePathname();
-  if (pathname === "/subscription") return children;
+  if (pathname === "/subscription" || pathname === "/extension")
+    return children;
   if (access.isPending)
     return (
       <p className="text-muted-foreground">

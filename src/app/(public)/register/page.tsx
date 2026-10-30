@@ -3,7 +3,7 @@ import { RegisterFormFields } from "./components/register-form";
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ import?: string }>;
+  searchParams: Promise<{ import?: string; extension?: string }>;
 }) {
   const params = await searchParams;
   return (
@@ -20,7 +20,10 @@ export default async function RegisterPage({
             Crie sua conta, conecte seu WhatsApp e experimente por 10 dias.
           </p>
         </div>
-        <RegisterFormFields importingProduct={params.import === "product"} />
+        <RegisterFormFields
+          importingProduct={params.import === "product"}
+          connectingExtension={params.extension === "connect"}
+        />
       </div>
       <Link href="/" className="text-muted-foreground mt-6 text-sm underline">
         Voltar à apresentação
