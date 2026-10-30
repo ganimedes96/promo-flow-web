@@ -178,3 +178,25 @@ body,
     0 6px 20px #00000020,
     inset 0 1px 0 #d7fa7210;
 }
+
+/* The connection card keeps a solid light-green surface in either theme. */
+.whatsapp-connection-card {
+  --card: #e2efd2;
+  --card-foreground: #203c28;
+  --foreground: #203c28;
+  --muted-foreground: #52694b;
+  --background: #f0f6e8;
+  --primary: #40622e;
+  --primary-foreground: #ffffff;
+  --secondary: #d1e1bf;
+  --secondary-foreground: #203c28;
+  --accent: #cbdcba;
+  --accent-foreground: #203c28;
+  --success: #347346;
+  --warning: #946117;
+  --destructive: #b43f38;
+  --border: #aac495;
+  --input: #a5ba93;
+  background-color: var(--card);
+  color: var(--card-foreground);
+}

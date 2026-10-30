@@ -86,9 +86,7 @@ export function WhatsAppConnection() {
     .toUpperCase();
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card
-        className={connected ? "border-success/40 bg-success/5" : undefined}
-      >
+      <Card className="whatsapp-connection-card">
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <CardTitle className="flex items-center gap-2">
