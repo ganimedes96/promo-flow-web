@@ -6,6 +6,7 @@ const httpUrl = z
   .url("Informe uma URL válida.")
   .refine((value) => /^https?:\/\//i.test(value), "Use um link http ou https.");
 const offerProductSchema = z.object({
+  connectionId: z.string().uuid("Selecione uma conexão.").optional(),
   sourceUrl: httpUrl,
   affiliateUrl: httpUrl.optional(),
   couponCode: z
@@ -71,6 +72,12 @@ export type OfferFormValues = Omit<
   addToQueue: boolean;
 };
 export interface Offer {
+  connectionId?: string | null;
+  connection?: {
+    id: string;
+    name: string;
+    connectedPhone: string | null;
+  } | null;
   id: string;
   userId: string;
   title: string | null;

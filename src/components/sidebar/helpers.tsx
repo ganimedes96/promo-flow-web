@@ -1,9 +1,17 @@
 import { Permission } from "@/domains/auth/enums";
 import { hasPermission } from "@/utils/permissions";
-import { LayoutDashboard, Users, Tags, Puzzle, CreditCard } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Tags,
+  Puzzle,
+  CreditCard,
+  Smartphone,
+} from "lucide-react";
 
 export const identifierLinks: { [key: string]: string } = {
   "/control-panel": "Painel de controle",
+  "/connections": "Conexões",
   "/offers": "Ofertas",
   "/promotions": "Central de promoções",
   "/promotions/manage": "Gerenciar promoções",
@@ -22,6 +30,12 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
+  {
+    title: "Conexões",
+    icon: <Smartphone />,
+    href: "/connections",
+    requiredPermissions: [],
+  },
   {
     title: "Central de promoções",
     icon: <Tags />,

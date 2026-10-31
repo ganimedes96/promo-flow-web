@@ -716,3 +716,11 @@ A página pública /extension/connect pede autorização após login no site. A 
 A página /extension permite revogar todas as conexões da conta, inclusive após o período de teste. Login e cadastro preservam o retorno à autorização. A nova versão precisa da API atualizada e da migration 20261029030000_extension_connections. O ZIP 0.6.0 está em public/downloads e já é selecionado pelo JSON de versão.
 
 Publicar primeiro a API, depois o frontend; recarregar a extensão dist no Chrome ou substituir pelos arquivos do novo ZIP. A versão 0.6.0 pede identity, storage e acesso às APIs do PromoFlow. Não é necessário publicar na Chrome Web Store para usar o fluxo manual.
+
+## Conexões do WhatsApp
+
+A rota /connections mostra uma conta do WhatsApp por card, com nome, número, status, conexão padrão, grupos sincronizados e quantidade de ofertas na fila. Permite adicionar, renomear, conectar por QR, pausar e retomar envios. O detalhe reaproveita os controles de conexão e favoritos existentes.
+
+No formulário de oferta, a conexão é escolhida antes dos grupos. Trocar a conexão limpa os destinos anteriores, mantendo os demais dados preenchidos. Só são exibidos os favoritos daquela conexão. A tabela de ofertas identifica a conexão e o número associado ao destino. As chaves do React Query isolam detalhes por conexão e atualizam a listagem após alterações.
+
+Esta versão depende da API e do worker com múltiplas conexões. A migration e a ordem de publicação estão documentadas em promo-flow-api/SAAS.md. O frontend não cria sessões no WhatsApp sozinho; o worker local precisa estar ativo.

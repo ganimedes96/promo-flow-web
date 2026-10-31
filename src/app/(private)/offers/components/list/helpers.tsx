@@ -50,7 +50,19 @@ export const columns: ColumnDef<Offer>[] = [
   {
     key: "whatsappGroup",
     header: "Grupo",
-    render: (_value, row) => row.whatsappGroup?.name ?? "Grupo indisponível",
+    render: (_value, row) => (
+      <div className="space-y-1">
+        <p>{row.whatsappGroup?.name ?? "Grupo indisponível"}</p>
+        {row.connection && (
+          <p className="text-muted-foreground text-xs">
+            {row.connection.name}
+            {row.connection.connectedPhone
+              ? " · +" + row.connection.connectedPhone
+              : ""}
+          </p>
+        )}
+      </div>
+    ),
   },
   {
     key: "status",

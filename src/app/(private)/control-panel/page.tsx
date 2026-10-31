@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { getServerSession } from "@/lib/next-auth/auth";
 import { WhatsAppConnection } from "./components/whatsapp-connection";
 export default async function ControlPanelPage() {
@@ -10,6 +12,11 @@ export default async function ControlPanelPage() {
         <p className="text-muted-foreground">
           Conecte seu WhatsApp para preparar o envio de ofertas aos seus grupos.
         </p>
+      </div>
+      <div>
+        <Button asChild variant="outline">
+          <Link href="/connections">Gerenciar todas as conexões</Link>
+        </Button>
       </div>
       <WhatsAppConnection />
     </>

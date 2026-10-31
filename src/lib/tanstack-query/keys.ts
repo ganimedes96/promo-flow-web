@@ -25,6 +25,10 @@ export const queryKeys = {
     grouped: (params?: Params) => ["offers", "grouped", params ?? {}] as const,
   },
   whatsapp: {
+    connections: ["whatsapp", "connections"] as const,
+    sessionFor: (id?: string) =>
+      ["whatsapp", "session", id ?? "default"] as const,
+    groupsFor: (id?: string) => ["whatsapp", "groups", id ?? "all"] as const,
     session: ["whatsapp", "session"] as const,
     groups: ["whatsapp", "groups"] as const,
   },

@@ -1,4 +1,5 @@
 "use client";
+import { useSession } from "next-auth/react";
 import { WorkerIndicator } from "./worker-indicator";
 import { GroupFavorites } from "./group-favorites";
 import { TargetGroupForm } from "./target-group-form";
@@ -41,29 +42,47 @@ const labels: Record<WhatsAppSession["status"], string> = {
   READY: "Conectado",
   ERROR: "Falha na conexão",
 };
-export function WhatsAppConnection() {
+export function WhatsAppConnection({
+  connectionId,
+}: { connectionId?: string } = {}) {
+  const account = useSession();
   const session = useQuery({
-    queryKey: queryKeys.whatsapp.session,
-    queryFn: getWhatsAppSession,
+    queryKey: [
+      ...queryKeys.whatsapp.sessionFor(connectionId),
+      account.data?.user.id,
+    ],
+    queryFn: () => getWhatsAppSession(connectionId),
+    enabled: !!account.data?.user.id,
     refetchInterval: 3000,
   });
   const groups = useQuery({
     queryKey: [
-      ...queryKeys.whatsapp.groups,
+      ...queryKeys.whatsapp.groupsFor(connectionId ?? session.data?.id),
       session.data?.connectedPhone ?? null,
+      account.data?.user.id,
     ],
-    queryFn: getWhatsAppGroups,
+    queryFn: () => getWhatsAppGroups(connectionId ?? session.data?.id),
     enabled: session.data?.status === "READY",
     refetchInterval: 5000,
   });
   const connect = useServerAction({
-    mutationFn: connectWhatsApp,
-    invalidateQueries: [queryKeys.whatsapp.session, queryKeys.whatsapp.groups],
+    mutationFn: () => connectWhatsApp(connectionId),
+    invalidateQueries: [
+      queryKeys.whatsapp.session,
+      queryKeys.whatsapp.groups,
+      queryKeys.whatsapp.connections,
+      queryKeys.offers.all,
+    ],
     successMessage: "Conexão solicitada. Aguarde o QR Code.",
   });
   const disconnect = useServerAction({
-    mutationFn: disconnectWhatsApp,
-    invalidateQueries: [queryKeys.whatsapp.session, queryKeys.whatsapp.groups],
+    mutationFn: () => disconnectWhatsApp(connectionId),
+    invalidateQueries: [
+      queryKeys.whatsapp.session,
+      queryKeys.whatsapp.groups,
+      queryKeys.whatsapp.connections,
+      queryKeys.offers.all,
+    ],
     successMessage: "Desconexão solicitada.",
   });
   const busy = connect.isPending || disconnect.isPending;
@@ -94,7 +113,7 @@ export function WhatsAppConnection() {
                 className={connected ? "text-success size-5" : "size-5"}
                 aria-hidden="true"
               />
-              Conexão do WhatsApp
+              {session.data?.name || "Conexão do WhatsApp"}
             </CardTitle>
             {connected && (
               <Badge
@@ -113,6 +132,9 @@ export function WhatsAppConnection() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {session.data?.isPaused && (
+            <Badge variant="secondary">Envios pausados nesta conexão</Badge>
+          )}
           <WorkerIndicator
             worker={session.data?.worker}
             unavailable={!!session.error}

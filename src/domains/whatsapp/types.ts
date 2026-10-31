@@ -1,5 +1,9 @@
 import { z } from "zod";
 export const sessionSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().optional(),
+  isDefault: z.boolean().optional(),
+  isPaused: z.boolean().optional(),
   status: z.enum([
     "DISCONNECTED",
     "CONNECTING",
@@ -22,6 +26,7 @@ export const sessionSchema = z.object({
   lastError: z.string().nullable().optional(),
 });
 export const groupSchema = z.object({
+  connectionId: z.string().uuid().nullable().optional(),
   accountPhone: z.string().optional(),
   isDefault: z.boolean(),
   isFavorite: z.boolean(),

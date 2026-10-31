@@ -1,5 +1,8 @@
 "use client";
 import type { ImportedOfferDraft } from "@/domains/offers/extension-import";
+import { useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
+import type { WhatsAppConnectionAccount } from "@/domains/whatsapp/connections";
 import { useQuery } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
 import Image from "next/image";
@@ -23,7 +26,10 @@ import {
   Offer,
   OfferFormValues,
 } from "@/domains/offers/types";
-import { getWhatsAppGroups } from "@/domains/whatsapp/client";
+import {
+  getWhatsAppConnections,
+  getWhatsAppGroups,
+} from "@/domains/whatsapp/client";
 import { WhatsAppGroup } from "@/domains/whatsapp/types";
 import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
@@ -38,22 +44,33 @@ export function CreateOfferForm({
   initialDraft?: ImportedOfferDraft;
   sourcePromotionId?: string;
 }) {
-  const groups = useQuery({
-    queryKey: queryKeys.whatsapp.groups,
-    queryFn: getWhatsAppGroups,
+  const { data: session } = useSession();
+  const connections = useQuery({
+    queryKey: [...queryKeys.whatsapp.connections, session?.user.id],
+    queryFn: getWhatsAppConnections,
+    enabled: !!session?.user.id,
     refetchInterval: 5000,
   });
-  if (groups.isPending) return <p>Carregando grupos…</p>;
-  if (groups.error)
+  const groups = useQuery({
+    queryKey: [...queryKeys.whatsapp.groups, "all", session?.user.id],
+    queryFn: () => getWhatsAppGroups(),
+    enabled: !!session?.user.id,
+    refetchInterval: 5000,
+  });
+  if (groups.isPending || connections.isPending)
+    return <p>Carregando conexões e grupos…</p>;
+  if (groups.error || connections.error)
     return (
       <Alert variant="destructive">
-        <AlertDescription>{groups.error.message}</AlertDescription>
+        <AlertDescription>
+          {groups.error?.message || connections.error?.message}
+        </AlertDescription>
       </Alert>
     );
-  const favorites = groups.data?.filter((group) => group.isFavorite) ?? [];
   return (
     <OfferFields
-      groups={favorites}
+      groups={groups.data?.filter((group) => group.isFavorite) ?? []}
+      connections={connections.data?.connections ?? []}
       onSuccess={onSuccess}
       offer={offer}
       initialDraft={initialDraft}
@@ -63,17 +80,28 @@ export function CreateOfferForm({
 }
 function OfferFields({
   offer,
-  groups,
+  groups: allGroups,
+  connections,
   onSuccess,
   initialDraft,
   sourcePromotionId,
 }: {
   groups: WhatsAppGroup[];
+  connections: WhatsAppConnectionAccount[];
   offer?: Offer;
   onSuccess?: () => void;
   initialDraft?: ImportedOfferDraft;
   sourcePromotionId?: string;
 }) {
+  const initialConnectionId =
+    offer?.connectionId ??
+    allGroups.find((g) => g.id === offer?.whatsappGroup?.id)?.connectionId ??
+    connections.find((c) => c.isDefault)?.id ??
+    connections[0]?.id ??
+    "";
+  const initialGroups = allGroups.filter(
+    (group) => group.connectionId === initialConnectionId
+  );
   const {
     control,
     handleSubmit,
@@ -82,6 +110,7 @@ function OfferFields({
     formState: { errors },
   } = useForm<OfferFormValues>({
     defaultValues: {
+      connectionId: initialConnectionId,
       title: offer?.title || initialDraft?.title || "",
       description: offer?.description || initialDraft?.description || "",
       sourceUrl: offer?.sourceUrl || initialDraft?.sourceUrl || "",
@@ -96,25 +125,42 @@ function OfferFields({
         : (initialDraft?.originalPrice ?? undefined),
       whatsappGroupId:
         offer?.whatsappGroup?.id ??
-        groups.find((group) => group.isDefault)?.id ??
+        initialGroups.find((group) => group.isDefault)?.id ??
         "",
-      whatsappGroupIds: groups
+      whatsappGroupIds: initialGroups
         .filter((group) => group.isDefault)
         .map((group) => group.id),
       addToQueue: false,
     },
   });
   const values = useWatch({ control });
+  const groups = allGroups.filter(
+    (group) => group.connectionId === values.connectionId
+  );
+  const previousConnection = useRef(values.connectionId);
+  useEffect(() => {
+    if (previousConnection.current === values.connectionId) return;
+    previousConnection.current = values.connectionId;
+    const defaults = allGroups.filter(
+      (group) => group.connectionId === values.connectionId && group.isDefault
+    );
+    setValue(
+      "whatsappGroupIds",
+      defaults.map((group) => group.id),
+      { shouldDirty: true }
+    );
+    setValue("whatsappGroupId", defaults[0]?.id ?? "", { shouldDirty: true });
+  }, [values.connectionId, allGroups, setValue]);
   const importImages = initialDraft?.imageUrls ?? [];
   const saveRevision = useServerAction<Offer, ReviseOffer>({
     mutationFn: (body) => reviseOffer(offer!.id, body),
     successMessage: "Oferta atualizada.",
-    invalidateQueries: [queryKeys.offers.all],
+    invalidateQueries: [queryKeys.offers.all, queryKeys.whatsapp.connections],
     onSuccess: () => onSuccess?.(),
   });
   const saveBatch = useServerAction<Offer[], CreateOffers>({
     mutationFn: createOffers,
-    invalidateQueries: [queryKeys.offers.all],
+    invalidateQueries: [queryKeys.offers.all, queryKeys.whatsapp.connections],
     onSuccess: () => onSuccess?.(),
     successMessage: values.addToQueue
       ? "Oferta adicionada à fila dos grupos selecionados."
@@ -209,7 +255,7 @@ function OfferFields({
               Você pode revisar os dados abaixo. Para salvar, conecte o WhatsApp
               e marque um grupo como favorito.{" "}
               <Link
-                href="/control-panel"
+                href="/connections"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"
@@ -311,6 +357,37 @@ function OfferFields({
                   fila.
                 </p>
               </div>
+              <ControlledCombobox
+                control={control}
+                name="connectionId"
+                label="Conta do WhatsApp *"
+                placeholder="Escolha a conexão responsável pelo envio"
+                options={connections.map((connection) => ({
+                  id: connection.id,
+                  name:
+                    connection.name +
+                    (connection.connectedPhone
+                      ? " · +" + connection.connectedPhone
+                      : "") +
+                    (connection.status !== "READY"
+                      ? " · desconectada"
+                      : connection.isPaused
+                        ? " · envios pausados"
+                        : ""),
+                }))}
+                rules={{ required: "Selecione uma conexão." }}
+                disabled={save.isPending}
+              />
+              {connections.find(
+                (connection) => connection.id === values.connectionId
+              )?.isPaused && (
+                <Alert>
+                  <AlertDescription>
+                    Os envios desta conexão estão pausados. Você pode salvar a
+                    oferta; a publicação aguarda a retomada na página Conexões.
+                  </AlertDescription>
+                </Alert>
+              )}
               {offer ? (
                 <ControlledCombobox
                   control={control}
