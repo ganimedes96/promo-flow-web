@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ConnectionSheetSkeleton } from "@/components/feedback/loading-skeletons";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
+import { getConnectionBadgeStyle } from "@/domains/whatsapp/badge-styles";
 import { WhatsAppSession } from "@/domains/whatsapp/types";
 import { cn } from "@/lib/shadcn/utils";
 
@@ -124,9 +125,7 @@ export function ConnectionAccountDetails({
               variant="outline"
               className={cn(
                 "mb-3 gap-1.5",
-                connected
-                  ? "border-success/30 bg-success/10 text-success"
-                  : "border-primary/20 bg-primary/5 text-primary"
+                getConnectionBadgeStyle(session.status, connected)
               )}
             >
               <span

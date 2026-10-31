@@ -1,5 +1,6 @@
 "use client";
 import { Server, CircleCheck, CirclePause, CircleAlert } from "lucide-react";
+import { connectionBadgeStyles } from "@/domains/whatsapp/badge-styles";
 import { Badge } from "@/components/ui/badge";
 import { WhatsAppSession } from "@/domains/whatsapp/types";
 import { formatDate } from "@/utils/date";
@@ -35,7 +36,18 @@ export function WorkerIndicator({
           <Server className="size-4" aria-hidden="true" />
           Publicador de ofertas
         </p>
-        <Badge variant="outline" className="border-current/25 text-current">
+        <Badge
+          variant="outline"
+          className={
+            unavailable
+              ? connectionBadgeStyles.error
+              : enabled
+                ? connectionBadgeStyles.connected
+                : online
+                  ? connectionBadgeStyles.waiting
+                  : connectionBadgeStyles.disconnected
+          }
+        >
           {enabled ? (
             <CircleCheck aria-hidden="true" />
           ) : online ? (

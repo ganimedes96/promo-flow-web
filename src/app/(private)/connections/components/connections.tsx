@@ -41,6 +41,10 @@ import {
 import { PageSkeleton } from "@/components/feedback/loading-skeletons";
 import { EmptyStateCard } from "@/components/feedback/empty-state-card";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
+import {
+  getConnectionBadgeStyle,
+  connectionBadgeStyles,
+} from "@/domains/whatsapp/badge-styles";
 import { getWhatsAppConnections } from "@/domains/whatsapp/client";
 import {
   saveWhatsAppConnection,
@@ -217,19 +221,27 @@ export function Connections() {
                   <div className="flex flex-wrap gap-2">
                     <Badge
                       variant="outline"
-                      className={
+                      className={getConnectionBadgeStyle(
+                        connection.status,
                         connected
-                          ? "border-success/30 bg-success/10 text-success"
-                          : "border-warning/30 bg-warning/10 text-warning"
-                      }
+                      )}
                     >
                       {status}
                     </Badge>
                     {connection.isPaused && (
-                      <Badge variant="secondary">Envios pausados</Badge>
+                      <Badge
+                        variant="outline"
+                        className={connectionBadgeStyles.waiting}
+                      >
+                        <Pause className="size-3" />
+                        Envios pausados
+                      </Badge>
                     )}
                     {connection.isDefault && (
-                      <Badge variant="secondary">
+                      <Badge
+                        variant="outline"
+                        className={connectionBadgeStyles.authenticated}
+                      >
                         <Star className="size-3" />
                         Padrão
                       </Badge>

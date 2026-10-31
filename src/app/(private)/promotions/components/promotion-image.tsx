@@ -9,13 +9,14 @@ export function PromotionImage({
   title,
   compact = false,
 }: {
-  src: string;
+  src: string | null;
   title: string;
   compact?: boolean;
 }) {
-  const [result, setResult] = useState<{ src: string; failed: boolean } | null>(
-    null
-  );
+  const [result, setResult] = useState<{
+    src: string | null;
+    failed: boolean;
+  } | null>(null);
   const imageRef = useCallback(
     (image: HTMLImageElement | null) => {
       if (image?.complete) {
@@ -29,8 +30,8 @@ export function PromotionImage({
     },
     [src]
   );
-  const settled = result?.src === src;
-  const failed = settled && result.failed;
+  const settled = !src || result?.src === src;
+  const failed = !src || (settled && result?.failed);
   return (
     <div
       className={cn(
@@ -50,13 +51,15 @@ export function PromotionImage({
       {failed ? (
         <div className="flex flex-col items-center gap-2 text-sm text-gray-500">
           <ImageOff className="size-7" />
-          {!compact && <span>Imagem indisponível</span>}
+          {!compact && (
+            <span>{src ? "Imagem indisponível" : "Imagem pendente"}</span>
+          )}
         </div>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           ref={imageRef}
-          src={src}
+          src={src || undefined}
           alt={title}
           loading="lazy"
           referrerPolicy="no-referrer"

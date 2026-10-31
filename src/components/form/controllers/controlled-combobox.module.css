@@ -1,0 +1,16 @@
+.options {
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+.options::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+}
+.options::-webkit-scrollbar-track {
+  background: transparent;
+}
+.options::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}

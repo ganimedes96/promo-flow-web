@@ -2,7 +2,8 @@
 import { ControlledProductCategory } from "@/domains/categories/components/controlled-product-category";
 import { OfferFormSkeleton } from "@/components/feedback/loading-skeletons";
 import type { ImportedOfferDraft } from "@/domains/offers/extension-import";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { MercadoLivreAffiliate } from "@/domains/offers/components/mercado-livre-affiliate";
 import { useSession } from "next-auth/react";
 import type { WhatsAppConnectionAccount } from "@/domains/whatsapp/connections";
 import { useQuery } from "@tanstack/react-query";
@@ -138,6 +139,14 @@ function OfferFields({
     },
   });
   const values = useWatch({ control });
+  const receiveAffiliate = useCallback(
+    (url: string) =>
+      setValue("affiliateUrl", url, {
+        shouldDirty: true,
+        shouldValidate: true,
+      }),
+    [setValue]
+  );
   const groups = allGroups.filter(
     (group) => group.connectionId === values.connectionId
   );
@@ -318,6 +327,10 @@ function OfferFields({
                   placeholder="https://loja.com/link-afiliado"
                   type="url"
                   rules={urlRule}
+                />
+                <MercadoLivreAffiliate
+                  sourceUrl={values.sourceUrl || ""}
+                  onReceive={receiveAffiliate}
                 />
               </div>
               <ControlledInput

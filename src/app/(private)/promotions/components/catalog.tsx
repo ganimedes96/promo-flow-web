@@ -54,6 +54,8 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
     enabled: !!session?.user,
     refetchOnWindowFocus: "always",
     placeholderData: keepPreviousData,
+    refetchInterval: (query) => (manage && !query.state.error ? 10000 : false),
+    refetchIntervalInBackground: false,
   });
   const latest = useQuery({
     queryKey: queryKeys.promotions.list(1, false, session?.user.id),
@@ -110,6 +112,9 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
             <>
               <Button asChild variant="outline">
                 <Link href="/promotions">Ver central</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/promotion-sources">Fontes de promoções</Link>
               </Button>
               <Button onClick={() => setEditing(null)}>
                 <Plus className="size-4" />
@@ -271,8 +276,10 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
                   sourceCategory: using.sourceCategory ?? undefined,
                   title: using.title,
                   description: using.description,
-                  imageUrls: [using.imageUrl],
-                  currentPrice: Number(using.currentPrice),
+                  imageUrls: using.imageUrl ? [using.imageUrl] : [],
+                  currentPrice: using.currentPrice
+                    ? Number(using.currentPrice)
+                    : undefined,
                   originalPrice: using.originalPrice
                     ? Number(using.originalPrice)
                     : undefined,

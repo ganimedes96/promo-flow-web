@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import styles from "./controlled-combobox.module.css";
 import { Check, ChevronsUpDown } from "lucide-react";
 import {
   Controller,
@@ -83,7 +84,7 @@ export function ControlledCombobox<FormType extends FieldValues>({
               </Label>
               {rightComponent && rightComponent}
             </div>
-            <Popover open={open} onOpenChange={setOpen}>
+            <Popover modal open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
                   id={name}
@@ -117,7 +118,16 @@ export function ControlledCombobox<FormType extends FieldValues>({
               >
                 <Command className="w-full gap-2 p-1">
                   <CommandInput placeholder={searchPlaceholder} />
-                  <CommandList className="max-h-60 overflow-y-auto px-1 pb-1">
+                  <CommandList
+                    className={cn(
+                      "min-h-0 overflow-y-auto px-1 pb-1",
+                      styles.options
+                    )}
+                    style={{
+                      maxHeight:
+                        "min(15rem, max(5rem, calc(var(--radix-popover-content-available-height) - 5rem)))",
+                    }}
+                  >
                     <CommandEmpty>{noOptionsMessage}</CommandEmpty>
                     <CommandGroup className="p-0 [&_[cmdk-group-items]]:flex [&_[cmdk-group-items]]:flex-col [&_[cmdk-group-items]]:gap-2">
                       {options.map((option) => (

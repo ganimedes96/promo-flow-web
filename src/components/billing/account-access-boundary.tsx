@@ -26,6 +26,7 @@ export function AccountAccessBoundary({
       "/offers": "offers",
       "/promotions": "promotions",
       "/promotions/manage": "promotions",
+      "/promotion-sources": "connections",
       "/users": "users",
     };
     return <PageSkeleton variant={variants[pathname] ?? "generic"} />;

@@ -24,10 +24,16 @@ const stores: Record<string, string> = {
   AMAZON: "Amazon",
   SHOPEE: "Shopee",
 };
-const money = (value: string) =>
-  Number(value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const money = (value: string | null) =>
+  value === null
+    ? "Preço pendente"
+    : Number(value).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
 function discount(promotion: Promotion) {
-  return promotion.originalPrice &&
+  return promotion.currentPrice !== null &&
+    promotion.originalPrice &&
     Number(promotion.originalPrice) > Number(promotion.currentPrice)
     ? Math.round(
         (1 - Number(promotion.currentPrice) / Number(promotion.originalPrice)) *
@@ -110,6 +116,11 @@ export function PromotionHighlights({
                 </div>
               </div>
               <CardContent className="space-y-4 p-5">
+                {promotion.imports?.[0] && (
+                  <Badge variant="secondary" className="mb-1">
+                    Telegram
+                  </Badge>
+                )}
                 {promotion.category && (
                   <Badge variant="secondary">{promotion.category.name}</Badge>
                 )}

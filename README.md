@@ -749,3 +749,37 @@ A central mostra as três promoções publicadas mais recentes em cards fixos no
 ### Categorias de produto
 
 Ofertas e promoções possuem categoria padronizada editável no ControlledProductCategory. O modo automático envia a categoria original da loja, quando disponível, e o título para classificação por regras no backend ao salvar; sem correspondência, usa Outros. A categoria escolhida na central é preservada ao preparar uma oferta. As opções são lidas em GET /categories e o resultado aparece nas listagens. Registros antigos permanecem sem categoria até serem salvos novamente. Requer a migration 20261031010000_product_categories, que cria a tabela e as categorias iniciais. Publique primeiro a API (com a migração), depois o frontend e recarregue a extensão 0.6.3. A migration foi preparada e não foi aplicada ao Neon nesta alteração.
+
+
+### Caixa de entrada de promoções do Telegram
+
+O projeto `../promo-flow-telegram` é um coletor local separado do worker do WhatsApp. Canais selecionados geram capturas privadas em `/promotions/manage`, acessível pelo botão **Entrada do Telegram** em Gerenciar central. A captura não publica automaticamente: o administrador revisa com o mesmo formulário de promoção.
+
+A API usa o módulo `promotion-inbox`, repositório com contrato e token específico `TELEGRAM_INGEST_TOKEN` (32+ caracteres), diferente do token do worker. A variável é opcional enquanto o coletor não estiver configurado; nesse caso o endpoint interno recusa capturas. Configure o mesmo segredo no coletor e na API, sem expô-lo ao navegador.
+
+A migração `20261031020000_telegram_promotion_inbox` cria uma tabela separada, com idempotência por canal/mensagem e por produto/preço/cupom. A revisão cria a promoção e altera o estado da captura na mesma transação. Nesta implementação a migração foi preparada, mas não aplicada no Neon. Publique a API com as migrações antes do frontend. Instruções completas em `../promo-flow-telegram/README.md`.
+
+
+### Imagens do Telegram
+
+A migração `20261031030000_telegram_capture_images` acrescenta o JPEG e a chave de acesso à captura. A rota pública `/promotion-images/:id/:key` entrega somente a foto, com chave aleatória de 48 caracteres, tipo JPEG e `nosniff`; metadados e mensagens continuam exclusivos do administrador. Configure `PUBLIC_API_URL` na API com a URL canônica incluindo `/api`, para que fotos continuem acessíveis após novos deploys. As fotos ficam no PostgreSQL nesta primeira versão, com limite de 1 MB por captura. A listagem não retorna o binário. O formulário de revisão já recebe a imagem capturada. Migração preparada, não aplicada ao Neon nesta atividade.
+
+
+### Fontes de promoções — gerenciamento administrativo
+
+A página `/promotion-sources` permite gerenciar uma conta administrativa Telegram por QR Code, confirmar 2FA, adicionar fontes por busca, pausar/retomar/remover monitoramentos e consultar última verificação, captura, contadores e falhas. A navegação exige `managePromotions` e a API valida o papel admin no banco. O coletor continua local, consultando configurações a cada 5 segundos.
+
+A migração `20261031040000_telegram_source_management` cria estado do coletor e fontes isoladas por conta, vinculando novas capturas à fonte. Foi preparada e validada em PostgreSQL descartável; não aplicada ao Neon. Atualize na ordem: parar coletor antigo → API + migrações → frontend → coletor atualizado. `TELEGRAM_INGEST_TOKEN` deve coincidir na API e no coletor. As credenciais API_ID/API_HASH e a sessão Telegram continuam somente na máquina.
+
+QR e senha de duas etapas ficam cifrados, expiram e são limitados ao fluxo de autenticação; respostas públicas do gerenciamento não retornam payloads internos. Depois da confirmação do coletor, a senha é removida. Apenas um coletor recebe a concessão ativa de gerenciamento. A API impede capturas de fontes pausadas, conta diferente ou protocolo antigo após inicializar o modo gerenciado. Parar o processo preserva a sessão, enquanto desconectar no admin revoga a sessão do coletor. As promoções continuam passando pela revisão antes de publicar.
+
+
+### Captura direta para Gerenciar promoções
+
+As capturas do Telegram agora criam automaticamente rascunhos em `/promotions/manage`, sem uma tela de entrada/revisão intermediária. A rota antiga foi removida do frontend. O admin edita e publica no formulário normal; membros continuam vendo somente promoções publicadas e completas. A mensagem original e o canal ficam disponíveis ao admin dentro da edição.
+
+A migração `20261031050000_direct_telegram_drafts` preserva capturas antigas pendentes criando seus rascunhos, inclusive quando faltam preço ou foto. Valores ausentes ficam nulos, sem inventar R$ 0,00 ou imagens de preenchimento. Uma restrição no banco impede publicar sem preço positivo e imagem. A tabela técnica de capturas permanece para deduplicação, origem e armazenamento de fotos; não é uma etapa adicional para o usuário. A migração foi testada em banco descartável e não aplicada no Neon nesta atividade.
+
+O download de fotos progressivas do Telegram foi corrigido: o SDK não aceitava diretamente o objeto PhotoSizeProgressive, apesar de anunciá-lo na tipagem. O coletor fornece o descritor PhotoSize com o mesmo token/resolução e o tamanho total do arquivo. As três fotos ausentes identificadas no Neon foram recuperadas sem publicar promoções.
+
+Atualização: publicar API com a nova migração, publicar frontend e reiniciar o coletor local uma vez para carregar a correção das fotos. Sem mudanças de token ou novo login.

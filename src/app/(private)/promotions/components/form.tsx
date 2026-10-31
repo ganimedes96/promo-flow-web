@@ -43,11 +43,13 @@ type FormValues = PromotionInput & { validUntil: string };
 
 export function PromotionForm({
   promotion,
+  initialMarketplace,
   initialDraft,
   onSuccess,
   onCancel,
 }: {
   promotion?: Promotion;
+  initialMarketplace?: PromotionInput["marketplace"];
   initialDraft?: ImportedOfferDraft;
   onSuccess: () => void;
   onCancel?: () => void;
@@ -67,15 +69,17 @@ export function PromotionForm({
       description: promotion?.description || initialDraft?.description || "",
       sourceUrl: promotion?.sourceUrl || initialDraft?.sourceUrl || "",
       imageUrl: promotion?.imageUrl || initialDraft?.imageUrls[0] || "",
-      currentPrice: promotion
-        ? Number(promotion.currentPrice)
-        : (initialDraft?.currentPrice ?? undefined),
+      currentPrice:
+        promotion?.currentPrice != null
+          ? Number(promotion.currentPrice)
+          : (initialDraft?.currentPrice ?? undefined),
       originalPrice: promotion?.originalPrice
         ? Number(promotion.originalPrice)
         : (initialDraft?.originalPrice ?? undefined),
       couponCode: promotion?.couponCode || initialDraft?.couponCode || "",
       marketplace:
         promotion?.marketplace ||
+        initialMarketplace ||
         (initialDraft?.sourceUrl.includes("amazon.com.br")
           ? "AMAZON"
           : initialDraft?.sourceUrl.includes("shopee.com.br")
@@ -100,7 +104,7 @@ export function PromotionForm({
       ? Math.round((1 - current / original) * 100)
       : 0;
   const image = values.imageUrl?.trim() || "";
-  const validImage = /^https:\/\//i.test(image) && image !== failedImage;
+  const validImage = /^https?:\/\//i.test(image) && image !== failedImage;
   const action = useServerAction<Promotion, PromotionInput & { id?: string }>({
     mutationFn: savePromotion,
     invalidateQueries: [queryKeys.promotions.all],
@@ -138,6 +142,16 @@ export function PromotionForm({
       })}
     >
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-7">
+        {promotion?.imports?.[0] && (
+          <details className="bg-muted/30 mb-5 rounded-xl border p-4 text-sm">
+            <summary className="cursor-pointer font-medium">
+              Mensagem original · {promotion.imports[0].chatTitle}
+            </summary>
+            <p className="text-muted-foreground mt-3 max-h-48 overflow-auto text-xs whitespace-pre-wrap">
+              {promotion.imports[0].rawText}
+            </p>
+          </details>
+        )}
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_250px]">
           <div className="min-w-0 space-y-5">
             <section className="bg-card space-y-5 rounded-2xl border p-5">

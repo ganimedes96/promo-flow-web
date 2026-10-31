@@ -15,7 +15,20 @@ export const promotionSchema = z
       .string()
       .url("Imagem inválida.")
       .max(2048)
-      .startsWith("https://"),
+      .refine((value) => {
+        try {
+          const url = new URL(value);
+          return (
+            !url.username &&
+            !url.password &&
+            (url.protocol === "https:" ||
+              (url.protocol === "http:" &&
+                ["localhost", "127.0.0.1"].includes(url.hostname)))
+          );
+        } catch {
+          return false;
+        }
+      }, "Use HTTPS para a imagem, ou HTTP somente em localhost."),
     currentPrice: z
       .number()
       .positive("Informe o preço atual.")
@@ -33,6 +46,7 @@ export const promotionSchema = z
 export type PromotionInput = z.infer<typeof promotionSchema>;
 export interface Promotion extends Omit<
   PromotionInput,
+  | "imageUrl"
   | "currentPrice"
   | "originalPrice"
   | "expiresAt"
@@ -44,7 +58,14 @@ export interface Promotion extends Omit<
   sourceCategory?: string | null;
   category?: { id: string; name: string } | null;
   id: string;
-  currentPrice: string;
+  currentPrice: string | null;
+  imageUrl: string | null;
+  imports?: {
+    id: string;
+    chatTitle: string;
+    rawText: string;
+    warnings: string[];
+  }[];
   originalPrice: string | null;
   couponCode: string | null;
   expiresAt: string | null;

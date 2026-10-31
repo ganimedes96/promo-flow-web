@@ -7,6 +7,10 @@ const usersKeys = {
 };
 
 export const queryKeys = {
+  telegram: {
+    all: ["telegram"] as const,
+    status: (userId?: string) => ["telegram", userId] as const,
+  },
   categories: { all: ["categories"] as const },
   promotions: {
     all: ["promotions"] as const,
