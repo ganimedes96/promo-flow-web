@@ -783,3 +783,8 @@ A migração `20261031050000_direct_telegram_drafts` preserva capturas antigas p
 O download de fotos progressivas do Telegram foi corrigido: o SDK não aceitava diretamente o objeto PhotoSizeProgressive, apesar de anunciá-lo na tipagem. O coletor fornece o descritor PhotoSize com o mesmo token/resolução e o tamanho total do arquivo. As três fotos ausentes identificadas no Neon foram recuperadas sem publicar promoções.
 
 Atualização: publicar API com a nova migração, publicar frontend e reiniciar o coletor local uma vez para carregar a correção das fotos. Sem mudanças de token ou novo login.
+
+
+## Fontes WhatsApp no mesmo fluxo do Telegram
+
+Na aba WhatsApp de /promotion-sources, o administrador conecta ou escolhe sua conta, lê o QR Code no sheet da própria página e adiciona grupos com o combobox de Adicionar fonte. A tela reutiliza a conexão existente do worker; não cria uma sessão paralela no coletor. O sheet fecha três segundos depois de confirmar a conexão. Fontes selecionadas ficam na listagem com busca, situação e paginação; pausar preserva a fonte, remover apenas deixa de monitorá-la, mantendo grupo e histórico. Contadores e datas são reais, alimentados pela API. Desconectar avisa que também interrompe envios daquela conta. A seleção exige a migration 20261031070000_whatsapp_source_management e a API atualizada; não aplicada ao Neon nesta atividade. Publique API e web em conjunto.

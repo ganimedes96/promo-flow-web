@@ -7,6 +7,10 @@ export const whatsappCollectionSourcesSchema = z.array(
     whatsappId: z.string(),
     name: z.string(),
     captureEnabled: z.boolean(),
+    captureSelected: z.boolean(),
+    capturedCount: z.number(),
+    lastCapturedAt: z.string().nullable(),
+    lastCaptureCheckAt: z.string().nullable(),
     connection: z
       .object({
         name: z.string(),

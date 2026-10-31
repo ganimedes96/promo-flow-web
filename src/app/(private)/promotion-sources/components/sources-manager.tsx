@@ -86,7 +86,8 @@ export function SourcesManager() {
           </p>
           <h1 className="text-2xl font-semibold">Fontes de promoções</h1>
           <p className="text-muted-foreground mt-2 text-sm">
-            Gerencie sua conta e os canais que alimentam a caixa de entrada.
+            Gerencie sua conta do Telegram e os canais que enviam rascunhos para
+            a Central.
           </p>
         </div>
         <div className="flex gap-2">
