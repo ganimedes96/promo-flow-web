@@ -124,7 +124,9 @@ export function PromotionHighlights({
               <CardContent className="space-y-2.5 p-3">
                 {promotion.imports?.[0] && (
                   <Badge variant="secondary" className="mb-1">
-                    Telegram
+                    {promotion.imports[0].platform === "WHATSAPP"
+                      ? "WhatsApp"
+                      : "Telegram"}
                   </Badge>
                 )}
                 {promotion.category && (

@@ -61,6 +61,7 @@ export interface Promotion extends Omit<
   currentPrice: string | null;
   imageUrl: string | null;
   imports?: {
+    platform?: "TELEGRAM" | "WHATSAPP";
     id: string;
     chatTitle: string;
     rawText: string;

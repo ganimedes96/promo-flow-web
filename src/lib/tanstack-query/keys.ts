@@ -7,6 +7,10 @@ const usersKeys = {
 };
 
 export const queryKeys = {
+  collection: {
+    all: ["collection"] as const,
+    whatsapp: (userId?: string) => ["collection", "whatsapp", userId] as const,
+  },
   telegram: {
     all: ["telegram"] as const,
     status: (userId?: string) => ["telegram", userId] as const,
