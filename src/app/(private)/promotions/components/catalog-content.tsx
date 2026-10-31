@@ -95,27 +95,33 @@ export function PromotionHighlights({
           As últimas adicionadas à central
         </span>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {items.map((promotion) => {
           const off = discount(promotion);
           return (
             <Card
               key={promotion.id}
-              className="group gap-0 overflow-hidden rounded-2xl py-0 transition-shadow hover:shadow-lg motion-safe:duration-300"
+              className="group gap-0 overflow-hidden rounded-xl py-0 transition-shadow hover:shadow-lg motion-safe:duration-300"
             >
               <div className="relative overflow-hidden">
                 <PromotionImage
                   src={promotion.imageUrl}
                   title={promotion.title}
+                  className="h-36 p-3"
                 />
-                <div className="absolute inset-x-3 top-3 flex items-center justify-between gap-2">
+                <div className="absolute inset-x-2 top-2 flex items-center justify-between gap-2">
                   <Badge className="bg-background text-foreground border shadow-sm">
                     {stores[promotion.marketplace] ?? promotion.marketplace}
                   </Badge>
-                  {off > 0 && <Badge>{off}% OFF</Badge>}
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-primary text-primary-foreground justify-center gap-1 shadow-sm">
+                      <Sparkles className="size-3" /> News
+                    </Badge>
+                    {off > 0 && <Badge>{off}% OFF</Badge>}
+                  </div>
                 </div>
               </div>
-              <CardContent className="space-y-4 p-5">
+              <CardContent className="space-y-2.5 p-3">
                 {promotion.imports?.[0] && (
                   <Badge variant="secondary" className="mb-1">
                     Telegram
@@ -124,17 +130,14 @@ export function PromotionHighlights({
                 {promotion.category && (
                   <Badge variant="secondary">{promotion.category.name}</Badge>
                 )}
-                {promotion.category && (
-                  <Badge variant="secondary">{promotion.category.name}</Badge>
-                )}
                 <h3
-                  className="line-clamp-2 min-h-12 text-base leading-6 font-semibold"
+                  className="line-clamp-2 min-h-10 text-sm leading-5 font-semibold"
                   title={promotion.title}
                 >
                   {promotion.title}
                 </h3>
                 <div className="flex flex-wrap items-end justify-between gap-2">
-                  <Price promotion={promotion} large />
+                  <Price promotion={promotion} />
                   {promotion.couponCode && (
                     <span className="border-primary/30 bg-primary/5 text-primary flex max-w-full items-center gap-1.5 rounded-lg border border-dashed px-2 py-1 text-xs">
                       <Ticket className="size-3.5 shrink-0" />
@@ -144,7 +147,7 @@ export function PromotionHighlights({
                     </span>
                   )}
                 </div>
-                <p className="text-muted-foreground line-clamp-2 min-h-10 text-xs leading-5">
+                <p className="text-muted-foreground line-clamp-1 text-xs leading-5">
                   {promotion.description}
                 </p>
                 {promotion.expiresAt && (
@@ -153,8 +156,12 @@ export function PromotionHighlights({
                     Até {formatDate(promotion.expiresAt, "dd/MM/yyyy HH:mm")}
                   </p>
                 )}
-                <div className="flex items-center gap-2 border-t pt-4">
-                  <Button className="flex-1" onClick={() => onUse(promotion)}>
+                <div className="flex items-center gap-2 border-t pt-2.5">
+                  <Button
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => onUse(promotion)}
+                  >
                     Preparar minha oferta
                     <ArrowUpRight className="size-4 transition-transform motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5" />
                   </Button>
@@ -162,6 +169,7 @@ export function PromotionHighlights({
                     asChild
                     variant="outline"
                     size="icon"
+                    className="size-8"
                     aria-label={"Ver na loja: " + promotion.title}
                   >
                     <a
@@ -365,13 +373,13 @@ export function PromotionHighlightsSkeleton() {
   return (
     <SkeletonRegion label="Carregando novidades">
       <Skeleton className="mb-4 h-7 w-56" />
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {[0, 1, 2].map((i) => (
-          <Card key={i} className="gap-0 overflow-hidden rounded-2xl py-0">
-            <Skeleton className="h-48 rounded-none" />
-            <CardContent className="space-y-4 p-5">
-              <Skeleton className="h-12" />
-              <Skeleton className="h-8 w-32" />
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 9 }, (_, i) => (
+          <Card key={i} className="gap-0 overflow-hidden rounded-xl py-0">
+            <Skeleton className="h-36 rounded-none" />
+            <CardContent className="space-y-2.5 p-3">
+              <Skeleton className="h-10" />
+              <Skeleton className="h-6 w-28" />
               <Skeleton className="h-10" />
               <Skeleton className="h-10" />
             </CardContent>

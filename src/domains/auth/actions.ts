@@ -41,14 +41,22 @@ export async function registerAccount(
       data: { email: response.data.user.email },
     };
   } catch (error: unknown) {
+    // fetchServer mutations may throw the API envelope as a plain object.
+    const details = typeof error === "object" && error !== null ? error : null;
+    const message =
+      details && "message" in details ? details.message : undefined;
+    const code = details && "code" in details ? details.code : undefined;
     return {
       status: "error",
-      code: 400,
+      code: typeof code === "number" ? code : 500,
       timestamp: new Date().toISOString(),
       message:
-        error instanceof Error
-          ? error.message
-          : "Não foi possível criar sua conta.",
+        typeof message === "string" && message.trim()
+          ? message
+          : Array.isArray(message) &&
+              message.every((item) => typeof item === "string")
+            ? message.join(" ")
+            : "Não foi possível criar sua conta.",
     };
   }
 }

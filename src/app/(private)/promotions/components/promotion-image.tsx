@@ -8,10 +8,12 @@ export function PromotionImage({
   src,
   title,
   compact = false,
+  className,
 }: {
   src: string | null;
   title: string;
   compact?: boolean;
+  className?: string;
 }) {
   const [result, setResult] = useState<{
     src: string | null;
@@ -36,7 +38,10 @@ export function PromotionImage({
     <div
       className={cn(
         "relative flex shrink-0 items-center justify-center bg-white",
-        compact ? "size-14 overflow-hidden rounded-xl border p-1.5" : "h-48 p-4"
+        compact
+          ? "size-14 overflow-hidden rounded-xl border p-1.5"
+          : "h-48 p-4",
+        className
       )}
     >
       {!settled && (

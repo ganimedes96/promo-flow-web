@@ -29,8 +29,10 @@ export function RegisterFormFields({
     control,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors },
   } = useForm<RegisterForm>({
+    mode: "onBlur",
     defaultValues: {
       name: "",
       email: "",
@@ -70,12 +72,22 @@ export function RegisterFormFields({
   return (
     <form
       className="space-y-4"
+      noValidate
       onSubmit={handleSubmit((values) => {
         const parsed = registerFormSchema.safeParse(values);
         if (!parsed.success) {
-          setError("root", {
-            message: parsed.error.issues[0]?.message || "Confira seus dados.",
-          });
+          for (const issue of parsed.error.issues) {
+            const field = issue.path[0];
+            if (
+              field === "name" ||
+              field === "email" ||
+              field === "phone" ||
+              field === "password" ||
+              field === "confirmPassword"
+            ) {
+              setError(field, { message: issue.message });
+            }
+          }
           return;
         }
         const body = registerAccountSchema.parse(parsed.data);
@@ -97,26 +109,57 @@ export function RegisterFormFields({
         placeholder="voce@email.com"
         type="email"
         autoComplete="email"
-        rules={{ required: "Informe seu email." }}
+        autoCapitalize="none"
+        spellCheck={false}
+        rules={{
+          required: "Informe seu email.",
+          validate: (value) =>
+            registerAccountSchema.shape.email.safeParse(value).success ||
+            "Informe um email válido.",
+        }}
       />
       <ControlledInput
         control={control}
         name="phone"
-        label="Telefone com DDD"
-        placeholder="+55 85 99999-9999"
+        label="Celular com DDD (Brasil)"
+        placeholder="(85) 99999-9999"
+        maskType="phoneMobile"
+        inputMode="tel"
         type="tel"
         autoComplete="tel"
-        rules={{ required: "Informe seu telefone." }}
+        onPaste={(event) => {
+          const digits = event.clipboardData
+            .getData("text")
+            .replace(/[^\d]/g, "");
+          event.preventDefault();
+          setValue(
+            "phone",
+            digits.length === 13 && digits.startsWith("55")
+              ? digits.slice(2)
+              : digits,
+            { shouldDirty: true, shouldValidate: true }
+          );
+        }}
+        rules={{
+          required: "Informe seu celular.",
+          validate: (value) =>
+            registerAccountSchema.shape.phone.safeParse(value).success ||
+            "Informe um celular válido com DDD.",
+        }}
       />
       <ControlledInput
         control={control}
         name="password"
         label="Senha"
-        placeholder="Pelo menos 8 caracteres, com letra e número"
+        placeholder="Pelo menos 6 caracteres"
         type="password"
         autoComplete="new-password"
         maxLength={72}
-        rules={{ required: "Crie uma senha." }}
+        minLength={6}
+        rules={{
+          required: "Crie uma senha.",
+          minLength: { value: 6, message: "Use pelo menos 6 caracteres." },
+        }}
       />
       <ControlledInput
         control={control}

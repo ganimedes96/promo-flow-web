@@ -69,7 +69,7 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
     onSuccess: () => setRemoving(null),
   });
   const items = list.data?.items ?? [];
-  const highlights = manage ? [] : (latest.data?.items ?? []).slice(0, 3);
+  const highlights = manage ? [] : (latest.data?.items ?? []).slice(0, 9);
   const total = list.data?.total ?? 0;
   const lastPage = Math.max(1, Math.ceil(total / 12));
   const initialLoading = list.isPending || (!manage && latest.isPending);
