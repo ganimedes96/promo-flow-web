@@ -1,5 +1,11 @@
 "use client";
 import Link from "next/link";
+import { CreditCard } from "lucide-react";
+import { EmptyStateCard } from "@/components/feedback/empty-state-card";
+import {
+  PlansSkeleton,
+  SubscriptionSkeleton,
+} from "@/components/feedback/loading-skeletons";
 import { useQuery } from "@tanstack/react-query";
 import {
   Card,
@@ -21,6 +27,7 @@ export function SubscriptionPanel() {
     queryKey: queryKeys.billing.plans,
     queryFn: getSubscriptionPlans,
   });
+  if (access.isPending) return <SubscriptionSkeleton />;
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6">
       <Card>
@@ -48,7 +55,6 @@ export function SubscriptionPanel() {
                 : `Teste gratuito até ${formatDate(access.data.trialEndsAt, "dd/MM/yyyy HH:mm")}.`}
             </p>
           )}
-          {access.isPending && <p>Consultando seu acesso…</p>}
           {access.error && (
             <Alert variant="destructive">
               <AlertDescription>{access.error.message}</AlertDescription>
@@ -64,23 +70,28 @@ export function SubscriptionPanel() {
       <div>
         <h2 className="mb-4 text-xl font-semibold">Planos de assinatura</h2>
         {plans.isPending ? (
-          <p>Carregando planos…</p>
+          <PlansSkeleton />
         ) : plans.error ? (
           <Alert variant="destructive">
             <AlertDescription>{plans.error.message}</AlertDescription>
           </Alert>
         ) : !plans.data?.length ? (
-          <Card>
-            <CardContent className="space-y-2">
-              <h3 className="font-semibold">
-                Os planos estão sendo preparados.
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                Os valores e a forma de pagamento serão disponibilizados aqui.
-                Nenhuma cobrança é feita automaticamente.
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyStateCard
+            icon={CreditCard}
+            title="Os planos estão sendo preparados"
+            description="Os valores e a forma de pagamento serão disponibilizados aqui. Nenhuma cobrança é feita automaticamente."
+            action={
+              <Button
+                variant="outline"
+                disabled={plans.isFetching}
+                onClick={() => {
+                  void plans.refetch();
+                }}
+              >
+                Atualizar planos
+              </Button>
+            }
+          />
         ) : (
           <div className="grid gap-4 md:grid-cols-3">
             {plans.data.map((plan) => (

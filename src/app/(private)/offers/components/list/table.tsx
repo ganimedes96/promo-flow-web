@@ -1,5 +1,10 @@
 "use client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonRegion } from "@/components/feedback/loading-skeletons";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { OfferFilters } from "./filters";
+import type { OfferListFilters } from "@/domains/offers/types";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +16,7 @@ import {
 } from "@/components/ui/pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FormSheet } from "@/components/form/containers/form-sheet";
+import { EmptyStateCard } from "@/components/feedback/empty-state-card";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import {
   Card,
@@ -30,16 +36,39 @@ import {
 } from "./grouped-offers";
 export function OffersTable() {
   const [page, setPage] = useState(1);
+  const [filterReset, setFilterReset] = useState(0);
+  const [filters, setFilters] = useState<OfferListFilters>({});
+  const { data: session } = useSession();
   const perPage = 10;
   const list = useQuery({
-    queryKey: queryKeys.offers.grouped({ page, perPage }),
-    queryFn: () => getGroupedOffers({ page, limit: perPage }),
-    refetchInterval: 5000,
+    queryKey: queryKeys.offers.grouped({
+      page,
+      perPage,
+      ...filters,
+      userId: session?.user.id,
+    }),
+    queryFn: () => getGroupedOffers({ page, limit: perPage, ...filters }),
+    enabled: !!session?.user.id,
+    refetchInterval: (query) => {
+      if (query.state.status === "error") return false;
+      const hasPending = query.state.data?.data.some((group) =>
+        group.destinations.some((offer) =>
+          ["PROCESSING", "SCHEDULED", "PUBLISHING"].includes(offer.status)
+        )
+      );
+      return hasPending ? 5000 : false;
+    },
+    staleTime: 5000,
+    refetchOnWindowFocus: (query) => query.state.status !== "error",
+    refetchIntervalInBackground: false,
     placeholderData: keepPreviousData,
   });
   const total = list.data?.pagination.total ?? 0;
   const lastPage = list.data?.pagination.lastPage ?? 1;
   const loading = list.isPending || list.isPlaceholderData;
+  const empty =
+    !loading && !list.error && !!list.data && !list.data.data.length;
+  const filtered = Object.keys(filters).length > 0;
   const pages = [
     ...new Set(
       [1, page - 1, page, page + 1, lastPage].filter(
@@ -60,24 +89,31 @@ export function OffersTable() {
             uma oferta para acompanhar os destinos.
           </CardDescription>
         </div>
-        <FormSheet
-          className="gap-6 overflow-y-auto px-6 pb-6 data-[side=right]:w-full sm:px-8 data-[side=right]:sm:max-w-4xl"
-          title="Cadastrar oferta"
-          description="Preencha uma vez e selecione um ou mais grupos favoritos de destino."
-          buttonText="Nova oferta"
-          formComponent={CreateOfferForm}
-          formProps={{}}
-        />
+        <CreateOfferButton />
       </CardHeader>
       <CardContent className="min-w-0">
+        <OfferFilters
+          key={filterReset}
+          activeFilters={filters}
+          onApply={(next) => {
+            setFilters(next);
+            setPage(1);
+          }}
+        />
         {list.error && (
           <ApiErrorCard
             title="Não foi possível carregar suas ofertas"
+            description={list.error.message}
             onRetry={() => {
               void list.refetch();
             }}
             retrying={list.isFetching}
           />
+        )}
+        {loading && (
+          <SkeletonRegion label="Carregando ofertas" className="mb-3">
+            <Skeleton className="h-5 w-44" />
+          </SkeletonRegion>
         )}
         {!loading && total > 0 && (
           <p className="text-muted-foreground mb-3 text-sm">
@@ -85,15 +121,46 @@ export function OffersTable() {
             {total} ofertas
           </p>
         )}
+        {empty && (
+          <EmptyStateCard
+            variant={filtered ? "search" : "empty"}
+            title={
+              filtered
+                ? "Oferta não encontrada"
+                : "Sua primeira boa oferta começa aqui"
+            }
+            description={
+              filtered
+                ? "Nenhuma oferta corresponde à sua pesquisa. Confira o nome ou ajuste os filtros. Você também pode limpar a busca para ver todas as ofertas."
+                : "Cadastre um produto, escolha seus grupos favoritos e acompanhe os próximos envios neste espaço."
+            }
+            action={
+              filtered ? (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setFilters({});
+                    setPage(1);
+                    setFilterReset((current) => current + 1);
+                  }}
+                >
+                  Limpar filtros
+                </Button>
+              ) : (
+                <CreateOfferButton />
+              )
+            }
+          />
+        )}
         <div
           className="max-h-[65vh] max-w-full min-w-0 overflow-auto rounded-md lg:max-h-none lg:overflow-visible"
           role="region"
           aria-label="Tabela de ofertas"
-          hidden={!!list.error && !list.data}
+          hidden={empty || (!!list.error && !list.data)}
           tabIndex={0}
         >
           <DataTable
-            className="[&_thead]:bg-card max-w-full min-w-0 [&_[data-slot=table-container]]:max-h-[65vh] [&_[data-slot=table-container]]:overflow-auto [&_table]:min-w-[920px] [&_thead]:sticky [&_thead]:top-0 [&_thead]:z-10"
+            className="max-w-full min-w-0 [&_[data-slot=table-container]]:max-h-[65vh] [&_[data-slot=table-container]]:overflow-auto [&_table]:min-w-[920px] [&_thead]:sticky [&_thead]:top-0 [&_thead]:z-10"
             data={list.data?.data ?? []}
             columns={groupedColumns}
             actions={(group) => <OfferGroupActions group={group} />}
@@ -102,7 +169,11 @@ export function OffersTable() {
             loadingActionsCount={2}
             loading={loading}
             getRowKey={(offer) => offer.id}
-            emptyMessage="Nenhuma oferta cadastrada."
+            emptyMessage={
+              Object.keys(filters).length
+                ? "Nenhuma oferta encontrada. Tente ajustar ou limpar os filtros."
+                : "Nenhuma oferta cadastrada."
+            }
           />
         </div>
         {total > 0 && (
@@ -168,5 +239,18 @@ export function OffersTable() {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function CreateOfferButton() {
+  return (
+    <FormSheet
+      className="gap-6 overflow-y-auto px-6 pb-6 data-[side=right]:w-full sm:px-8 data-[side=right]:sm:max-w-4xl"
+      title="Cadastrar oferta"
+      description="Preencha uma vez e selecione um ou mais grupos favoritos de destino."
+      buttonText="Nova oferta"
+      formComponent={CreateOfferForm}
+      formProps={{}}
+    />
   );
 }

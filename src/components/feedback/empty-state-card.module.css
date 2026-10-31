@@ -1,0 +1,59 @@
+.texture {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(var(--primary) 0.65px, transparent 0.65px);
+  background-size: 20px 20px;
+  opacity: 0.16;
+  mask-image: radial-gradient(ellipse at center, #000, transparent 70%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    animation: reveal 0.35s ease-out both;
+  }
+  .icon {
+    animation: float 4s ease-in-out infinite;
+  }
+  .orbit {
+    animation: turn 32s linear infinite;
+  }
+  .sparkle {
+    animation: glow 3s ease-in-out infinite;
+  }
+}
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(3deg);
+  }
+}
+@keyframes turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes glow {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}

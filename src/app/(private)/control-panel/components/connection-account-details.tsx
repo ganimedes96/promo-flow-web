@@ -14,11 +14,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ConnectionSheetSkeleton } from "@/components/feedback/loading-skeletons";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { WhatsAppSession } from "@/domains/whatsapp/types";
 import { cn } from "@/lib/shadcn/utils";
 
-type ConnectionAccountDetailsProps = {
+export type ConnectionAccountDetailsProps = {
   session?: WhatsAppSession;
   loading: boolean;
   refreshing: boolean;
@@ -50,17 +51,7 @@ export function ConnectionAccountDetails({
       </div>
     );
   }
-  if (loading || !session) {
-    return (
-      <div
-        role="status"
-        className="text-muted-foreground flex flex-1 flex-col items-center justify-center gap-4 p-10 text-center"
-      >
-        <LoaderCircle className="text-primary size-9 motion-safe:animate-spin" />
-        <p>Preparando sua conexão…</p>
-      </div>
-    );
-  }
+  if (loading || !session) return <ConnectionSheetSkeleton />;
   const ready = session.status === "READY";
   const connected = ready && session.worker?.status === "ONLINE";
   const waitingQr = session.status === "WAITING_QR";

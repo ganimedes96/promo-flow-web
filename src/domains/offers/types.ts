@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { categorySelectionSchema } from "@/domains/categories/types";
 const httpUrl = z
   .string()
   .trim()
@@ -6,6 +7,8 @@ const httpUrl = z
   .url("Informe uma URL válida.")
   .refine((value) => /^https?:\/\//i.test(value), "Use um link http ou https.");
 const offerProductSchema = z.object({
+  categoryId: categorySelectionSchema,
+  sourceCategory: z.string().trim().max(300).optional(),
   connectionId: z.string().uuid("Selecione uma conexão.").optional(),
   sourceUrl: httpUrl,
   affiliateUrl: httpUrl.optional(),
@@ -72,6 +75,9 @@ export type OfferFormValues = Omit<
   addToQueue: boolean;
 };
 export interface Offer {
+  categoryId?: string | null;
+  sourceCategory?: string | null;
+  category?: { id: string; name: string } | null;
   connectionId?: string | null;
   connection?: {
     id: string;
@@ -126,4 +132,13 @@ export interface OfferGroup {
 export interface OfferGroupActionResult {
   updated: number;
   unchanged: number;
+}
+
+export interface OfferListFilters {
+  search?: string;
+  status?: Offer["status"];
+  connectionId?: string;
+  groupId?: string;
+  createdFrom?: string;
+  createdBefore?: string;
 }

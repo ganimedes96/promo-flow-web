@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useAccountAccess } from "@/domains/billing/use-account-access";
 import { SubscriptionPanel } from "./subscription-panel";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
+import {
+  PageSkeleton,
+  type PageSkeletonVariant,
+} from "@/components/feedback/loading-skeletons";
 import { Button } from "@/components/ui/button";
 export function AccountAccessBoundary({
   children,
@@ -14,12 +18,18 @@ export function AccountAccessBoundary({
   const pathname = usePathname();
   if (pathname === "/subscription" || pathname === "/extension")
     return children;
-  if (access.isPending)
-    return (
-      <p className="text-muted-foreground">
-        Consultando seu período de acesso…
-      </p>
-    );
+  if (access.isPending) {
+    const variants: Record<string, PageSkeletonVariant> = {
+      "/control-panel": "panel",
+      "/connections": "connections",
+      "/groups": "groups",
+      "/offers": "offers",
+      "/promotions": "promotions",
+      "/promotions/manage": "promotions",
+      "/users": "users",
+    };
+    return <PageSkeleton variant={variants[pathname] ?? "generic"} />;
+  }
   if (access.error)
     return (
       <div className="flex min-h-[55vh] items-center justify-center py-8">

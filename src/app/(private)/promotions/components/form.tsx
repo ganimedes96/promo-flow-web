@@ -1,4 +1,5 @@
 "use client";
+import { ControlledProductCategory } from "@/domains/categories/components/controlled-product-category";
 
 import { useState } from "react";
 import type { ImportedOfferDraft } from "@/domains/offers/extension-import";
@@ -59,6 +60,9 @@ export function PromotionForm({
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
+      categoryId: promotion?.categoryId ?? initialDraft?.categoryId ?? "auto",
+      sourceCategory:
+        promotion?.sourceCategory ?? initialDraft?.sourceCategory ?? "",
       title: promotion?.title || initialDraft?.title || "",
       description: promotion?.description || initialDraft?.description || "",
       sourceUrl: promotion?.sourceUrl || initialDraft?.sourceUrl || "",
@@ -155,6 +159,13 @@ export function PromotionForm({
                 placeholder="Ex.: Fone Bluetooth com cancelamento de ruído"
                 maxLength={200}
                 rules={{ required: "Informe o produto." }}
+              />
+              <ControlledProductCategory
+                control={control}
+                name="categoryId"
+                sourceCategory={
+                  promotion?.sourceCategory ?? initialDraft?.sourceCategory
+                }
               />
               <ControlledTextarea
                 control={control}

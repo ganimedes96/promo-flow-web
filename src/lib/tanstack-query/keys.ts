@@ -7,10 +7,15 @@ const usersKeys = {
 };
 
 export const queryKeys = {
+  categories: { all: ["categories"] as const },
   promotions: {
     all: ["promotions"] as const,
-    list: (page: number, manage: boolean, userId?: string) =>
-      ["promotions", page, manage, userId] as const,
+    list: (
+      page: number,
+      manage: boolean,
+      userId?: string,
+      excludeRecent = false
+    ) => ["promotions", page, manage, userId, excludeRecent] as const,
   },
   billing: {
     access: (userId?: string) => ["billing", "access", userId] as const,
@@ -19,6 +24,8 @@ export const queryKeys = {
   users: usersKeys,
   offers: {
     all: ["offers"] as const,
+    filterGroups: (userId?: string) =>
+      ["offers", "filter-groups", userId] as const,
     duplicates: (sourceUrl: string) =>
       ["offers", "duplicates", sourceUrl] as const,
     list: (params?: Params) => ["offers", "list", params ?? {}] as const,

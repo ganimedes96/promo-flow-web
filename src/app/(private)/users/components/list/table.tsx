@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyStateCard } from "@/components/feedback/empty-state-card";
 import { ActionDelete } from "@/components/action-delete";
 import { FormSheet } from "@/components/form/containers/form-sheet";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -44,19 +45,7 @@ export function UsersTable() {
           </p>
         </div>
 
-        <FormSheet
-          title="Cadastrar usuário"
-          description="Informe os dados e defina o perfil de acesso."
-          buttonText="Novo usuário"
-          formComponent={CreateUserForm}
-          formProps={{}}
-          customButton={
-            <Button type="button">
-              <UserPlus className="size-4" />
-              Novo usuário
-            </Button>
-          }
-        />
+        <CreateUserButton />
       </CardHeader>
 
       <CardContent>
@@ -75,37 +64,70 @@ export function UsersTable() {
           </p>
         )}
 
-        <DataTable
-          data={users}
-          columns={columns}
-          loading={isLoading}
-          getRowKey={(user) => user.id}
-          emptyMessage="Nenhum usuário cadastrado."
-          infiniteScroll
-          hasNextPage={hasNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          onLoadMore={fetchNextPage}
-          actions={(user) => (
-            <>
-              <FormSheet
-                title="Editar usuário"
-                description="Atualize os dados e o perfil de acesso."
-                formComponent={UpdateUserForm}
-                formProps={{ user }}
-                isEdit
-              />
+        {!isLoading && !error && !users.length && (
+          <EmptyStateCard
+            icon={UserPlus}
+            title="Ainda não há usuários nesta lista"
+            description="Cadastre o primeiro usuário para começar a organizar os acessos."
+            action={<CreateUserButton />}
+          />
+        )}
+        <div
+          hidden={
+            (!isLoading && !error && !users.length) ||
+            (!!error && !users.length)
+          }
+        >
+          <DataTable
+            data={users}
+            columns={columns}
+            loading={isLoading}
+            getRowKey={(user) => user.id}
+            emptyMessage="Nenhum usuário cadastrado."
+            infiniteScroll
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onLoadMore={fetchNextPage}
+            actions={(user) => (
+              <>
+                <FormSheet
+                  title="Editar usuário"
+                  description="Atualize os dados e o perfil de acesso."
+                  formComponent={UpdateUserForm}
+                  formProps={{ user }}
+                  isEdit
+                />
 
-              <ActionDelete
-                name={user.name}
-                onDelete={() => deleteUser(user.id)}
-                revalidateQueries={queryKeys.users.all}
-                disabled={session?.user.id === user.id}
-                confirmDescription={`Tem certeza que deseja excluir ${user.name}? Essa ação não poderá ser desfeita.`}
-              />
-            </>
-          )}
-        />
+                <ActionDelete
+                  name={user.name}
+                  onDelete={() => deleteUser(user.id)}
+                  revalidateQueries={queryKeys.users.all}
+                  disabled={session?.user.id === user.id}
+                  confirmDescription={`Tem certeza que deseja excluir ${user.name}? Essa ação não poderá ser desfeita.`}
+                />
+              </>
+            )}
+          />
+        </div>
       </CardContent>
     </Card>
+  );
+}
+
+function CreateUserButton() {
+  return (
+    <FormSheet
+      title="Cadastrar usuário"
+      description="Informe os dados e defina o perfil de acesso."
+      buttonText="Novo usuário"
+      formComponent={CreateUserForm}
+      formProps={{}}
+      customButton={
+        <Button type="button">
+          <UserPlus className="size-4" />
+          Novo usuário
+        </Button>
+      }
+    />
   );
 }

@@ -729,3 +729,23 @@ Esta versão depende da API e do worker com múltiplas conexões. A migration e 
 ## Gerenciamento de grupos
 
 A rota autenticada /groups centraliza os grupos ativos das contas conectadas. Reutiliza GET /whatsapp/groups e GET /whatsapp/connections, com busca por nome, filtro por conexão e favoritos, seleção de até 100 grupos visíveis para favoritar ou remover favoritos e definição de um grupo padrão por conexão. As alterações usam as Server Actions existentes e invalidam as consultas de grupos e conexões. Falhas parciais em lote são informadas e a lista é recarregada. Favoritar não agenda ofertas nem envia mensagens. O painel de controle e a página Conexões encaminham o usuário para /groups; não é necessária migração.
+
+
+### Filtros de ofertas
+
+A listagem /offers usa busca por produto ou link, status por destino, conexão, grupo (incluindo histórico) e período de cadastro em America/Sao_Paulo. Os controles usam React Hook Form e os componentes controlados; Aplicar filtros e Limpar retornam à primeira página. GET /offers/grouped aplica os filtros antes da paginação e retorna todos os destinos dos lotes correspondentes. GET /offers/filter-groups fornece apenas grupos associados às ofertas do usuário autenticado. Publicar a API antes do frontend; não exige migração.
+
+
+### Skeletons de carregamento
+
+Os estados iniciais reutilizam Skeleton do template e os layouts de src/components/feedback/loading-skeletons.tsx. Há fallbacks loading.tsx nas páginas privadas, na importação de produtos e na autorização da extensão. Os componentes com consultas também exibem skeletons de cards, listas, planos, conexão e formulário de oferta. Atualizações automáticas preservam o conteúdo já carregado; as imagens da central mantêm um placeholder até carregar, com alternativa em caso de falha. As animações respeitam a preferência de movimento reduzido.
+
+
+### Central: novidades e lista compacta
+
+A central mostra as três promoções publicadas mais recentes em cards fixos no topo e as demais em DataTable com miniatura, loja, preço, desconto, cupom e ações. No celular, a DataTable usa os cards responsivos do template. A consulta paginada usa excludeRecent=true, excluindo as três primeiras após o filtro de disponibilidade; a contagem já desconta os destaques. A administração exibe o catálogo completo em tabela com disponibilidade, edição e exclusão. Os fluxos de preparar oferta e curadoria continuam nos sheets existentes. Publicar a API antes do frontend. Sem migração.
+
+
+### Categorias de produto
+
+Ofertas e promoções possuem categoria padronizada editável no ControlledProductCategory. O modo automático envia a categoria original da loja, quando disponível, e o título para classificação por regras no backend ao salvar; sem correspondência, usa Outros. A categoria escolhida na central é preservada ao preparar uma oferta. As opções são lidas em GET /categories e o resultado aparece nas listagens. Registros antigos permanecem sem categoria até serem salvos novamente. Requer a migration 20261031010000_product_categories, que cria a tabela e as categorias iniciais. Publique primeiro a API (com a migração), depois o frontend e recarregue a extensão 0.6.3. A migration foi preparada e não foi aplicada ao Neon nesta alteração.

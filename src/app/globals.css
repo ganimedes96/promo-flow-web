@@ -205,3 +205,14 @@ body,
   background-color: #ccdfb8;
   border-color: #9cb685;
 }
+
+/* Shared table headers keep a dark-green surface in both themes. */
+[data-slot="table-header"],
+[data-slot="table-header"] > tr,
+[data-slot="table-header"] > tr:hover {
+  background-color: #111a16;
+}
+[data-slot="table-header"] th {
+  color: #ffffff;
+  font-weight: 600;
+}

@@ -13,13 +13,13 @@ export const statusLabels: Record<Offer["status"], string> = {
   CANCELLED: "Cancelada",
 };
 export const statusColors: Record<Offer["status"], string> = {
-  PROCESSING: "border-info/25 bg-info/10 text-info",
-  READY: "border-primary/25 bg-primary/10 text-primary",
-  SCHEDULED: "border-info/25 bg-info/10 text-info",
-  PUBLISHING: "border-warning/25 bg-warning/10 text-warning",
-  PUBLISHED: "border-success/25 bg-success/10 text-success",
-  FAILED: "border-destructive/25 bg-destructive/10 text-destructive",
-  CANCELLED: "border-border bg-muted text-muted-foreground",
+  PROCESSING: "border-violet-700 bg-violet-700 text-white font-semibold",
+  READY: "border-cyan-800 bg-cyan-800 text-white font-semibold",
+  SCHEDULED: "border-blue-700 bg-blue-700 text-white font-semibold",
+  PUBLISHING: "border-amber-300 bg-amber-300 text-amber-950 font-semibold",
+  PUBLISHED: "border-emerald-700 bg-emerald-700 text-white font-semibold",
+  FAILED: "border-rose-700 bg-rose-700 text-white font-semibold",
+  CANCELLED: "border-orange-700 bg-orange-700 text-white font-semibold",
 };
 export const columns: ColumnDef<Offer>[] = [
   {

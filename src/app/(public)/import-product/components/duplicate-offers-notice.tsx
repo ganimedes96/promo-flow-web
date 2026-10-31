@@ -1,4 +1,6 @@
 "use client";
+import { SkeletonRegion } from "@/components/feedback/loading-skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getDuplicateOffers } from "@/domains/offers/client";
@@ -15,9 +17,9 @@ export function DuplicateOffersNotice({ sourceUrl }: { sourceUrl: string }) {
   });
   if (duplicates.isPending)
     return (
-      <p className="text-muted-foreground text-sm">
-        Conferindo se o produto já foi cadastrado…
-      </p>
+      <SkeletonRegion label="Conferindo cadastros anteriores">
+        <Skeleton className="h-12 rounded-xl" />
+      </SkeletonRegion>
     );
   if (duplicates.error)
     return (

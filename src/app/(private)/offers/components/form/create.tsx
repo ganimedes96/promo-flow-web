@@ -1,4 +1,6 @@
 "use client";
+import { ControlledProductCategory } from "@/domains/categories/components/controlled-product-category";
+import { OfferFormSkeleton } from "@/components/feedback/loading-skeletons";
 import type { ImportedOfferDraft } from "@/domains/offers/extension-import";
 import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
@@ -57,8 +59,7 @@ export function CreateOfferForm({
     enabled: !!session?.user.id,
     refetchInterval: 5000,
   });
-  if (groups.isPending || connections.isPending)
-    return <p>Carregando conexões e grupos…</p>;
+  if (groups.isPending || connections.isPending) return <OfferFormSkeleton />;
   if (groups.error || connections.error)
     return (
       <Alert variant="destructive">
@@ -111,6 +112,9 @@ function OfferFields({
   } = useForm<OfferFormValues>({
     defaultValues: {
       connectionId: initialConnectionId,
+      categoryId: offer?.categoryId ?? initialDraft?.categoryId ?? "auto",
+      sourceCategory:
+        offer?.sourceCategory ?? initialDraft?.sourceCategory ?? "",
       title: offer?.title || initialDraft?.title || "",
       description: offer?.description || initialDraft?.description || "",
       sourceUrl: offer?.sourceUrl || initialDraft?.sourceUrl || "",
@@ -282,6 +286,13 @@ function OfferFields({
                 placeholder="Nome do produto"
                 maxLength={200}
                 rules={{ required: "Informe o título." }}
+              />
+              <ControlledProductCategory
+                control={control}
+                name="categoryId"
+                sourceCategory={
+                  offer?.sourceCategory ?? initialDraft?.sourceCategory
+                }
               />
               <ControlledTextarea
                 control={control}

@@ -38,6 +38,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { PageSkeleton } from "@/components/feedback/loading-skeletons";
+import { EmptyStateCard } from "@/components/feedback/empty-state-card";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { getWhatsAppConnections } from "@/domains/whatsapp/client";
 import {
@@ -81,6 +83,7 @@ export function Connections() {
   });
   const rows = list.data?.connections || [];
   const active = rows.filter((c) => c.status === "READY").length;
+  if (list.isPending) return <PageSkeleton variant="connections" />;
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -111,9 +114,7 @@ export function Connections() {
         <Badge variant="secondary">{rows.length} conexões</Badge>
         <Badge variant="outline">{active} com sessão pronta</Badge>
       </div>
-      {list.isPending ? (
-        <p>Carregando conexões…</p>
-      ) : list.error ? (
+      {list.error ? (
         <ApiErrorCard
           title="Não foi possível carregar suas conexões"
           onRetry={() => {
@@ -122,23 +123,17 @@ export function Connections() {
           retrying={list.isFetching}
         />
       ) : !rows.length ? (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-4 py-14 text-center">
-            <div className="bg-primary/10 text-primary rounded-2xl p-4">
-              <Smartphone className="size-8" />
-            </div>
-            <h2 className="text-lg font-semibold">
-              Seu primeiro WhatsApp começa aqui
-            </h2>
-            <p className="text-muted-foreground max-w-sm text-sm">
-              Dê um nome à conexão e leia o QR Code. Depois, escolha os grupos
-              favoritos para suas ofertas.
-            </p>
+        <EmptyStateCard
+          icon={Smartphone}
+          title="Seu primeiro WhatsApp começa aqui"
+          description="Dê um nome à conexão e leia o QR Code. Depois, escolha seus grupos favoritos e prepare suas ofertas."
+          action={
             <Button onClick={() => setEditing(null)}>
+              <Plus className="size-4" />
               Adicionar meu WhatsApp
             </Button>
-          </CardContent>
-        </Card>
+          }
+        />
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {rows.map((connection) => {

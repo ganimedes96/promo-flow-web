@@ -9,7 +9,6 @@ import {
   ArrowRight,
   Check,
   RefreshCw,
-  Search,
   Smartphone,
   Star,
   Users,
@@ -20,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { PageSkeleton } from "@/components/feedback/loading-skeletons";
+import { EmptyStateCard } from "@/components/feedback/empty-state-card";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import {
   getWhatsAppConnections,
@@ -55,7 +56,7 @@ export function Groups() {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<string[]>([]);
-  const { control } = useForm<GroupFilters>({
+  const { control, reset } = useForm<GroupFilters>({
     defaultValues: {
       search: "",
       connectionId: allConnections,
@@ -141,6 +142,8 @@ export function Groups() {
     void groups.refetch();
     void connections.refetch();
   }
+  if (groups.isPending || connections.isPending)
+    return <PageSkeleton variant="groups" />;
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
@@ -237,40 +240,44 @@ export function Groups() {
               retrying={refreshing}
             />
           </div>
-        ) : groups.isPending || connections.isPending ? (
-          <div
-            role="status"
-            className="text-muted-foreground flex items-center justify-center gap-3 py-16"
-          >
-            <RefreshCw className="size-5 motion-safe:animate-spin" />
-            Carregando seus grupos…
-          </div>
         ) : !rows.length ? (
-          <div className="flex flex-col items-center gap-4 px-6 py-14 text-center">
-            <span className="bg-primary/10 text-primary rounded-2xl p-4">
-              <Users className="size-8" />
-            </span>
-            <h2 className="text-lg font-semibold">
-              Seus grupos vão aparecer aqui
-            </h2>
-            <p className="text-muted-foreground max-w-md text-sm leading-relaxed">
-              Conecte uma conta do WhatsApp e aguarde a sincronização. Os grupos
-              disponíveis são atualizados automaticamente.
-            </p>
-            <Button asChild>
-              <Link href="/connections">
-                Gerenciar conexões
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
+          <div className="p-5">
+            <EmptyStateCard
+              icon={Users}
+              title="Seus grupos vão aparecer aqui"
+              description="Conecte uma conta do WhatsApp e aguarde a sincronização. Depois, favorite os grupos que vão receber suas ofertas."
+              action={
+                <Button asChild>
+                  <Link href="/connections">
+                    Gerenciar conexões
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              }
+            />
           </div>
         ) : !filtered.length ? (
-          <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
-            <Search className="text-muted-foreground size-7" />
-            <h2 className="font-medium">Nenhum grupo com esses filtros</h2>
-            <p className="text-muted-foreground text-sm">
-              Experimente outro nome, conexão ou filtro de favoritos.
-            </p>
+          <div className="p-5">
+            <EmptyStateCard
+              variant="search"
+              title="Nenhum grupo com esses filtros"
+              description="Experimente outro nome, conexão ou filtro de favoritos para encontrar o destino certo."
+              action={
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    reset({
+                      search: "",
+                      connectionId: allConnections,
+                      visibility: "all",
+                    });
+                    setSelected([]);
+                  }}
+                >
+                  Limpar filtros
+                </Button>
+              }
+            />
           </div>
         ) : (
           <>

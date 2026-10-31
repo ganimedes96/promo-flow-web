@@ -1,6 +1,9 @@
 import { z } from "zod";
+import { categorySelectionSchema } from "@/domains/categories/types";
 export const promotionSchema = z
   .object({
+    categoryId: categorySelectionSchema,
+    sourceCategory: z.string().trim().max(300).optional(),
     title: z.string().trim().min(1, "Informe o título.").max(200),
     description: z.string().trim().min(1, "Informe a descrição.").max(2000),
     sourceUrl: z
@@ -30,8 +33,16 @@ export const promotionSchema = z
 export type PromotionInput = z.infer<typeof promotionSchema>;
 export interface Promotion extends Omit<
   PromotionInput,
-  "currentPrice" | "originalPrice" | "expiresAt" | "couponCode"
+  | "currentPrice"
+  | "originalPrice"
+  | "expiresAt"
+  | "couponCode"
+  | "categoryId"
+  | "sourceCategory"
 > {
+  categoryId?: string | null;
+  sourceCategory?: string | null;
+  category?: { id: string; name: string } | null;
   id: string;
   currentPrice: string;
   originalPrice: string | null;

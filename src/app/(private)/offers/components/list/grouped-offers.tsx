@@ -67,12 +67,19 @@ export const groupedColumns: ColumnDef<OfferGroup>[] = [
     primary: true,
     className: "min-w-52 w-64",
     render: (_value, group) => (
-      <span
-        className="block max-w-64 truncate font-medium"
-        title={group.product.title || undefined}
-      >
-        {group.product.title || "Oferta"}
-      </span>
+      <div className="space-y-1">
+        <span
+          className="block max-w-64 truncate font-medium"
+          title={group.product.title || undefined}
+        >
+          {group.product.title || "Oferta"}
+        </span>
+        {group.product.category && (
+          <span className="text-muted-foreground block max-w-64 truncate text-xs">
+            {group.product.category.name}
+          </span>
+        )}
+      </div>
     ),
   },
   {

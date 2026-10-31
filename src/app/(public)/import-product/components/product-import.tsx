@@ -1,4 +1,5 @@
 "use client";
+import { OfferFormSkeleton } from "@/components/feedback/loading-skeletons";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -86,7 +87,7 @@ export function ProductImport({
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           ) : !draft ? (
-            <p>Carregando rascunho…</p>
+            <OfferFormSkeleton />
           ) : !authenticated ? (
             <div className="space-y-4">
               <p className="font-medium">

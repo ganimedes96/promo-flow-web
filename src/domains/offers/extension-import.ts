@@ -68,6 +68,8 @@ export const extensionImportSchema = z.object({
   version: z.literal(1),
   capturedAt: z.string().datetime(),
   draft: z.object({
+    categoryId: z.string().max(50).optional(),
+    sourceCategory: z.string().max(300).optional(),
     sourceUrl: productUrl,
     title: z.string().max(200).default(""),
     description: z.string().max(2000).default(""),
