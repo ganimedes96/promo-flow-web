@@ -3,7 +3,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAccountAccess } from "@/domains/billing/use-account-access";
 import { SubscriptionPanel } from "./subscription-panel";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { Button } from "@/components/ui/button";
 export function AccountAccessBoundary({
   children,
@@ -22,14 +22,16 @@ export function AccountAccessBoundary({
     );
   if (access.error)
     return (
-      <Alert variant="destructive">
-        <AlertDescription>
-          Não foi possível confirmar seu acesso.{" "}
-          <Button variant="link" onClick={() => access.refetch()}>
-            Tentar novamente
-          </Button>
-        </AlertDescription>
-      </Alert>
+      <div className="flex min-h-[55vh] items-center justify-center py-8">
+        <ApiErrorCard
+          title="Não foi possível confirmar seu acesso"
+          description="Não conseguimos consultar sua conta neste momento. Tente novamente para continuar no PromoFlow."
+          onRetry={() => {
+            void access.refetch();
+          }}
+          retrying={access.isFetching}
+        />
+      </div>
     );
   if (!access.data?.canUseApp) return <SubscriptionPanel />;
   return (

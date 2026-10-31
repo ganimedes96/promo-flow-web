@@ -255,12 +255,12 @@ function OfferFields({
               Você pode revisar os dados abaixo. Para salvar, conecte o WhatsApp
               e marque um grupo como favorito.{" "}
               <Link
-                href="/connections"
+                href="/groups"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"
               >
-                Abrir início em outra aba
+                Abrir grupos em outra aba
               </Link>{" "}
               Depois volte aqui; a lista será atualizada automaticamente.
             </AlertDescription>

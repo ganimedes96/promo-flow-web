@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
@@ -86,10 +87,13 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
       {list.isPending ? (
         <p>Carregando promoções…</p>
       ) : list.error ? (
-        <div role="alert">
-          <p>Não foi possível carregar a central.</p>
-          <Button onClick={() => list.refetch()}>Tentar novamente</Button>
-        </div>
+        <ApiErrorCard
+          title="Não foi possível carregar as promoções"
+          onRetry={() => {
+            void list.refetch();
+          }}
+          retrying={list.isFetching}
+        />
       ) : !items.length ? (
         <Card>
           <CardContent className="text-muted-foreground py-10 text-center">

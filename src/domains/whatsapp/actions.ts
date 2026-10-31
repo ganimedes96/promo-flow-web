@@ -175,3 +175,50 @@ export async function updateWhatsAppConnection(body: {
     return connectionError(error);
   }
 }
+
+export async function setFavoriteGroups(body: {
+  groupIds: string[];
+  isFavorite: boolean;
+}): Promise<ApiResponse<{ updated: number }> | ApiResponseError> {
+  try {
+    const input = z
+      .object({
+        groupIds: z.array(z.string().uuid()).min(1).max(100),
+        isFavorite: z.boolean(),
+      })
+      .parse(body);
+    const ids = [...new Set(input.groupIds)];
+    let updated = 0;
+    for (const groupId of ids) {
+      const result = await setFavoriteGroup({
+        groupId,
+        isFavorite: input.isFavorite,
+      });
+      if (result.status === "success") updated++;
+    }
+    if (updated !== ids.length) {
+      return {
+        status: "error",
+        code: 400,
+        timestamp: new Date().toISOString(),
+        message: updated
+          ? updated +
+            " de " +
+            ids.length +
+            " grupos atualizados. A lista foi recarregada; tente novamente nos demais."
+          : "Não foi possível atualizar os grupos. Confira a conexão e tente novamente.",
+      };
+    }
+    return {
+      status: "success",
+      message:
+        updated +
+        (input.isFavorite
+          ? " grupos adicionados aos favoritos."
+          : " grupos removidos dos favoritos."),
+      data: { updated },
+    };
+  } catch (error) {
+    return connectionError(error);
+  }
+}

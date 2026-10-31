@@ -1,21 +1,9 @@
-import { env } from "@/env";
+import { getApiBaseUrl } from "./config";
 import { authOptions } from "@/lib/next-auth/auth";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { ApiResponseError } from "./types";
 import { HandleError } from "./error";
-
-const configURL = () => {
-  switch (env.NEXT_PUBLIC_MODE) {
-    case "prod":
-      return env.NEXT_PUBLIC_API_PROD_BASE_URL;
-    case "dev":
-      return env.NEXT_PUBLIC_API_DEV_BASE_URL;
-    case "demo":
-    default:
-      return env.NEXT_PUBLIC_API_DEMO_BASE_URL;
-  }
-};
 
 export async function fetchServer<T>(
   path: string,
@@ -25,7 +13,7 @@ export async function fetchServer<T>(
   const session =
     authentication === "required" ? await getServerSession(authOptions) : null;
   const jwt = session?.user?.token || "";
-  const baseUrl = configURL();
+  const baseUrl = getApiBaseUrl();
   const url = `${baseUrl}${path}`;
 
   const headers = {

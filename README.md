@@ -724,3 +724,8 @@ A rota /connections mostra uma conta do WhatsApp por card, com nome, número, st
 No formulário de oferta, a conexão é escolhida antes dos grupos. Trocar a conexão limpa os destinos anteriores, mantendo os demais dados preenchidos. Só são exibidos os favoritos daquela conexão. A tabela de ofertas identifica a conexão e o número associado ao destino. As chaves do React Query isolam detalhes por conexão e atualizam a listagem após alterações.
 
 Esta versão depende da API e do worker com múltiplas conexões. A migration e a ordem de publicação estão documentadas em promo-flow-api/SAAS.md. O frontend não cria sessões no WhatsApp sozinho; o worker local precisa estar ativo.
+
+
+## Gerenciamento de grupos
+
+A rota autenticada /groups centraliza os grupos ativos das contas conectadas. Reutiliza GET /whatsapp/groups e GET /whatsapp/connections, com busca por nome, filtro por conexão e favoritos, seleção de até 100 grupos visíveis para favoritar ou remover favoritos e definição de um grupo padrão por conexão. As alterações usam as Server Actions existentes e invalidam as consultas de grupos e conexões. Falhas parciais em lote são informadas e a lista é recarregada. Favoritar não agenda ofertas nem envia mensagens. O painel de controle e a página Conexões encaminham o usuário para /groups; não é necessária migração.

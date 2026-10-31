@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FormSheet } from "@/components/form/containers/form-sheet";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import {
   Card,
   CardHeader,
@@ -71,9 +71,13 @@ export function OffersTable() {
       </CardHeader>
       <CardContent className="min-w-0">
         {list.error && (
-          <Alert variant="destructive">
-            <AlertDescription>{list.error.message}</AlertDescription>
-          </Alert>
+          <ApiErrorCard
+            title="Não foi possível carregar suas ofertas"
+            onRetry={() => {
+              void list.refetch();
+            }}
+            retrying={list.isFetching}
+          />
         )}
         {!loading && total > 0 && (
           <p className="text-muted-foreground mb-3 text-sm">
@@ -85,6 +89,7 @@ export function OffersTable() {
           className="max-h-[65vh] max-w-full min-w-0 overflow-auto rounded-md lg:max-h-none lg:overflow-visible"
           role="region"
           aria-label="Tabela de ofertas"
+          hidden={!!list.error && !list.data}
           tabIndex={0}
         >
           <DataTable

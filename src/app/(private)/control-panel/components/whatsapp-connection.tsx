@@ -1,8 +1,9 @@
 "use client";
+import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { WorkerIndicator } from "./worker-indicator";
-import { GroupFavorites } from "./group-favorites";
-import { TargetGroupForm } from "./target-group-form";
+import { ConnectionAccountDetails } from "./connection-account-details";
 import { useQuery } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import { Badge } from "@/components/ui/badge";
@@ -23,10 +24,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  getWhatsAppSession,
-  getWhatsAppGroups,
-} from "@/domains/whatsapp/client";
+import { getWhatsAppSession } from "@/domains/whatsapp/client";
 import {
   connectWhatsApp,
   disconnectWhatsApp,
@@ -44,8 +42,17 @@ const labels: Record<WhatsAppSession["status"], string> = {
 };
 export function WhatsAppConnection({
   connectionId,
-}: { connectionId?: string } = {}) {
+  showWorkerIndicator = true,
+  variant = "panel",
+  onConnected,
+}: {
+  connectionId?: string;
+  showWorkerIndicator?: boolean;
+  variant?: "panel" | "sheet";
+  onConnected?: () => void;
+} = {}) {
   const account = useSession();
+  const awaitingConnection = useRef(false);
   const session = useQuery({
     queryKey: [
       ...queryKeys.whatsapp.sessionFor(connectionId),
@@ -54,16 +61,6 @@ export function WhatsAppConnection({
     queryFn: () => getWhatsAppSession(connectionId),
     enabled: !!account.data?.user.id,
     refetchInterval: 3000,
-  });
-  const groups = useQuery({
-    queryKey: [
-      ...queryKeys.whatsapp.groupsFor(connectionId ?? session.data?.id),
-      session.data?.connectedPhone ?? null,
-      account.data?.user.id,
-    ],
-    queryFn: () => getWhatsAppGroups(connectionId ?? session.data?.id),
-    enabled: session.data?.status === "READY",
-    refetchInterval: 5000,
   });
   const connect = useServerAction({
     mutationFn: () => connectWhatsApp(connectionId),
@@ -93,6 +90,25 @@ export function WhatsAppConnection({
     status === "READY" &&
     !session.error &&
     session.data?.worker?.status === "ONLINE";
+  useEffect(() => {
+    if (
+      status === "CONNECTING" ||
+      status === "WAITING_QR" ||
+      status === "AUTHENTICATED"
+    ) {
+      awaitingConnection.current = true;
+    }
+    if (status === "DISCONNECTED" || status === "ERROR") {
+      awaitingConnection.current = false;
+    }
+    if (!connected || busy || !awaitingConnection.current || !onConnected)
+      return;
+    const timeout = window.setTimeout(() => {
+      awaitingConnection.current = false;
+      onConnected();
+    }, 3000);
+    return () => window.clearTimeout(timeout);
+  }, [status, connected, busy, onConnected]);
   const connecting = status === "CONNECTING" || status === "AUTHENTICATED";
   const accountName =
     session.data?.connectedName?.trim() || "Sua conta do WhatsApp";
@@ -103,6 +119,22 @@ export function WhatsAppConnection({
     .map((part) => part[0])
     .join("")
     .toUpperCase();
+  if (variant === "sheet") {
+    return (
+      <ConnectionAccountDetails
+        session={session.data}
+        loading={session.isPending}
+        refreshing={session.isFetching}
+        error={session.error}
+        busy={busy}
+        onConnect={() => connect.mutate()}
+        onDisconnect={() => disconnect.mutate()}
+        onRefresh={() => {
+          void session.refetch();
+        }}
+      />
+    );
+  }
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <Card className="whatsapp-connection-card">
@@ -135,10 +167,12 @@ export function WhatsAppConnection({
           {session.data?.isPaused && (
             <Badge variant="secondary">Envios pausados nesta conexão</Badge>
           )}
-          <WorkerIndicator
-            worker={session.data?.worker}
-            unavailable={!!session.error}
-          />
+          {showWorkerIndicator && (
+            <WorkerIndicator
+              worker={session.data?.worker}
+              unavailable={!!session.error}
+            />
+          )}
           <div
             role="status"
             aria-live="polite"
@@ -220,12 +254,6 @@ export function WhatsAppConnection({
                 >
                   Sessão conectada
                 </Badge>
-                {groups.data && (
-                  <Badge variant="secondary" className="gap-1.5">
-                    <Users className="size-3.5" aria-hidden="true" />
-                    {groups.data.length} grupos sincronizados
-                  </Badge>
-                )}
               </div>
             </div>
           )}
@@ -273,7 +301,6 @@ export function WhatsAppConnection({
               variant="outline"
               onClick={() => {
                 void session.refetch();
-                if (status === "READY") void groups.refetch();
               }}
               disabled={session.isFetching}
             >
@@ -282,43 +309,23 @@ export function WhatsAppConnection({
           </div>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Grupos do WhatsApp</CardTitle>
-          <CardDescription>
-            {status === "READY" && session.data?.connectedPhone
-              ? "Grupos vinculados ao WhatsApp +" + session.data.connectedPhone
-              : "Os grupos aparecem após a conexão e a sincronização da conta."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {status !== "READY" ? (
-            <p className="text-muted-foreground">
-              Conecte seu WhatsApp para visualizar os grupos.
+      <Card className="justify-center">
+        <CardContent className="flex flex-col items-start gap-4 p-6">
+          <span className="bg-primary/10 text-primary rounded-2xl p-3">
+            <Users className="size-6" />
+          </span>
+          <div>
+            <h2 className="text-lg font-semibold">
+              Seus grupos, em um só lugar
+            </h2>
+            <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+              Busque por nome, filtre por conta e favorite os grupos que devem
+              aparecer ao preparar uma oferta.
             </p>
-          ) : groups.error ? (
-            <Alert variant="destructive">
-              <AlertDescription>{groups.error.message}</AlertDescription>
-            </Alert>
-          ) : groups.isPending ? (
-            <p>Carregando grupos…</p>
-          ) : groups.data?.length ? (
-            <div className="space-y-5">
-              <TargetGroupForm
-                key={groups.data.find((group) => group.isDefault)?.id ?? "none"}
-                groups={groups.data}
-              />
-              <GroupFavorites
-                key={session.data?.connectedPhone}
-                groups={groups.data}
-              />
-            </div>
-          ) : (
-            <p className="text-muted-foreground">
-              Nenhum grupo sincronizado ainda. A lista é atualizada
-              automaticamente.
-            </p>
-          )}
+          </div>
+          <Button asChild variant="outline">
+            <Link href="/groups">Gerenciar grupos</Link>
+          </Button>
         </CardContent>
       </Card>
     </div>

@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
@@ -28,6 +29,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetDescription,
   SheetTitle,
 } from "@/components/ui/sheet";
 import {
@@ -36,7 +38,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { getWhatsAppConnections } from "@/domains/whatsapp/client";
 import {
   saveWhatsAppConnection,
@@ -60,6 +62,7 @@ export function Connections() {
     WhatsAppConnectionAccount | null | undefined
   >();
   const [selected, setSelected] = useState<string | null>(null);
+  const closeConnectionSheet = useCallback(() => setSelected(null), []);
   const list = useQuery({
     queryKey: [...queryKeys.whatsapp.connections, session?.user.id],
     queryFn: getWhatsAppConnections,
@@ -93,6 +96,17 @@ export function Connections() {
         </Button>
       </div>
       <WorkerIndicator worker={list.data?.worker} unavailable={!!list.error} />
+      <div className="bg-primary/5 flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3">
+        <p className="text-muted-foreground text-sm">
+          Os destinos e favoritos ficam na página de Grupos.
+        </p>
+        <Button asChild variant="outline" size="sm">
+          <Link href="/groups">
+            <Users className="size-4" />
+            Gerenciar grupos
+          </Link>
+        </Button>
+      </div>
       <div className="flex flex-wrap gap-2">
         <Badge variant="secondary">{rows.length} conexões</Badge>
         <Badge variant="outline">{active} com sessão pronta</Badge>
@@ -100,14 +114,13 @@ export function Connections() {
       {list.isPending ? (
         <p>Carregando conexões…</p>
       ) : list.error ? (
-        <Alert variant="destructive">
-          <AlertDescription>
-            {list.error.message}
-            <Button variant="link" onClick={() => list.refetch()}>
-              Tentar novamente
-            </Button>
-          </AlertDescription>
-        </Alert>
+        <ApiErrorCard
+          title="Não foi possível carregar suas conexões"
+          onRetry={() => {
+            void list.refetch();
+          }}
+          retrying={list.isFetching}
+        />
       ) : !rows.length ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-4 py-14 text-center">
@@ -261,7 +274,7 @@ export function Connections() {
                           : setSelected(connection.id)
                       }
                     >
-                      {ready ? "Ver grupos" : "Conectar / ver QR"}
+                      {ready ? "Gerenciar conexão" : "Conectar / ver QR"}
                     </Button>
                     <Button
                       size="sm"
@@ -317,14 +330,23 @@ export function Connections() {
           if (!open) setSelected(null);
         }}
       >
-        <SheetContent className="overflow-y-auto data-[side=right]:w-full data-[side=right]:sm:max-w-6xl">
-          <SheetHeader>
-            <SheetTitle>
+        <SheetContent className="gap-0 overflow-hidden data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
+          <SheetHeader className="shrink-0 px-5 pt-6 pr-14 pb-5 sm:px-7 sm:pr-14">
+            <SheetTitle className="truncate text-lg">
               {rows.find((c) => c.id === selected)?.name || "Gerenciar conexão"}
             </SheetTitle>
+            <SheetDescription>
+              Gerencie a conta vinculada a esta conexão.
+            </SheetDescription>
           </SheetHeader>
           {selected && (
-            <WhatsAppConnection key={selected} connectionId={selected} />
+            <WhatsAppConnection
+              key={selected}
+              connectionId={selected}
+              showWorkerIndicator={false}
+              variant="sheet"
+              onConnected={closeConnectionSheet}
+            />
           )}
         </SheetContent>
       </Sheet>

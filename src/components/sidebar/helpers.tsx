@@ -12,6 +12,7 @@ import {
 export const identifierLinks: { [key: string]: string } = {
   "/control-panel": "Painel de controle",
   "/connections": "Conexões",
+  "/groups": "Grupos",
   "/offers": "Ofertas",
   "/promotions": "Central de promoções",
   "/promotions/manage": "Gerenciar promoções",
@@ -30,6 +31,12 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
+  {
+    title: "Grupos",
+    icon: <Users />,
+    href: "/groups",
+    requiredPermissions: [],
+  },
   {
     title: "Conexões",
     icon: <Smartphone />,

@@ -1,32 +1,16 @@
 "use client";
-import { getSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { HandleError } from "./error";
 import { ApiResponse, ApiResponseError } from "./types";
-
-const configURL = () => {
-  switch (process.env.NEXT_PUBLIC_MODE) {
-    case "prod":
-      return process.env.NEXT_PUBLIC_API_PROD_BASE_URL;
-    case "dev":
-      return process.env.NEXT_PUBLIC_API_DEV_BASE_URL;
-    case "demo":
-    default:
-      return process.env.NEXT_PUBLIC_API_DEMO_BASE_URL;
-  }
-};
 
 export async function fetchClient<T>(
   path: string,
   options?: Omit<RequestInit, "body"> & { body?: object }
 ): Promise<T> {
-  const session = await getSession();
-  const jwt = session?.user?.token || "";
-  const baseUrl = configURL();
-  const url = `${baseUrl}${path}`;
-
+  const url = "/api/backend" + path;
   const headers = {
     Accept: "application/json",
-    ...(jwt && { Authorization: `Bearer ${jwt}` }),
+
     ...options?.headers,
     ...(options?.body && { "Content-Type": "application/json" }),
   };
@@ -54,8 +38,13 @@ export async function fetchClient<T>(
       });
     }
 
-    const data: T = await response.json();
-    return data;
+    const data = await response.json();
+    if (!response.ok)
+      throw new HandleError({
+        message: data?.message || "Não foi possível consultar os dados.",
+        code: response.status,
+      });
+    return data as T;
   } catch (error) {
     if (error instanceof HandleError) {
       throw new HandleError({
