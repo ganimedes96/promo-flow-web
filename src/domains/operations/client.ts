@@ -1,3 +1,4 @@
+import { localControlSchema } from "./types";
 import { fetchClient } from "@/api/client";
 import { ApiResponse } from "@/api/types";
 import {
@@ -33,4 +34,9 @@ export async function getSupportDetails(filters: SupportFilters) {
     { cache: "no-store" }
   );
   return supportSchema.parse(response.data);
+}
+
+export async function getLocalControl() {
+ const response = await fetchClient<ApiResponse<unknown>>("/operations/local-control", { cache: "no-store" });
+ return localControlSchema.parse(response.data);
 }

@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
 import {
-  Search,
   RefreshCw,
   UserRoundSearch,
   Copy,
@@ -21,7 +20,7 @@ import type {
   SupportDiagnostic,
 } from "@/domains/operations/types";
 import { queryKeys } from "@/lib/tanstack-query/keys";
-import { ControlledInput } from "@/components/form/controllers/controlled-input";
+import { useDebounce } from "@/hooks/use-debounce";
 import { ControlledCombobox } from "@/components/form/controllers/controlled-combobox";
 import { ControlledSelect } from "@/components/form/controllers/controlled-select";
 import {
@@ -55,12 +54,15 @@ const statuses = [
 ];
 export function SupportPanel() {
   const { data: session } = useSession();
-  const form = useForm({ defaultValues: { search: "", userId: "" } });
+  const form = useForm({ defaultValues: { userId: "" } });
   const userId = useWatch({ control: form.control, name: "userId" });
   const [search, setSearch] = useState("");
+  const term = search.trim().slice(0, 100);
+  const debouncedSearch = useDebounce(term, 400);
+  const [selectedLabel, setSelectedLabel] = useState<string | undefined>();
   const users = useQuery({
-    queryKey: queryKeys.operations.users(session?.user.id, search),
-    queryFn: () => getSupportUsers(search),
+    queryKey: queryKeys.operations.users(session?.user.id, debouncedSearch),
+    queryFn: () => getSupportUsers(debouncedSearch),
     enabled: !!session?.user.id,
     retry: false,
     staleTime: 30000,
@@ -79,24 +81,6 @@ export function SupportPanel() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pt-5">
-          <form
-            onSubmit={form.handleSubmit((values) =>
-              setSearch(values.search.trim())
-            )}
-            className="grid items-end gap-3 sm:grid-cols-[1fr_auto]"
-          >
-            <ControlledInput
-              control={form.control}
-              name="search"
-              label="Buscar cliente por nome ou e-mail"
-              placeholder="Digite um nome ou e-mail"
-              maxLength={100}
-            />
-            <Button type="submit" variant="outline" disabled={users.isFetching}>
-              <Search className="size-4" />
-              Buscar
-            </Button>
-          </form>
           {users.isError ? (
             <ApiErrorCard
               title="Não foi possível buscar clientes"
@@ -109,18 +93,21 @@ export function SupportPanel() {
               control={form.control}
               name="userId"
               label="Cliente em investigação"
+              searchPlaceholder="Digite o nome ou e-mail do cliente"
+              onSearchChange={setSearch}
+              onOptionSelect={option => setSelectedLabel(option?.name)}
+              selectedLabel={selectedLabel}
               placeholder="Selecione o cliente"
-              loading={users.isPending}
+              loading={users.isFetching || term !== debouncedSearch}
               options={users.data?.map((user) => ({
                 id: user.id,
                 name: user.name + " · " + user.email,
               }))}
-              noOptionsMessage="Nenhum cliente encontrado. Ajuste a busca acima."
+              noOptionsMessage="Nenhum cliente encontrado para este nome ou e-mail."
             />
           )}
           <p className="text-muted-foreground text-xs">
-            São exibidos até 30 clientes por busca. Refine pelo e-mail para
-            localizar uma conta específica.
+            Digite no campo de seleção para buscar clientes por nome ou e-mail.
           </p>
         </CardContent>
       </Card>

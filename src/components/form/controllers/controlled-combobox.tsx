@@ -43,6 +43,10 @@ interface ControlledComboboxProps<
   disabled?: boolean;
   width?: number | string;
   rightComponent?: React.ReactNode;
+  onSearchChange?: (search: string) => void;
+  onOptionSelect?: (option: ComboboxOption | null) => void;
+  selectedLabel?: string;
+
 }
 
 export function ControlledCombobox<FormType extends FieldValues>({
@@ -59,6 +63,9 @@ export function ControlledCombobox<FormType extends FieldValues>({
   loading,
   width = "100%",
   rightComponent,
+  onSearchChange,
+  onOptionSelect,
+  selectedLabel,
 }: ControlledComboboxProps<FormType>) {
   const [open, setOpen] = React.useState(false);
 
@@ -84,7 +91,7 @@ export function ControlledCombobox<FormType extends FieldValues>({
               </Label>
               {rightComponent && rightComponent}
             </div>
-            <Popover modal open={open} onOpenChange={setOpen}>
+            <Popover modal open={open} onOpenChange={(nextOpen) => { setOpen(nextOpen); if (nextOpen) onSearchChange?.(""); }}>
               <PopoverTrigger asChild>
                 <Button
                   id={name}
@@ -107,7 +114,7 @@ export function ControlledCombobox<FormType extends FieldValues>({
                   <span className="min-w-0 truncate text-left">
                     {loading
                       ? "Carregando..."
-                      : selectedOption?.name || placeholder}
+                      : selectedOption?.name || (value ? selectedLabel : undefined) || placeholder}
                   </span>
                   <ChevronsUpDown className="h-4 w-4 shrink-0" />
                 </Button>
@@ -116,8 +123,8 @@ export function ControlledCombobox<FormType extends FieldValues>({
                 className="border-border max-w-[calc(100vw-2rem)] rounded-xl border p-2 shadow-lg"
                 style={{ width: "var(--radix-popover-trigger-width)" }}
               >
-                <Command className="w-full gap-2 p-1">
-                  <CommandInput placeholder={searchPlaceholder} />
+                <Command className="w-full gap-2 p-1" shouldFilter={!onSearchChange}>
+                  <CommandInput placeholder={searchPlaceholder} onValueChange={onSearchChange} />
                   <CommandList
                     className={cn(
                       "min-h-0 overflow-y-auto px-1 pb-1",
@@ -128,9 +135,9 @@ export function ControlledCombobox<FormType extends FieldValues>({
                         "min(15rem, max(5rem, calc(var(--radix-popover-content-available-height) - 5rem)))",
                     }}
                   >
-                    <CommandEmpty>{noOptionsMessage}</CommandEmpty>
+                    <CommandEmpty>{loading ? "Buscando..." : noOptionsMessage}</CommandEmpty>
                     <CommandGroup className="p-0 [&_[cmdk-group-items]]:flex [&_[cmdk-group-items]]:flex-col [&_[cmdk-group-items]]:gap-2">
-                      {options.map((option) => (
+                      {(!onSearchChange || !loading) && options.map((option) => (
                         <CommandItem
                           className="data-[selected=true]:border-border rounded-lg border border-transparent px-3 py-3"
                           key={option.id}
@@ -138,6 +145,7 @@ export function ControlledCombobox<FormType extends FieldValues>({
                           keywords={[option.name]}
                           onSelect={() => {
                             onChange(value === option.id ? "" : option.id);
+                            onOptionSelect?.(value === option.id ? null : option);
                             setOpen(false);
                           }}
                         >

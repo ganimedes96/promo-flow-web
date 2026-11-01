@@ -17,6 +17,7 @@ export const queryKeys = {
     forUser: (userId?: string) => ["message-settings", userId] as const,
   },
   operations: {
+    localControl: (userId?: string) => ["operations", "local-control", userId] as const,
     users: (adminId: string | undefined, search: string) =>
       ["operations", "users", adminId, search] as const,
     support: (adminId: string | undefined, filters: object) =>

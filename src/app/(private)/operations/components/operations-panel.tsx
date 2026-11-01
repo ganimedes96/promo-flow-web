@@ -1,4 +1,5 @@
 "use client";
+import { LocalControlCard } from "./local-control-card";
 import { SupportPanel } from "./support-panel";
 import { useState } from "react";
 import Link from "next/link";
@@ -109,7 +110,6 @@ export function OperationsPanel() {
           </Button>
         </div>
       </header>
-      <SupportPanel />
       {status.isError && (
         <ApiErrorCard
           title="Não foi possível consultar a operação"
@@ -124,6 +124,7 @@ export function OperationsPanel() {
         />
       )}
       <h2 className="pt-4 text-lg font-semibold">Visão geral de todos os clientes</h2>
+      <LocalControlCard />
       {status.isPending ? (
         <div
           className="grid gap-4 md:grid-cols-2"
@@ -251,21 +252,6 @@ export function OperationsPanel() {
                 )
               )}
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                ["Agendadas", data.queue.scheduled],
-                ["Em envio", data.queue.sending],
-                ["Sem confirmação", data.queue.unconfirmed],
-                ["Com falha", data.queue.failed],
-              ].map(([label, count]) => (
-                <Card key={label}>
-                  <CardContent className="pt-5">
-                    <p className="text-muted-foreground text-xs">{label}</p>
-                    <p className="mt-2 text-3xl font-semibold">{count}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
             {data.queue.unconfirmed > 0 && (
               <div className="border-warning/40 bg-warning/10 flex items-start gap-3 rounded-xl border p-4">
                 <PauseCircle className="text-warning mt-0.5 size-5 shrink-0" />
@@ -283,28 +269,6 @@ export function OperationsPanel() {
                 </div>
               </div>
             )}
-            <details className="bg-card rounded-xl border p-4">
-              <summary className="cursor-pointer text-sm font-semibold">
-                Como verificar os processos locais
-              </summary>
-              <div className="text-muted-foreground mt-3 space-y-2 text-sm">
-                <p>
-                  Na pasta promo-flow-worker, execute <code>pnpm start</code>.
-                  Para publicar, a configuração ENABLE_PUBLISHING precisa estar
-                  ativa.
-                </p>
-                <p>
-                  Na pasta promo-flow-telegram, execute <code>pnpm start</code>.
-                  O coletor usa a mesma configuração de API e token de coleta da
-                  instalação atual.
-                </p>
-                <p>
-                  Ao encerrar, use Ctrl+C e aguarde a confirmação de parada. Se
-                  houver falha HTTP, localize o log na Vercel pela referência do
-                  erro, sem compartilhar tokens ou arquivos de sessão.
-                </p>
-              </div>
-            </details>
             <p className="text-muted-foreground text-xs">
               Atualizado em {formatDate(data.checkedAt, "dd/MM/yyyy HH:mm:ss")}.
               A ausência de contato por 45 segundos indica indisponibilidade;
@@ -313,6 +277,7 @@ export function OperationsPanel() {
           </>
         )
       )}
+      <SupportPanel />
     </div>
   );
 }
