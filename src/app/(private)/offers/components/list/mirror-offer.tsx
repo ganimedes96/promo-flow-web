@@ -1,19 +1,14 @@
 "use client";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
 import { useForm, useWatch } from "react-hook-form";
-import { Users } from "lucide-react";
+import { Users, Check, Link2, ArrowRight, Sparkles } from "lucide-react";
 import { Offer } from "@/domains/offers/types";
-import { getWhatsAppGroups } from "@/domains/whatsapp/client";
 import {
   applyMirrorAffiliate,
   retryMirrorConversion,
-  assignMirrorDestination,
 } from "@/domains/mirroring/actions";
 import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
-import { ControlledCombobox } from "@/components/form/controllers/controlled-combobox";
 import { ControlledInput } from "@/components/form/controllers/controlled-input";
 import { ControlledSingleCheckbox } from "@/components/form/controllers/controlled-single-checkbox";
 import { Button } from "@/components/ui/button";
@@ -24,6 +19,10 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import { MirrorDestinations } from "./mirror-destinations";
+import { PromotionImage } from "@/app/(private)/promotions/components/promotion-image";
+import { Badge } from "@/components/ui/badge";
+
 export function MirrorOfferAction({ offer }: { offer: Offer }) {
   const [open, setOpen] = useState(false);
   return (
@@ -31,25 +30,33 @@ export function MirrorOfferAction({ offer }: { offer: Offer }) {
       <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
         <Users className="size-3" />
         {offer.mirrorAffiliateStatus === "APPLIED"
-          ? "Vincular grupo"
+          ? "Vincular grupos"
           : "Preparar link"}
       </Button>
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent className="w-full overflow-y-auto p-6 sm:max-w-xl">
-          <SheetHeader className="px-0">
-            <SheetTitle>Preparar oferta capturada</SheetTitle>
+        <SheetContent className="flex flex-col gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-3xl">
+          <SheetHeader className="bg-primary/5 border-b p-6">
+            <span className="text-primary mb-1 flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
+              <Sparkles className="size-4 motion-safe:animate-pulse" />
+              Sua oferta, seus destinos
+            </span>
+            <SheetTitle className="text-xl">
+              Escolha o próximo destino do seu achado
+            </SheetTitle>
             <SheetDescription>
-              {offer.title}. O grupo de origem não é um destino. Nada será
-              enviado ao vincular.
+              Aplique seu link e organize os grupos que vão receber esta oferta.
+              Você controla o momento do envio.
             </SheetDescription>
           </SheetHeader>
-          {open && (
-            <MirrorDestinationForm
-              key={offer.id + offer.mirrorAffiliateStatus}
-              offer={offer}
-              onDone={() => setOpen(false)}
-            />
-          )}
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
+            {open && (
+              <MirrorDestinationForm
+                key={offer.id + offer.mirrorAffiliateStatus}
+                offer={offer}
+                onDone={() => setOpen(false)}
+              />
+            )}
+          </div>
         </SheetContent>
       </Sheet>
     </>
@@ -62,18 +69,10 @@ function MirrorDestinationForm({
   offer: Offer;
   onDone: () => void;
 }) {
-  const { data: session } = useSession();
-  const groups = useQuery({
-    queryKey: [...queryKeys.whatsapp.groupsFor(), session?.user.id],
-    queryFn: () => getWhatsAppGroups(),
-    enabled: !!session?.user.id,
-    retry: false,
-  });
   const form = useForm({
     defaultValues: {
       affiliateUrl: offer.affiliateUrl ?? "",
       confirmed: false,
-      groupId: "",
     },
   });
   const values = useWatch({ control: form.control });
@@ -81,12 +80,6 @@ function MirrorDestinationForm({
     mutationFn: applyMirrorAffiliate,
     invalidateQueries: [queryKeys.offers.all],
     successMessage: "Link próprio aplicado.",
-  });
-  const assign = useServerAction({
-    mutationFn: assignMirrorDestination,
-    invalidateQueries: [queryKeys.offers.all],
-    successMessage: "Grupo vinculado. Revise os dados antes de agendar.",
-    onSuccess: onDone,
   });
   const applied = offer.mirrorAffiliateStatus === "APPLIED";
   const retry = useServerAction({
@@ -98,9 +91,43 @@ function MirrorDestinationForm({
 
   return (
     <div className="mt-6 space-y-5">
+      <div className="bg-card motion-safe:animate-in motion-safe:fade-in flex items-center gap-4 rounded-2xl border p-4 motion-safe:duration-300">
+        <PromotionImage
+          src={offer.imageUrl}
+          title={offer.title || "Oferta"}
+          compact
+          className="size-16 rounded-xl"
+        />
+        <div className="min-w-0">
+          <Badge variant="outline" className="mb-1 text-[10px]">
+            Oferta capturada
+          </Badge>
+          <p className="line-clamp-2 text-sm font-semibold">
+            {offer.title || "Revise o nome da oferta"}
+          </p>
+        </div>
+      </div>
+      <div className="bg-muted/40 flex items-center justify-center gap-3 rounded-xl px-3 py-3 text-xs">
+        <span className="text-primary flex items-center gap-2 font-medium">
+          {applied ? (
+            <Check className="size-4" />
+          ) : (
+            <Link2 className="size-4" />
+          )}
+          Seu link
+        </span>
+        <ArrowRight className="text-muted-foreground size-4" />
+        <span className="flex items-center gap-2 font-medium">
+          <Users className="size-4" />
+          Seus grupos
+        </span>
+      </div>
       {applied ? (
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm">
-          <p className="font-semibold">Seu link de afiliado foi aplicado</p>
+          <p className="flex items-center gap-2 font-semibold">
+            <Check className="size-4" />
+            Seu link de afiliado está pronto
+          </p>
           <p className="mt-2 truncate text-xs">{offer.affiliateUrl}</p>
         </div>
       ) : (
@@ -186,53 +213,10 @@ function MirrorDestinationForm({
           </form>
         </div>
       )}
-      <form
-        className="space-y-4"
-        onSubmit={form.handleSubmit((data) =>
-          assign.mutate({ id: offer.id, groupId: data.groupId })
-        )}
-      >
-        <ControlledCombobox
-          control={form.control}
-          name="groupId"
-          label="Grupo favorito de destino"
-          placeholder={
-            groups.isPending
-              ? "Carregando grupos..."
-              : "Escolha onde enviar depois"
-          }
-          options={(groups.data ?? [])
-            .filter((group) => group.isFavorite)
-            .map((group) => ({
-              id: group.id,
-              name: group.name + " · +" + group.accountPhone,
-            }))}
-          disabled={
-            !applied || assign.isPending || groups.isPending || groups.isError
-          }
-        />
-        {groups.error && (
-          <p className="text-destructive text-xs">
-            Não foi possível carregar seus grupos.{" "}
-            <button
-              type="button"
-              className="underline"
-              onClick={() => void groups.refetch()}
-            >
-              Tentar novamente
-            </button>
-          </p>
-        )}
-        <Button
-          type="submit"
-          disabled={!applied || assign.isPending || !values.groupId}
-        >
-          Vincular grupo, sem agendar
-        </Button>
-      </form>
-      {(affiliate.error || assign.error) && (
+      <MirrorDestinations offer={offer} onDone={onDone} />
+      {affiliate.error && (
         <p role="alert" className="text-destructive text-sm">
-          {affiliate.error?.message || assign.error?.message}
+          {affiliate.error.message}
         </p>
       )}
       <p className="text-muted-foreground text-xs">

@@ -7,6 +7,7 @@ import {
 import { getServerSession } from "@/lib/next-auth/auth";
 import { redirect } from "next/navigation";
 import { Nav } from "./nav";
+import { SidebarBrand } from "./brand";
 
 export async function AppSidebar() {
   const session = await getServerSession();
@@ -20,8 +21,8 @@ export async function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="border-sidebar-border flex h-16 justify-center border-b">
-        <div className="flex items-center justify-center gap-6 px-2">
-          <span className="text-xl font-semibold">PromoFlow</span>
+        <div className="px-3">
+          <SidebarBrand />
         </div>
       </SidebarHeader>
       <SidebarContent>

@@ -1,0 +1,51 @@
+.symbol {
+  animation: sway 6s ease-in-out infinite;
+}
+.shine {
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    color-mix(in srgb, var(--primary) 28%, transparent) 50%,
+    transparent 65%
+  );
+  transform: translateX(-100%);
+  animation: shine 6s ease-in-out infinite;
+}
+@keyframes sway {
+  0%,
+  72%,
+  100% {
+    transform: rotate(0deg);
+  }
+  78% {
+    transform: rotate(-7deg);
+  }
+  85% {
+    transform: rotate(5deg);
+  }
+  92% {
+    transform: rotate(-2deg);
+  }
+}
+@keyframes shine {
+  0%,
+  45% {
+    transform: translateX(-100%);
+  }
+  65%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .symbol,
+  .shine {
+    animation: none;
+  }
+  .shine {
+    display: none;
+  }
+}

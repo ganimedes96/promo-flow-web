@@ -1,3 +1,4 @@
+import { telegramStateSchema } from "@/domains/telegram/types";
 import { z } from "zod";
 export const mirrorSourcesSchema = z.object({
   limit: z.number(),
@@ -16,3 +17,9 @@ export const mirrorSourcesSchema = z.object({
   ),
 });
 export type MirrorSources = z.infer<typeof mirrorSourcesSchema>;
+
+export const personalTelegramSchema = telegramStateSchema.extend({
+  collectorOnline: z.boolean(),
+  limit: z.number(),
+  selectedCount: z.number(),
+});

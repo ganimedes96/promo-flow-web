@@ -1,4 +1,5 @@
 "use client";
+import type { QueryKey } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { QRCodeSVG } from "qrcode.react";
@@ -33,17 +34,21 @@ import {
 function PasswordForm({
   flowId,
   disabled,
+  sendPassword = sendTelegramPassword,
+  invalidations = [queryKeys.telegram.all],
 }: {
   flowId: string;
   disabled: boolean;
+  sendPassword?: typeof sendTelegramPassword;
+  invalidations?: readonly QueryKey[];
 }) {
   const form = useForm<{ password: string }>({
     defaultValues: { password: "" },
   });
   const action = useServerAction<unknown, { flowId: string; password: string }>(
     {
-      mutationFn: sendTelegramPassword,
-      invalidateQueries: [queryKeys.telegram.all],
+      mutationFn: sendPassword,
+      invalidateQueries: invalidations,
       successMessage: "Senha enviada para o coletor.",
       onSuccess: () => form.reset(),
     }
@@ -93,8 +98,16 @@ export function TelegramConnectionCard({
   state,
   busy,
   onAction,
+  personal = false,
+  collectorOnline,
+  sendPassword,
+  invalidations,
 }: {
   state: TelegramState;
+  personal?: boolean;
+  collectorOnline?: boolean;
+  sendPassword?: typeof sendTelegramPassword;
+  invalidations?: readonly QueryKey[];
   busy: boolean;
   onAction: (action: "connect" | "disconnect" | "sync") => void;
 }) {
@@ -103,7 +116,8 @@ export function TelegramConnectionCard({
   const connecting = ["CONNECTING", "WAITING_QR", "WAITING_PASSWORD"].includes(
     state.status
   );
-  const disabled = busy || state.commandPending || !state.online;
+  const serviceOnline = collectorOnline ?? state.online;
+  const disabled = busy || state.commandPending || !serviceOnline;
   const badgeColor = ready
     ? "bg-emerald-700 text-white border-emerald-700"
     : !state.online
@@ -131,7 +145,9 @@ export function TelegramConnectionCard({
                 <h2 className="text-xl font-semibold">
                   {ready
                     ? state.accountName || "Sua conta conectada"
-                    : "Sua curadoria começa aqui"}
+                    : personal
+                      ? "Conecte seu Telegram"
+                      : "Sua curadoria começa aqui"}
                 </h2>
                 {ready && state.phone && (
                   <p className="text-muted-foreground text-sm">
@@ -142,26 +158,46 @@ export function TelegramConnectionCard({
             </div>
             <div className="flex flex-wrap gap-2">
               <Badge className={badgeColor}>
-                {state.online ? labels[state.status] : "Coletor offline"}
+                {state.online
+                  ? labels[state.status]
+                  : personal
+                    ? serviceOnline
+                      ? "Aguardando conexão"
+                      : "Serviço indisponível"
+                    : "Coletor offline"}
               </Badge>
               <Badge variant="outline">
                 <Radio className="size-3" />{" "}
-                {state.online
-                  ? "Coletor local ativo"
-                  : "Aguardando coletor local"}
+                {personal
+                  ? serviceOnline
+                    ? "Captura disponível"
+                    : "Captura indisponível"
+                  : state.online
+                    ? "Coletor local ativo"
+                    : "Aguardando coletor local"}
               </Badge>
             </div>
             <p className="text-muted-foreground max-w-xl text-sm leading-relaxed">
-              {ready
-                ? "Escolha os canais que quer acompanhar. As promoções entram diretamente em Gerenciar promoções como rascunhos."
-                : "Conecte pelo QR Code e escolha suas fontes. A conta e as fontes são exclusivas da curadoria administrativa."}
+              {personal
+                ? ready
+                  ? "Selecione canais e grupos para receber rascunhos na sua página de Ofertas. Nada é enviado automaticamente."
+                  : "Sua conexão e suas fontes ficam somente na sua conta. Leia o QR Code pelo Telegram do celular."
+                : ready
+                  ? "Escolha os canais que quer acompanhar. As promoções entram diretamente em Gerenciar promoções como rascunhos."
+                  : "Conecte pelo QR Code e escolha suas fontes. A conta e as fontes são exclusivas da curadoria administrativa."}
             </p>
-            {!state.online && (
+            {!serviceOnline && (
               <Alert>
                 <AlertDescription>
-                  Inicie <code>pnpm start</code> na pasta{" "}
-                  <strong>promo-flow-telegram</strong>. O processo precisa
-                  continuar rodando no computador para conectar e capturar.
+                  {personal ? (
+                    "O serviço de captura está indisponível neste momento. Tente novamente em instantes ou entre em contato com o suporte."
+                  ) : (
+                    <>
+                      Inicie <code>pnpm start</code> na pasta{" "}
+                      <strong>promo-flow-telegram</strong>. O processo precisa
+                      continuar rodando no computador para conectar e capturar.
+                    </>
+                  )}
                 </AlertDescription>
               </Alert>
             )}
@@ -188,7 +224,7 @@ export function TelegramConnectionCard({
               {(ready || connecting) && (
                 <Button
                   variant="outline"
-                  disabled={busy || !state.online}
+                  disabled={busy || !serviceOnline}
                   onClick={() => setDisconnecting(true)}
                 >
                   <LogOut className="size-4" />{" "}
@@ -228,6 +264,8 @@ export function TelegramConnectionCard({
                 key={state.flowId}
                 flowId={state.flowId}
                 disabled={disabled}
+                sendPassword={sendPassword}
+                invalidations={invalidations}
               />
             ) : (
               <div className="text-center">
@@ -246,7 +284,9 @@ export function TelegramConnectionCard({
                 <p className="text-muted-foreground mt-2 max-w-52 text-xs">
                   {ready
                     ? "A revisão continua sendo sua. Nada é publicado automaticamente."
-                    : "Sua sessão permanece no coletor local."}
+                    : personal
+                      ? "Você controla quais fontes serão acompanhadas."
+                      : "Sua sessão permanece no coletor local."}
                 </p>
               </div>
             )}

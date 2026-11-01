@@ -132,3 +132,59 @@ export function getAccessibleNavItems(userPermissions: Permission[]) {
       )
   );
 }
+
+export interface NavSection {
+  id: string;
+  title: string;
+  icon: React.ReactNode;
+  items: NavItem[];
+}
+const navSections = [
+  {
+    id: "offers",
+    title: "Ofertas",
+    icon: <Tags />,
+    hrefs: ["/offers", "/promotions", "/mirroring"],
+  },
+  {
+    id: "whatsapp",
+    title: "WhatsApp",
+    icon: <Smartphone />,
+    hrefs: ["/connections", "/groups", "/message-settings"],
+  },
+  {
+    id: "settings",
+    title: "Configurações",
+    icon: <Store />,
+    hrefs: ["/stores", "/extension", "/subscription"],
+  },
+  {
+    id: "admin",
+    title: "Administração",
+    icon: <Activity />,
+    hrefs: [
+      "/promotions/manage",
+      "/promotion-sources",
+      "/operations",
+      "/users",
+    ],
+  },
+];
+export function getAccessibleNavSections(
+  userPermissions: Permission[]
+): NavSection[] {
+  const accessible = new Map(
+    getAccessibleNavItems(userPermissions).map((item) => [item.href, item])
+  );
+  return navSections
+    .map((section) => ({
+      id: section.id,
+      title: section.title,
+      icon: section.icon,
+      items: section.hrefs.flatMap((href) => {
+        const item = accessible.get(href);
+        return item ? [item] : [];
+      }),
+    }))
+    .filter((section) => section.items.length > 0);
+}

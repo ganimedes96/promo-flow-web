@@ -54,14 +54,20 @@ export async function applyMirrorAffiliate(body: {
     }
   );
 }
-export async function assignMirrorDestination(body: {
+export async function assignMirrorDestinations(body: {
   id: string;
-  groupId: string;
+  groupIds: string[];
 }) {
+  const groupIds = z
+    .array(z.string().uuid())
+    .min(1)
+    .max(20)
+    .refine((ids) => new Set(ids).size === ids.length)
+    .parse(body.groupIds);
   return mutate(
-    "/mirroring/offers/" + z.string().uuid().parse(body.id) + "/destination",
+    "/mirroring/offers/" + z.string().uuid().parse(body.id) + "/destinations",
     "PUT",
-    { groupId: z.string().uuid().parse(body.groupId) }
+    { groupIds }
   );
 }
 
@@ -69,5 +75,46 @@ export async function retryMirrorConversion(id: string) {
   return mutate(
     "/mirroring/offers/" + z.string().uuid().parse(id) + "/retry",
     "POST"
+  );
+}
+
+export async function controlPersonalTelegram(body: {
+  action: "connect" | "disconnect" | "sync";
+}) {
+  return mutate(
+    "/mirroring/telegram/" +
+      z.enum(["connect", "disconnect", "sync"]).parse(body.action),
+    "POST"
+  );
+}
+export async function sendPersonalTelegramPassword(body: {
+  flowId: string;
+  password: string;
+}): Promise<ApiResponse<unknown> | ApiResponseError> {
+  return mutate(
+    "/mirroring/telegram/password",
+    "POST",
+    z
+      .object({
+        flowId: z.string().uuid(),
+        password: z.string().min(1).max(256),
+      })
+      .parse(body)
+  );
+}
+export async function updatePersonalTelegramSource(body: {
+  id: string;
+  enabled: boolean;
+}) {
+  return mutate(
+    "/mirroring/telegram/sources/" + z.string().uuid().parse(body.id),
+    "PATCH",
+    { enabled: z.boolean().parse(body.enabled) }
+  );
+}
+export async function removePersonalTelegramSource(id: string) {
+  return mutate(
+    "/mirroring/telegram/sources/" + z.string().uuid().parse(id),
+    "DELETE"
   );
 }

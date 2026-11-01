@@ -8,6 +8,7 @@ const usersKeys = {
 
 export const queryKeys = {
   mirroring: {
+    telegram: (userId?: string) => ["mirroring", "telegram", userId] as const,
     all: ["mirroring"] as const,
     sources: (userId?: string) => ["mirroring", userId] as const,
   },
