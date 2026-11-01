@@ -1,3 +1,4 @@
+import { PromotionImage } from "@/app/(private)/promotions/components/promotion-image";
 import { OfferQueueActions } from "./queue-actions";
 import { Badge } from "@/components/ui/badge";
 import { ColumnDef } from "@/components/ui/data-table";
@@ -21,6 +22,39 @@ export const statusColors: Record<Offer["status"], string> = {
   FAILED: "border-rose-700 bg-rose-700 text-white font-semibold",
   CANCELLED: "border-orange-700 bg-orange-700 text-white font-semibold",
 };
+export function offerDisplayStatus(offer: Offer): {
+  label: string;
+  color: string;
+} {
+  if (offer.status === "PUBLISHING" && offer.errorMessage)
+    return { label: "Sem confirmação", color: statusColors.PUBLISHING };
+  if (offer.status === "SCHEDULED" && offer.queueBlockedReason) {
+    const labels: Partial<
+      Record<NonNullable<Offer["queueBlockedCode"]>, string>
+    > = {
+      PAUSED: "Pausada",
+      WAITING_CONNECTION: "Aguardando conexão",
+      GROUP_UNAVAILABLE: "Grupo indisponível",
+      WORKER_OFFLINE: "Publicador offline",
+      PUBLISHING_DISABLED: "Envios desativados",
+      PREVIOUS_UNCONFIRMED: "Aguardando conferência",
+      PREVIOUS_SENDING: "Aguardando envio anterior",
+    };
+    return {
+      label:
+        (offer.queueBlockedCode && labels[offer.queueBlockedCode]) ||
+        "Fila aguardando",
+      color:
+        offer.queueBlockedCode === "PAUSED"
+          ? statusColors.CANCELLED
+          : statusColors.PUBLISHING,
+    };
+  }
+  return {
+    label: statusLabels[offer.status],
+    color: statusColors[offer.status],
+  };
+}
 export const columns: ColumnDef<Offer>[] = [
   {
     key: "title",
@@ -28,12 +62,20 @@ export const columns: ColumnDef<Offer>[] = [
     className: "min-w-52 w-60",
     primary: true,
     render: (_value, row) => (
-      <span
-        className="block max-w-60 truncate font-medium"
-        title={row.title || undefined}
-      >
-        {row.title || "—"}
-      </span>
+      <div className="flex min-w-0 items-center gap-3">
+        <PromotionImage
+          src={row.imageUrl}
+          title={row.title || "Oferta"}
+          compact
+          className="size-11 rounded-lg"
+        />
+        <span
+          className="block max-w-44 min-w-0 truncate font-medium"
+          title={row.title || undefined}
+        >
+          {row.title || "—"}
+        </span>
+      </div>
     ),
   },
   {
@@ -68,29 +110,39 @@ export const columns: ColumnDef<Offer>[] = [
     key: "status",
     header: "Status",
     isStatus: true,
-    render: (_value, row) => (
-      <Badge
-        variant="outline"
-        className={
-          row.queueBlockedReason
-            ? statusColors.PUBLISHING
-            : statusColors[row.status]
-        }
-      >
-        <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
-        {row.status === "PUBLISHING" && row.errorMessage
-          ? "Conferir envio"
-          : row.queueBlockedReason
-            ? "Fila aguardando"
-            : statusLabels[row.status]}
-      </Badge>
-    ),
+    render: (_value, row) => {
+      const display = offerDisplayStatus(row);
+      return (
+        <Badge
+          variant="outline"
+          className={display.color}
+          title={row.queueBlockedReason || row.errorMessage || undefined}
+        >
+          <span
+            aria-hidden="true"
+            className="size-1.5 rounded-full bg-current"
+          />
+          {display.label}
+        </Badge>
+      );
+    },
   },
   {
     key: "scheduledAt",
     header: "Horário previsto",
     render: (_value, row) =>
-      row.scheduledAt ? formatDate(row.scheduledAt, "dd/MM/yyyy HH:mm") : "—",
+      row.scheduledAt ? (
+        <div className="space-y-1">
+          <span>{formatDate(row.scheduledAt, "dd/MM/yyyy HH:mm")}</span>
+          {row.queueBlockedReason && (
+            <small className="text-muted-foreground block text-xs">
+              Aguardando liberação da fila
+            </small>
+          )}
+        </div>
+      ) : (
+        "—"
+      ),
   },
   {
     key: "publishedAt",

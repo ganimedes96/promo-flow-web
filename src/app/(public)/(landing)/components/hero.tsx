@@ -19,9 +19,9 @@ export function Hero() {
             <em>Deu flow.</em>
           </h1>
           <p>
-            Transforme aquele achado do navegador em uma oferta pronta para o
-            WhatsApp. Menos trabalho repetido. Mais tempo para encontrar a
-            próxima boa.
+            Da extensão ou da Central de promoções para seus grupos de WhatsApp.
+            Capture produtos, prepare seu link de afiliado e organize os envios
+            em um só lugar.
           </p>
           <div className="flow-hero-actions">
             <Button asChild size="lg" className="flow-primary-button">
@@ -36,13 +36,13 @@ export function Hero() {
             </a>
           </div>
           <div className="flow-store-list">
-            <span>DA SUA ABA PARA O GRUPO</span>
+            <span>DAS PRINCIPAIS LOJAS PARA SEUS GRUPOS</span>
             <div>
               Mercado Livre
               <i />
               Amazon Brasil
               <i />
-              WhatsApp
+              Shopee
             </div>
           </div>
         </div>

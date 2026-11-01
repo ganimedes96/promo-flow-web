@@ -1,3 +1,4 @@
+import { GettingStartedGuide } from "./components/getting-started/guide";
 import { getServerSession } from "@/lib/next-auth/auth";
 import { WhatsAppConnection } from "./components/whatsapp-connection";
 
@@ -13,6 +14,7 @@ export default async function ControlPanelPage() {
           Sua conta, sua conexão e o próximo passo para mandar boas ofertas.
         </p>
       </header>
+      {session?.user.id && <GettingStartedGuide userId={session.user.id} />}
       <WhatsAppConnection />
     </div>
   );

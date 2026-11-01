@@ -3724,3 +3724,484 @@
     font-size: 6px;
   }
 }
+.flow-updates-section {
+  color: #193e2b;
+  background-color: #e8eddb;
+  background-image:
+    radial-gradient(#76945a30 1px, transparent 1px),
+    linear-gradient(125deg, #f5f4e8, transparent 65%);
+  background-size:
+    16px 16px,
+    100% 100%;
+  border-block: 1px solid #c3d0b6;
+}
+.flow-updates-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 36px;
+}
+.flow-update-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 26px;
+  border: 1px solid #b7c7a5;
+  border-radius: 18px;
+  background: #fcfcf5;
+  box-shadow: 4px 5px 0 #193e2b15;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.flow-update-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 5px 9px 0 #193e2b20;
+}
+.flow-update-card:nth-child(2) {
+  background: #f3efd9;
+}
+.flow-update-card:nth-child(3) {
+  background: #dcebcf;
+}
+.flow-update-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+}
+.flow-update-card h3 {
+  margin-top: 22px;
+  font-size: 20px;
+  line-height: 1.4;
+}
+.flow-update-card p {
+  margin-block: 15px 24px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.flow-update-card ol {
+  display: grid;
+  gap: 9px;
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px dashed #9bb18a;
+}
+.flow-update-card li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+.flow-update-card li svg {
+  color: #45742d;
+  animation: flow-update-check 3s ease-in-out infinite;
+}
+.flow-update-card li:nth-child(2) svg {
+  animation-delay: 0.4s;
+}
+.flow-update-card li:nth-child(3) svg {
+  animation-delay: 0.8s;
+}
+@keyframes flow-update-check {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  45% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+}
+@media (max-width: 900px) {
+  .flow-updates-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-update-card,
+  .flow-update-card:hover {
+    transition: none;
+    transform: none;
+  }
+  .flow-update-card li svg {
+    animation: none;
+  }
+}
+/* Novidades: pequenas cenas do fluxo, com movimento independente do texto. */
+.flow-updates-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: #edf0d8;
+  background-image:
+    linear-gradient(#557a3a12 1px, transparent 1px),
+    linear-gradient(90deg, #557a3a12 1px, transparent 1px),
+    radial-gradient(ellipse at 10% 20%, #dcf395 0, transparent 50%),
+    radial-gradient(ellipse at 95% 85%, #bedbbf 0, transparent 55%);
+  background-size:
+    42px 42px,
+    42px 42px,
+    100% 100%,
+    100% 100%;
+}
+.flow-updates-art {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.flow-updates-art > span {
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  border: 1px dashed #46744030;
+  border-radius: 50%;
+  right: -260px;
+  top: -230px;
+  animation: flow-update-orbit 65s linear infinite;
+}
+.flow-updates-art > span::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #689945;
+  top: 90px;
+  left: 90px;
+  box-shadow: 0 0 0 8px #68994516;
+}
+.flow-updates-art > span:nth-child(2) {
+  width: 820px;
+  height: 820px;
+  right: -350px;
+  top: -320px;
+  animation-direction: reverse;
+}
+.flow-updates-art > span:nth-child(3) {
+  width: 470px;
+  height: 470px;
+  left: -310px;
+  top: auto;
+  bottom: -200px;
+}
+.flow-updates-art > i {
+  position: absolute;
+  right: 9%;
+  top: 12%;
+  font-style: normal;
+  font-size: 80px;
+  color: #51763b45;
+  animation: flow-update-float 6s ease-in-out infinite;
+}
+.flow-updates-art > i:nth-last-child(2) {
+  right: 3%;
+  top: 48%;
+  font-size: 45px;
+  animation-delay: -2s;
+}
+.flow-updates-art > i:last-child {
+  left: 2%;
+  top: 74%;
+  font-size: 55px;
+  animation-delay: -4s;
+}
+.flow-update-card {
+  position: relative;
+  padding: 22px;
+  box-shadow: 5px 7px 0 #193e2b23;
+  border-color: #79966b;
+}
+.flow-update-card:nth-child(2) {
+  margin-top: 24px;
+  margin-bottom: -24px;
+}
+.flow-update-card:nth-child(3) {
+  background: #193e2b;
+  color: #f5f7e9;
+  border-color: #193e2b;
+}
+.flow-update-card:nth-child(3) li svg {
+  color: #b7df79;
+}
+.flow-update-card:nth-child(3) ol {
+  border-color: #718b62;
+}
+.flow-update-demo {
+  height: 176px;
+  margin-top: 22px;
+  border-radius: 12px;
+  border: 1px solid #9eb18e;
+  background: #f7f8ef;
+  color: #193e2b;
+  overflow: hidden;
+  position: relative;
+}
+.flow-update-demo-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #e4ead8;
+  border-bottom: 1px solid #c5d1b9;
+  padding: 10px;
+}
+.flow-update-demo-bar span {
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: #71945c;
+}
+.flow-update-demo-bar b {
+  font-size: 8px;
+  letter-spacing: 0.05em;
+}
+.flow-update-products {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+  animation: flow-update-feed 7s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+.flow-update-products > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 48px;
+  flex-shrink: 0;
+  padding: 8px;
+  border: 1px solid #c7d5ba;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 2px 2px 0 #193e2b12;
+}
+.flow-update-products span {
+  display: grid;
+  gap: 3px;
+}
+.flow-update-products b {
+  font-size: 10px;
+}
+.flow-update-products small {
+  font-size: 8px;
+  color: #638054;
+}
+.flow-update-products em {
+  margin-left: auto;
+  border-radius: 4px;
+  padding: 3px;
+  background: #d5ed9f;
+  font-size: 7px;
+  font-style: normal;
+}
+.flow-update-capture {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-items: center;
+  gap: 7px;
+  padding: 14px;
+}
+.flow-update-capture > span {
+  border: 1px solid #c3d4b4;
+  background: #e3edda;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 10px;
+}
+.flow-update-signal {
+  grid-column: span 2;
+  display: flex;
+  gap: 24px;
+  height: 17px;
+}
+.flow-update-signal i {
+  width: 5px;
+  height: 5px;
+  background: #5f8a3e;
+  border-radius: 50%;
+  animation: flow-update-particle 2s ease-in infinite;
+}
+.flow-update-signal i:nth-child(2) {
+  animation-delay: 0.4s;
+}
+.flow-update-signal i:nth-child(3) {
+  animation-delay: 0.8s;
+}
+.flow-update-capture > b {
+  grid-column: span 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  animation: flow-update-arrive 4s ease-in-out infinite;
+}
+.flow-update-capture > small {
+  grid-column: span 2;
+  font-size: 9px;
+  color: #638054;
+}
+.flow-update-convert {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  padding: 12px;
+}
+.flow-update-convert > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+}
+.flow-update-convert > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #4b7b32;
+}
+.flow-update-convert i {
+  width: 22px;
+  height: 2px;
+  background: #b7d57a;
+  animation: flow-update-check 2s ease-in-out infinite;
+}
+.flow-update-convert > b {
+  font-size: 12px;
+}
+.flow-update-convert > small {
+  font-size: 10px;
+  padding: 4px 16px;
+  border-radius: 5px;
+  background: #d6e9aa;
+  animation: flow-update-arrive 4s ease-in-out infinite;
+}
+.flow-updates-grid {
+  padding-bottom: 24px;
+}
+@keyframes flow-update-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes flow-update-float {
+  50% {
+    transform: translateY(-15px) rotate(12deg);
+  }
+}
+@keyframes flow-update-feed {
+  0%,
+  15% {
+    transform: translateY(0);
+  }
+  40%,
+  60% {
+    transform: translateY(-57px);
+  }
+  85%,
+  100% {
+    transform: translateY(-114px);
+  }
+}
+@keyframes flow-update-particle {
+  0% {
+    transform: translateY(-5px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+}
+@keyframes flow-update-arrive {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: translateY(4px);
+  }
+  25%,
+  80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 900px) {
+  .flow-update-card:nth-child(2) {
+    margin-block: 0;
+  }
+  .flow-update-demo {
+    max-width: 380px;
+    width: 100%;
+    align-self: center;
+  }
+  .flow-updates-art > i {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-updates-section *,
+  .flow-updates-section *::after {
+    animation: none !important;
+  }
+}
+.flow-updates-section .flow-journey-eyebrow {
+  color: #31532a;
+}
+/* Texturas em movimento contínuo; conteúdo e gradientes de iluminação fixos. */
+@keyframes flow-background-slide {
+  from {
+    background-position: var(--flow-texture-start);
+  }
+  to {
+    background-position: var(--flow-texture-end);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .flow-landing .flow-hero-grid {
+    --flow-texture-start: 0 0, 0 0;
+    --flow-texture-end: 96px 0, 0 0;
+    animation: flow-background-slide 16s linear infinite;
+  }
+  .flow-landing .flow-dashboard-section {
+    --flow-texture-start: 0 0, 0 0, 0 0, 0 0;
+    --flow-texture-end: -180px 0, -180px 0, -180px 0, 0 0;
+    animation: flow-background-slide 18s linear infinite;
+  }
+  .flow-landing #como-funciona.flow-journey-section {
+    --flow-texture-start: 0 0, 0 0, 0 0;
+    --flow-texture-end: 110px 0, 0 0, 0 0;
+    animation: flow-background-slide 18s linear infinite;
+  }
+  .flow-landing .flow-updates-section {
+    --flow-texture-start: 0 0, 0 0, 0 0, 0 0;
+    --flow-texture-end: -168px 0, -168px 0, 0 0, 0 0;
+    animation: flow-background-slide 22s linear infinite;
+  }
+  .flow-landing #recursos.flow-resources-section {
+    --flow-texture-start: 0 0, 0 0, 0 0, 0 0, 0 0;
+    --flow-texture-end: 160px 0, 160px 0, 160px 0, 0 0, 0 0;
+    animation: flow-background-slide 24s linear infinite;
+  }
+  .flow-landing .flow-extension-section {
+    background-size:
+      203.646753px 203.646753px,
+      100% 100%;
+    --flow-texture-start: 0 0, 0 0;
+    --flow-texture-end: -203.646753px 0, 0 0;
+    animation: flow-background-slide 18s linear infinite;
+  }
+  .flow-landing #duvidas.flow-faq-section {
+    --flow-texture-start: 0 0, 0 0;
+    --flow-texture-end: 120px 0, 0 0;
+    animation: flow-background-slide 20s linear infinite;
+  }
+  .flow-landing .flow-final-section {
+    --flow-texture-start: 0 0, 0 0, 0 0;
+    --flow-texture-end: -180px 0, -180px 0, 0 0;
+    animation: flow-background-slide 24s linear infinite;
+  }
+}

@@ -1,4 +1,5 @@
 "use client";
+import { PromotionImage } from "@/app/(private)/promotions/components/promotion-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
@@ -26,37 +27,24 @@ import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { toast } from "@/lib/toast";
 import { formatDate } from "@/utils/date";
-import { columns, statusColors } from "./helpers";
+import { columns, offerDisplayStatus } from "./helpers";
 import { OfferDeleteAction } from "./queue-actions";
-const summaryLabels: Record<Offer["status"], [string, string]> = {
-  PROCESSING: ["processando", "processando"],
-  READY: ["pronta", "prontas"],
-  SCHEDULED: ["na fila", "na fila"],
-  PUBLISHING: ["em envio", "em envio"],
-  PUBLISHED: ["publicada", "publicadas"],
-  FAILED: ["com falha", "com falha"],
-  CANCELLED: ["cancelada", "canceladas"],
-};
 function OfferGroupSummary({ destinations }: { destinations: Offer[] }) {
-  const counts = new Map<Offer["status"], number>();
-  destinations.forEach((offer) =>
-    counts.set(offer.status, (counts.get(offer.status) ?? 0) + 1)
-  );
-  const review = destinations.filter(
-    (offer) => offer.status === "PUBLISHING" && offer.errorMessage
-  ).length;
+  const counts = new Map<string, { count: number; color: string }>();
+  destinations.forEach((offer) => {
+    const display = offerDisplayStatus(offer);
+    counts.set(display.label, {
+      count: (counts.get(display.label)?.count ?? 0) + 1,
+      color: display.color,
+    });
+  });
   return (
     <div className="flex max-w-64 flex-wrap gap-1.5">
-      {Array.from(counts.entries()).map(([status, count]) => (
-        <Badge key={status} variant="outline" className={statusColors[status]}>
-          {count} {summaryLabels[status][count === 1 ? 0 : 1]}
+      {Array.from(counts.entries()).map(([label, { count, color }]) => (
+        <Badge key={label} variant="outline" className={color}>
+          {count} · {label}
         </Badge>
       ))}
-      {review > 0 && (
-        <span className="text-warning text-xs">
-          {review} envio(s) para conferir
-        </span>
-      )}
     </div>
   );
 }
@@ -65,20 +53,28 @@ export const groupedColumns: ColumnDef<OfferGroup>[] = [
     key: "product.title",
     header: "Oferta",
     primary: true,
-    className: "min-w-52 w-64",
+    className: "min-w-60 w-72",
     render: (_value, group) => (
-      <div className="space-y-1">
-        <span
-          className="block max-w-64 truncate font-medium"
-          title={group.product.title || undefined}
-        >
-          {group.product.title || "Oferta"}
-        </span>
-        {group.product.category && (
-          <span className="text-muted-foreground block max-w-64 truncate text-xs">
-            {group.product.category.name}
+      <div className="flex min-w-0 items-center gap-3">
+        <PromotionImage
+          src={group.product.imageUrl}
+          title={group.product.title || "Oferta"}
+          compact
+          className="size-11 rounded-lg"
+        />
+        <div className="min-w-0 space-y-1">
+          <span
+            className="block max-w-52 truncate font-medium"
+            title={group.product.title || undefined}
+          >
+            {group.product.title || "Oferta"}
           </span>
-        )}
+          {group.product.category && (
+            <span className="text-muted-foreground block max-w-52 truncate text-xs">
+              {group.product.category.name}
+            </span>
+          )}
+        </div>
       </div>
     ),
   },
@@ -125,12 +121,21 @@ export const groupedColumns: ColumnDef<OfferGroup>[] = [
     render: (_value, group) => {
       const dates = group.destinations
         .flatMap((offer) =>
-          offer.status === "SCHEDULED" && offer.scheduledAt
+          offer.status === "SCHEDULED" &&
+          !offer.queueBlockedReason &&
+          offer.scheduledAt
             ? [offer.scheduledAt]
             : []
         )
         .sort();
-      return dates[0] ? formatDate(dates[0], "dd/MM/yyyy HH:mm") : "—";
+      return dates[0]
+        ? formatDate(dates[0], "dd/MM/yyyy HH:mm")
+        : group.destinations.some(
+              (offer) =>
+                offer.status === "SCHEDULED" && offer.queueBlockedReason
+            )
+          ? "Aguardando liberação"
+          : "—";
     },
   },
 ];

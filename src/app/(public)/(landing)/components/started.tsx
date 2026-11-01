@@ -5,7 +5,7 @@ const questions = [
   {
     question: "Preciso deixar o computador ligado?",
     answer:
-      "Sim. Nesta versão, os envios dependem do publicador local em execução, com acesso à internet e o WhatsApp conectado. O site permite organizar e acompanhar suas ofertas.",
+      "Sim. Nesta versão, o publicador e o coletor precisam estar em execução no computador para enviar e capturar ofertas, respectivamente. O site permite organizar e acompanhar tudo. A conversão de links do Mercado Livre acontece no Chrome.",
   },
   {
     question: "A extensão publica assim que eu capturo?",
@@ -15,12 +15,22 @@ const questions = [
   {
     question: "Quais lojas funcionam com a extensão?",
     answer:
-      "Mercado Livre e Amazon Brasil. Os campos capturados dependem das informações exibidas em cada página. Confira variação, preço, frete e condições de cupom antes de salvar.",
+      "Mercado Livre, Amazon Brasil e Shopee. Os campos capturados dependem das informações exibidas em cada página. Confira variação, preço, frete e condições de cupom antes de salvar.",
   },
   {
     question: "Meu link de afiliado é criado automaticamente?",
     answer:
-      "Você informa o seu próprio link de afiliado no cadastro da oferta. Ele é usado na mensagem publicada no WhatsApp.",
+      "No Mercado Livre, a extensão usa o gerador oficial no seu Chrome, com sua conta de afiliado conectada. Ao preparar uma oferta da Central, ela pode iniciar essa conversão e preencher o resultado. Para outras lojas, informe seu próprio link. Confira sempre o link antes de salvar.",
+  },
+  {
+    question: "De onde vêm as ofertas da Central?",
+    answer:
+      "A Central reúne promoções selecionadas para você explorar. Escolha um produto, confira preço e condições e prepare sua própria oferta, com seu link de afiliado e seus grupos. Você decide o que salvar e quando agendar.",
+  },
+  {
+    question: "Posso conectar mais de uma conta de WhatsApp?",
+    answer:
+      "Sim. Na página Conexões, gerencie suas contas. Os grupos ficam vinculados ao número correspondente, e você escolhe os favoritos que receberão cada oferta. Os envios são acompanhados por destino.",
   },
   {
     question: "Posso publicar uma oferta de novo?",

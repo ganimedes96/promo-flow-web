@@ -101,6 +101,15 @@ export interface Offer {
   publishedAt: string | null;
   errorMessage: string | null;
   attempts: number;
+  queueBlockedCode?:
+    | "PAUSED"
+    | "WAITING_CONNECTION"
+    | "GROUP_UNAVAILABLE"
+    | "WORKER_OFFLINE"
+    | "PUBLISHING_DISABLED"
+    | "PREVIOUS_UNCONFIRMED"
+    | "PREVIOUS_SENDING"
+    | null;
   queueBlockedReason?: string | null;
   status:
     | "PROCESSING"

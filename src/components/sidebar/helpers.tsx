@@ -8,6 +8,7 @@ import {
   CreditCard,
   Smartphone,
   Radio,
+  Store,
 } from "lucide-react";
 
 export const identifierLinks: { [key: string]: string } = {
@@ -20,6 +21,7 @@ export const identifierLinks: { [key: string]: string } = {
   "/promotions/manage": "Gerenciar promoções",
   "/subscription": "Assinatura",
   "/extension": "Extensão",
+  "/stores": "Lojas",
   "/users": "Usuários",
   "/users/create": "Adicionar usuário",
   "/users/[id]/update": "Editar usuário",
@@ -33,6 +35,7 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
+  { title: "Lojas", icon: <Store />, href: "/stores", requiredPermissions: [] },
   {
     title: "Fontes de promoções",
     icon: <Radio />,

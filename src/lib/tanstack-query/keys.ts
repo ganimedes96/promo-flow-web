@@ -7,6 +7,10 @@ const usersKeys = {
 };
 
 export const queryKeys = {
+  stores: {
+    all: ["stores"] as const,
+    list: (userId?: string) => ["stores", userId] as const,
+  },
   collection: {
     all: ["collection"] as const,
     whatsapp: (userId?: string) => ["collection", "whatsapp", userId] as const,

@@ -178,7 +178,7 @@ export function OffersTable() {
           tabIndex={0}
         >
           <DataTable
-            className="[&_tbody>tr:has(>td>button[aria-expanded])]:hover:bg-primary/10 max-w-full min-w-0 [&_[data-slot=table-container]]:max-h-[65vh] [&_[data-slot=table-container]]:overflow-auto [&_table]:min-w-[920px] [&_tbody>tr:has(>td>button[aria-expanded])]:cursor-pointer [&_thead]:sticky [&_thead]:top-0 [&_thead]:z-10"
+            className="[&_tbody>tr:has(>td>button[aria-expanded])]:hover:bg-primary/10 max-w-full min-w-0 **:data-[slot=table-container]:max-h-[65vh] **:data-[slot=table-container]:overflow-auto [&_table]:min-w-230 [&_tbody>tr:has(>td>button[aria-expanded])]:cursor-pointer [&_thead]:sticky [&_thead]:top-0 [&_thead]:z-10"
             data={list.data?.data ?? []}
             columns={groupedColumns}
             actions={(group) => <OfferGroupActions group={group} />}

@@ -29,7 +29,7 @@ async function forward(request: NextRequest, context: Context) {
   const { action } = await context.params;
   const exchange = action === "exchange" && request.method === "POST";
   const authenticated =
-    (action === "me" && request.method === "GET") ||
+    (["me", "stores"].includes(action) && request.method === "GET") ||
     (action === "current" && request.method === "DELETE");
   if (!exchange && !authenticated)
     return failure("Recurso não disponível.", 404);

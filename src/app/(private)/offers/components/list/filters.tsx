@@ -1,23 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { Collapsible } from "radix-ui";
-import { useSession } from "next-auth/react";
+import { ControlledCombobox } from "@/components/form/controllers/controlled-combobox";
+import { ControlledDatePicker } from "@/components/form/controllers/controlled-date-picker";
+import { ControlledInput } from "@/components/form/controllers/controlled-input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { getOfferFilterGroups } from "@/domains/offers/client";
+import type { Offer, OfferListFilters } from "@/domains/offers/types";
+import { getWhatsAppConnections } from "@/domains/whatsapp/client";
+import { queryKeys } from "@/lib/tanstack-query/keys";
+import { TIMEZONE } from "@/utils/date";
 import { useQuery } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
 import { addDays, format } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 import { ChevronDown, Filter, Search, X } from "lucide-react";
-import { ControlledInput } from "@/components/form/controllers/controlled-input";
-import { ControlledDatePicker } from "@/components/form/controllers/controlled-date-picker";
-import { ControlledCombobox } from "@/components/form/controllers/controlled-combobox";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { getWhatsAppConnections } from "@/domains/whatsapp/client";
-import { getOfferFilterGroups } from "@/domains/offers/client";
-import type { Offer, OfferListFilters } from "@/domains/offers/types";
-import { queryKeys } from "@/lib/tanstack-query/keys";
-import { TIMEZONE } from "@/utils/date";
+import { useSession } from "next-auth/react";
+import { Collapsible } from "radix-ui";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { statusLabels } from "./helpers";
 
 type FilterValues = {
@@ -207,8 +207,8 @@ export function OfferFilters({
                 type="button"
                 className="underline"
                 onClick={() => {
-                  void connections.refetch();
-                  void groups.refetch();
+                  connections.refetch();
+                  groups.refetch();
                 }}
               >
                 Tentar novamente

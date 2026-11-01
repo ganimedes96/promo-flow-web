@@ -13,7 +13,7 @@ import { Footer } from "./components/footer";
 export const metadata: Metadata = {
   title: "Organize suas ofertas e publique no WhatsApp",
   description:
-    "Capture produtos do Mercado Livre e da Amazon Brasil, revise suas ofertas e organize publicações nos seus grupos de WhatsApp com o PromoFlow.",
+    "Capture produtos do Mercado Livre, Amazon e Shopee, descubra ofertas na Central de promoções e organize publicações nos seus grupos de WhatsApp com o PromoFlow.",
 };
 export default function LandingPage() {
   return (
