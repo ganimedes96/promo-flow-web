@@ -229,7 +229,8 @@ export function PromotionTable({
               {promotion.title}
             </p>
             <p className="text-muted-foreground mt-1 text-xs">
-              Adicionada em {formatDate(promotion.createdAt)}
+              Adicionada em{" "}
+              {formatDate(promotion.createdAt, "dd/MM/yyyy HH:mm")}
             </p>
           </div>
         </div>

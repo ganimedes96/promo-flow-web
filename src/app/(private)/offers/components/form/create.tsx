@@ -3,6 +3,7 @@ import { ControlledProductCategory } from "@/domains/categories/components/contr
 import { OfferFormSkeleton } from "@/components/feedback/loading-skeletons";
 import type { ImportedOfferDraft } from "@/domains/offers/extension-import";
 import { useCallback, useEffect, useRef } from "react";
+import { isMercadoLivreLink } from "@/domains/offers/affiliate-links";
 import { MercadoLivreAffiliate } from "@/domains/offers/components/mercado-livre-affiliate";
 import { useSession } from "next-auth/react";
 import type { WhatsAppConnectionAccount } from "@/domains/whatsapp/connections";
@@ -139,6 +140,8 @@ function OfferFields({
     },
   });
   const values = useWatch({ control });
+  const needsCentralAffiliate =
+    !!sourcePromotionId && !offer && isMercadoLivreLink(values.sourceUrl);
   const receiveAffiliate = useCallback(
     (url: string) =>
       setValue("affiliateUrl", url, {
@@ -211,6 +214,17 @@ function OfferFields({
     <form
       className="flex min-h-0 flex-1 flex-col"
       onSubmit={handleSubmit((values) => {
+        if (
+          needsCentralAffiliate &&
+          (!values.affiliateUrl?.trim() ||
+            values.affiliateUrl.trim() === values.sourceUrl.trim())
+        ) {
+          setError("affiliateUrl", {
+            message:
+              "Converta o link pela sua conta ou informe seu próprio link de afiliado antes de salvar.",
+          });
+          return;
+        }
         const product = {
           ...values,
           affiliateUrl: values.affiliateUrl || undefined,
@@ -323,14 +337,27 @@ function OfferFields({
                 <ControlledInput
                   control={control}
                   name="affiliateUrl"
-                  label="Link de afiliado (opcional)"
+                  label={
+                    needsCentralAffiliate
+                      ? "Seu link de afiliado"
+                      : "Link de afiliado (opcional)"
+                  }
                   placeholder="https://loja.com/link-afiliado"
                   type="url"
-                  rules={urlRule}
+                  rules={{
+                    ...urlRule,
+                    required: needsCentralAffiliate
+                      ? "Aguarde a conversão ou informe seu próprio link de afiliado."
+                      : false,
+                  }}
                 />
                 <MercadoLivreAffiliate
                   sourceUrl={values.sourceUrl || ""}
                   onReceive={receiveAffiliate}
+                  autoConvertKey={
+                    sourcePromotionId && !offer ? sourcePromotionId : undefined
+                  }
+                  affiliateUrl={values.affiliateUrl || ""}
                 />
               </div>
               <ControlledInput

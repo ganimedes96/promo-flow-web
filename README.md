@@ -788,3 +788,17 @@ Atualização: publicar API com a nova migração, publicar frontend e reiniciar
 ## Fontes WhatsApp no mesmo fluxo do Telegram
 
 Na aba WhatsApp de /promotion-sources, o administrador conecta ou escolhe sua conta, lê o QR Code no sheet da própria página e adiciona grupos com o combobox de Adicionar fonte. A tela reutiliza a conexão existente do worker; não cria uma sessão paralela no coletor. O sheet fecha três segundos depois de confirmar a conexão. Fontes selecionadas ficam na listagem com busca, situação e paginação; pausar preserva a fonte, remover apenas deixa de monitorá-la, mantendo grupo e histórico. Contadores e datas são reais, alimentados pela API. Desconectar avisa que também interrompe envios daquela conta. A seleção exige a migration 20261031070000_whatsapp_source_management e a API atualizada; não aplicada ao Neon nesta atividade. Publique API e web em conjunto.
+
+
+## Conversão Mercado Livre pela extensão 0.8.0
+
+Em nova oferta, edição ou Preparar minha oferta da Central, o botão Converter meu link abre o produto e o Gerador oficial do Mercado Livre na conta aberta no Chrome. A extensão preenche o produto, gera uma vez e devolve o resultado ao mesmo formulário. Estados: Convertendo, Convertido, Link recebido manualmente e Não convertido. O código não envia cookies ou sessão da loja ao backend, não cria a oferta nem publica. Requer a extensão atualizada, login no programa de afiliados e etiqueta selecionada no gerador. Não exige migration nem alteração na API. A geração real depende do layout do portal; casos não reconhecidos permitem retorno manual e mantêm os demais campos.
+
+O pacote 0.8.0 está em public/downloads. Dez cenários isolados de extensão/DOM passaram. Validação real no portal pendente: a consulta HTTP retornou 403 e a ferramenta de navegação não identificou a URL do Chrome com segurança.
+
+Build: pnpm build usa Next com Webpack após falha do Turbopack ao processar as URLs da fonte Google Unbounded (next/font/google queries have exactly one entry). A compilação com Webpack passou com as mesmas fontes. O comando de desenvolvimento continua com Turbopack.
+
+
+## Preparar oferta da Central com conversão automática
+
+Ao abrir Preparar minha oferta para uma promoção do Mercado Livre, o formulário solicita uma conversão à extensão 0.8.0 já conectada, uma vez por promoção/conta naquela abertura. O link retornado preenche o campo de afiliado sem salvar ou publicar. Campos previamente preenchidos são preservados; se já existir link de afiliado, o início automático é omitido. Falha permite tentar novamente pelo botão ou informar o link manualmente. Para essas novas ofertas da Central, o formulário exige um link próprio diferente do original antes de salvar. Demais lojas e o cadastro avulso mantêm o fluxo existente. Sem alteração na API ou migration; publique apenas o frontend.
