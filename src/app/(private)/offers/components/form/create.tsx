@@ -19,7 +19,10 @@ import { ControlledSingleCheckbox } from "@/components/form/controllers/controll
 import { ControlledCombobox } from "@/components/form/controllers/controlled-combobox";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getMessageSettings } from "@/domains/message-settings/client";
+import { formatMessage } from "@/domains/message-settings/format-message";
+import type { MessageProduct } from "@/domains/message-settings/types";
+import { OfferMessagePreview } from "@/domains/message-settings/components/offer-message-preview";
 import { reviseOffer } from "@/domains/offers/actions";
 import { createOffers } from "@/domains/offers/actions";
 import {
@@ -97,6 +100,15 @@ function OfferFields({
   initialDraft?: ImportedOfferDraft;
   sourcePromotionId?: string;
 }) {
+  const { data: account } = useSession();
+  const messageSettings = useQuery({
+    queryKey: queryKeys.messageSettings.forUser(account?.user.id),
+    queryFn: getMessageSettings,
+    enabled: !!account?.user.id,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
+    retry: false,
+  });
   const initialConnectionId =
     offer?.connectionId ??
     allGroups.find((g) => g.id === offer?.whatsappGroup?.id)?.connectionId ??
@@ -118,6 +130,7 @@ function OfferFields({
       categoryId: offer?.categoryId ?? initialDraft?.categoryId ?? "auto",
       sourceCategory:
         offer?.sourceCategory ?? initialDraft?.sourceCategory ?? "",
+      messageHeadline: offer?.messageHeadline || "",
       title: offer?.title || initialDraft?.title || "",
       description: offer?.description || initialDraft?.description || "",
       sourceUrl: offer?.sourceUrl || initialDraft?.sourceUrl || "",
@@ -187,24 +200,21 @@ function OfferFields({
   const selectedGroups = groups.filter((group) =>
     values.whatsappGroupIds?.includes(group.id)
   );
-  const money = (value: number) =>
-    new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
-  const currentCents =
-    typeof values.currentPrice === "number"
-      ? Math.round(values.currentPrice * 100)
-      : 0;
-  const originalCents =
-    typeof values.originalPrice === "number"
-      ? Math.round(values.originalPrice * 100)
-      : 0;
-  const discount =
-    currentCents > 0 && originalCents > currentCents
-      ? Math.round(((originalCents - currentCents) / originalCents) * 10000) /
-        100
-      : null;
+  const previewProduct: MessageProduct = {
+    title: values.title || "Título do produto",
+    description: values.description || "",
+    imageUrl: values.imageUrl || null,
+    currentPrice: String(values.currentPrice ?? 0),
+    originalPrice:
+      typeof values.originalPrice === "number"
+        ? String(values.originalPrice)
+        : null,
+    currency: offer?.currency || "BRL",
+    sourceUrl: values.sourceUrl || "Link de compra",
+    affiliateUrl: values.affiliateUrl || null,
+    couponCode: values.couponCode || null,
+    messageHeadline: values.messageHeadline || null,
+  };
   const urlRule = {
     validate: (value: unknown) =>
       !value ||
@@ -215,6 +225,26 @@ function OfferFields({
     <form
       className="flex min-h-0 flex-1 flex-col"
       onSubmit={handleSubmit((values) => {
+        if (!messageSettings.data) {
+          setError("root.server", {
+            message:
+              "Aguarde o carregamento da prévia ou tente carregar o padrão de mensagem novamente.",
+          });
+          return;
+        }
+        const message = formatMessage(previewProduct, messageSettings.data);
+        if (
+          message.length > 1000 ||
+          (!message && !messageSettings.data.showImage)
+        ) {
+          setError("root.server", {
+            message:
+              message.length > 1000
+                ? "A mensagem ultrapassa 1000 caracteres. Reduza os textos ou use um link mais curto."
+                : "A mensagem está vazia. Ajuste seu padrão ou preencha uma frase para esta oferta.",
+          });
+          return;
+        }
         if (
           needsCentralAffiliate &&
           (!values.affiliateUrl?.trim() ||
@@ -230,6 +260,7 @@ function OfferFields({
           ...values,
           affiliateUrl: values.affiliateUrl || undefined,
           couponCode: values.couponCode?.trim() || undefined,
+          messageHeadline: values.messageHeadline?.trim() || undefined,
         };
         if (offer) {
           if (!groups.some((group) => group.id === values.whatsappGroupId)) {
@@ -311,6 +342,21 @@ function OfferFields({
                 maxLength={200}
                 rules={{ required: "Informe o título." }}
               />
+              <div className="bg-primary/5 space-y-2 rounded-xl border p-4">
+                <ControlledInput
+                  control={control}
+                  name="messageHeadline"
+                  label="Frase desta oferta (opcional)"
+                  placeholder="Ex.: Esse achado é para quem ama um café fresquinho!"
+                  maxLength={80}
+                  disabled={save.isPending}
+                />
+                <p className="text-muted-foreground text-xs">
+                  Ao preencher, esta frase aparece antes do produto e substitui
+                  a chamada padrão só nesta oferta. Em branco, será usado o
+                  padrão da sua conta.
+                </p>
+              </div>
               <ControlledProductCategory
                 control={control}
                 name="categoryId"
@@ -499,54 +545,7 @@ function OfferFields({
             </section>
           </div>
           <aside className="min-w-0 space-y-4 lg:sticky lg:top-0">
-            <Card className="border-primary/15 bg-muted/20 gap-0 overflow-hidden py-0 shadow-none">
-              <CardHeader className="border-b px-4 py-3">
-                <CardTitle className="text-muted-foreground text-xs font-medium">
-                  Mensagem no WhatsApp
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 p-4 text-sm">
-                {values.imageUrl && /^https?:\/\//i.test(values.imageUrl) && (
-                  <Image
-                    src={values.imageUrl}
-                    alt={values.title || "Imagem do produto"}
-                    width={300}
-                    height={300}
-                    unoptimized
-                    className="h-44 w-full rounded-xl bg-white object-contain p-3"
-                  />
-                )}
-                <p className="font-semibold">
-                  {values.title || "Título do produto"}
-                </p>
-                {discount !== null &&
-                  typeof values.originalPrice === "number" && (
-                    <p className="text-muted-foreground">
-                      De: <s>{money(values.originalPrice)}</s>
-                    </p>
-                  )}
-                <p>
-                  💵 Por:{" "}
-                  {typeof values.currentPrice === "number"
-                    ? money(values.currentPrice)
-                    : "Preço atual"}
-                </p>
-                {discount !== null && (
-                  <p className="text-success font-semibold">
-                    🔥 {discount.toLocaleString("pt-BR")}% de desconto
-                  </p>
-                )}
-                {values.couponCode?.trim() && (
-                  <p>🎟️ Cupom: {values.couponCode.trim()}</p>
-                )}
-                <p className="text-muted-foreground line-clamp-2 text-xs break-all">
-                  🛒 Link:{" "}
-                  {values.affiliateUrl || values.sourceUrl || "Link de compra"}
-                </p>
-                <p>❤️ Convide seus amigos</p>
-                <p>👉 Link do grupo na descrição</p>
-              </CardContent>
-            </Card>{" "}
+            <OfferMessagePreview product={previewProduct} />
             {importImages.length > 1 && (
               <fieldset className="space-y-2">
                 <legend className="text-sm font-medium">

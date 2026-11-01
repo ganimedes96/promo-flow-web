@@ -1,4 +1,5 @@
 "use client";
+import { MirrorOfferAction } from "./mirror-offer";
 import { FormSheet } from "@/components/form/containers/form-sheet";
 import { UpdateOfferForm } from "../form/update";
 import { ReviewSend } from "./review-send";
@@ -9,7 +10,6 @@ import { scheduleOffer, cancelOfferSchedule } from "@/domains/offers/actions";
 import { Offer } from "@/domains/offers/types";
 import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
-
 
 export function OfferQueueActions({ offer }: { offer: Offer }) {
   const schedule = useServerAction<Offer, string>({
@@ -23,6 +23,8 @@ export function OfferQueueActions({ offer }: { offer: Offer }) {
     successMessage: "Agendamento cancelado.",
   });
   const busy = schedule.isPending || cancel.isPending;
+  if (offer.mirrorAffiliateStatus && !offer.whatsappGroup)
+    return <MirrorOfferAction offer={offer} />;
   if (offer.status === "PUBLISHING" && offer.errorMessage)
     return <ReviewSend offer={offer} />;
   if (offer.status === "SCHEDULED")
@@ -69,16 +71,17 @@ export function OfferQueueActions({ offer }: { offer: Offer }) {
 export function OfferDeleteAction({ offer }: { offer: Offer }) {
   return (
     <>
-      {["READY", "CANCELLED", "FAILED", "PUBLISHED"].includes(offer.status) && (
-        <FormSheet
-          title="Editar oferta"
-          description="Revise todos os dados e o grupo de destino antes da próxima publicação."
-          formComponent={UpdateOfferForm}
-          formProps={{ offer }}
-          isEdit
-          className="w-full gap-6 overflow-y-auto px-6 pb-6 data-[side=right]:sm:max-w-4xl"
-        />
-      )}
+      {["READY", "CANCELLED", "FAILED", "PUBLISHED"].includes(offer.status) &&
+        (!offer.mirrorAffiliateStatus || !!offer.whatsappGroup) && (
+          <FormSheet
+            title="Editar oferta"
+            description="Revise todos os dados e o grupo de destino antes da próxima publicação."
+            formComponent={UpdateOfferForm}
+            formProps={{ offer }}
+            isEdit
+            className="w-full gap-6 overflow-y-auto px-6 pb-6 data-[side=right]:sm:max-w-4xl"
+          />
+        )}
       <ActionDelete
         name={offer.title || "Oferta"}
         onDelete={() => deleteOffer(offer.id)}

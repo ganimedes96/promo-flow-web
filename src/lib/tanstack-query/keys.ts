@@ -7,6 +7,14 @@ const usersKeys = {
 };
 
 export const queryKeys = {
+  mirroring: {
+    all: ["mirroring"] as const,
+    sources: (userId?: string) => ["mirroring", userId] as const,
+  },
+  messageSettings: {
+    all: ["message-settings"] as const,
+    forUser: (userId?: string) => ["message-settings", userId] as const,
+  },
   operations: {
     status: (userId?: string) => ["operations", "status", userId] as const,
   },

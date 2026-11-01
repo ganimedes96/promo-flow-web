@@ -1,4 +1,5 @@
 "use client";
+import { getMirrorSources } from "@/domains/mirroring/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonRegion } from "@/components/feedback/loading-skeletons";
 import { useState } from "react";
@@ -39,6 +40,13 @@ export function OffersTable() {
   const [filterReset, setFilterReset] = useState(0);
   const [filters, setFilters] = useState<OfferListFilters>({});
   const { data: session } = useSession();
+  const mirrorSources = useQuery({
+    queryKey: queryKeys.mirroring.sources(session?.user.id),
+    queryFn: getMirrorSources,
+    enabled: !!session?.user.id,
+    staleTime: 30000,
+    retry: false,
+  });
   const perPage = 10;
   const list = useQuery({
     queryKey: queryKeys.offers.grouped({
@@ -52,11 +60,17 @@ export function OffersTable() {
     refetchInterval: (query) => {
       if (query.state.status === "error") return false;
       const hasPending = query.state.data?.data.some((group) =>
-        group.destinations.some((offer) =>
-          ["PROCESSING", "SCHEDULED", "PUBLISHING"].includes(offer.status)
+        group.destinations.some(
+          (offer) =>
+            ["PROCESSING", "SCHEDULED", "PUBLISHING"].includes(offer.status) ||
+            offer.mirrorAffiliateStatus === "PENDING"
         )
       );
-      return hasPending ? 5000 : false;
+      return hasPending
+        ? 5000
+        : (mirrorSources.data?.selectedCount ?? 0) > 0
+          ? 10000
+          : false;
     },
     staleTime: 5000,
     refetchOnWindowFocus: (query) => query.state.status !== "error",

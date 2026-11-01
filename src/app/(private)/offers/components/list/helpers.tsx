@@ -26,6 +26,28 @@ export function offerDisplayStatus(offer: Offer): {
   label: string;
   color: string;
 } {
+  if (offer.mirrorAffiliateStatus === "PENDING")
+    return {
+      label:
+        offer.mirrorConversionStatus === "RECONNECT"
+          ? "Reconectar Mercado Livre"
+          : offer.mirrorConversionStatus === "CONVERTING"
+            ? "Convertendo link"
+            : offer.mirrorConversionStatus === "FAILED"
+              ? "Revisar conversão"
+              : offer.mirrorConversionStatus === "STORE_REQUIRED"
+                ? "Configurar loja"
+                : offer.mirrorConversionStatus
+                  ? "Aguardando extensão"
+                  : "Aguardando seu link",
+      color:
+        offer.mirrorConversionStatus === "FAILED" ||
+        offer.mirrorConversionStatus === "RECONNECT"
+          ? statusColors.FAILED
+          : statusColors.PUBLISHING,
+    };
+  if (offer.mirrorAffiliateStatus && !offer.whatsappGroup)
+    return { label: "Escolher destino", color: statusColors.READY };
   if (offer.status === "PUBLISHING" && offer.errorMessage)
     return { label: "Sem confirmação", color: statusColors.PUBLISHING };
   if (offer.status === "SCHEDULED" && offer.queueBlockedReason) {

@@ -28,10 +28,13 @@ function failure(message: string, status: number) {
 async function forward(request: NextRequest, context: Context) {
   const { action } = await context.params;
   const exchange = action === "exchange" && request.method === "POST";
+  const conversion =
+    ["conversion-claim", "conversion-result"].includes(action) &&
+    request.method === "POST";
   const authenticated =
     (["me", "stores"].includes(action) && request.method === "GET") ||
     (action === "current" && request.method === "DELETE");
-  if (!exchange && !authenticated)
+  if (!exchange && !authenticated && !conversion)
     return failure("Recurso não disponível.", 404);
   const headers: Record<string, string> = { Accept: "application/json" };
   let body: string | undefined;
@@ -59,6 +62,34 @@ async function forward(request: NextRequest, context: Context) {
     if (!/^Bearer [a-f0-9]{64}$/.test(authorization))
       return failure("Conecte a extensão ao PromoFlow novamente.", 401);
     headers.Authorization = authorization;
+    if (conversion) {
+      if (!request.headers.get("content-type")?.startsWith("application/json"))
+        return failure("Use dados em JSON.", 415);
+      const raw = await request.text();
+      if (raw.length > 4096) return failure("Solicitação inválida.", 413);
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        return failure("Solicitação inválida.", 400);
+      }
+      const schema =
+        action === "conversion-claim"
+          ? z.object({}).strict()
+          : z
+              .object({
+                offerId: z.string().uuid(),
+                leaseId: z.string().uuid(),
+                outcome: z.enum(["SUCCESS", "FAILED", "RECONNECT"]),
+                affiliateUrl: z.string().url().max(2048).optional(),
+              })
+              .strict();
+      const validated = schema.safeParse(parsed);
+      if (!validated.success)
+        return failure("Dados de conversão inválidos.", 400);
+      body = JSON.stringify(validated.data);
+      headers["Content-Type"] = "application/json";
+    }
   }
   try {
     const response = await fetch(

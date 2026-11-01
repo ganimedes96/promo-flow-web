@@ -7,6 +7,11 @@ const httpUrl = z
   .url("Informe uma URL válida.")
   .refine((value) => /^https?:\/\//i.test(value), "Use um link http ou https.");
 const offerProductSchema = z.object({
+  messageHeadline: z
+    .string()
+    .trim()
+    .max(80, "A frase deve ter até 80 caracteres.")
+    .optional(),
   categoryId: categorySelectionSchema,
   sourceCategory: z.string().trim().max(300).optional(),
   connectionId: z.string().uuid("Selecione uma conexão.").optional(),
@@ -75,6 +80,9 @@ export type OfferFormValues = Omit<
   addToQueue: boolean;
 };
 export interface Offer {
+  mirrorAffiliateStatus?: string | null;
+  mirrorConversionStatus?: string | null;
+  messageHeadline?: string | null;
   categoryId?: string | null;
   sourceCategory?: string | null;
   category?: { id: string; name: string } | null;

@@ -9,9 +9,11 @@ import {
   ArrowRight,
   Check,
   RefreshCw,
-  Smartphone,
   Star,
   Users,
+  UserPlus,
+  UserMinus,
+  CircleAlert,
 } from "lucide-react";
 import { ControlledInput } from "@/components/form/controllers/controlled-input";
 import { ControlledCombobox } from "@/components/form/controllers/controlled-combobox";
@@ -35,11 +37,13 @@ import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { cn } from "@/lib/shadcn/utils";
 
+import { GroupMetrics, isNearFull } from "./group-metrics";
 const allConnections = "all";
 const filters = [
   { id: "all", name: "Todos os grupos" },
   { id: "favorites", name: "Favoritos" },
   { id: "others", name: "Não favoritados" },
+  { id: "near-full", name: "Quase lotados" },
 ];
 type GroupFilters = {
   search: string;
@@ -119,14 +123,15 @@ export function Groups() {
         (connectionId === allConnections ||
           group.connectionId === connectionId) &&
         (visibility === "all" ||
-          (visibility === "favorites"
-            ? group.isFavorite
-            : !group.isFavorite)) &&
+          (visibility === "favorites" && group.isFavorite) ||
+          (visibility === "others" && !group.isFavorite) ||
+          (visibility === "near-full" && isNearFull(group))) &&
         normalize(group.name).includes(normalize(search.trim()))
     )
     .sort(
       (a, b) =>
         Number(b.isFavorite) - Number(a.isFavorite) ||
+        Number(isNearFull(b)) - Number(isNearFull(a)) ||
         a.name.localeCompare(b.name, "pt-BR")
     );
   // Only visible selections may be changed by the bulk actions.
@@ -137,6 +142,15 @@ export function Groups() {
   const allSelected =
     selectable.length > 0 &&
     selectable.every((group) => selected.includes(group.id));
+  const favoriteGroups = rows.filter(
+    (group) =>
+      group.isFavorite &&
+      (connectionId === allConnections || group.connectionId === connectionId)
+  );
+  const measured = favoriteGroups.filter(
+    (group) => group.participantCount != null
+  );
+  const monitored = favoriteGroups.filter((group) => !!group.growthTrackedFrom);
   const refreshing = groups.isFetching || connections.isFetching;
   function refresh() {
     void groups.refetch();
@@ -150,8 +164,8 @@ export function Groups() {
         <div>
           <h1 className="text-2xl font-semibold">Grupos</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Organize os destinos das suas ofertas, separados por conta do
-            WhatsApp.
+            Acompanhe seus grupos crescerem, veja os participantes e organize os
+            destinos das suas ofertas.
           </p>
         </div>
         <Button variant="outline" onClick={refresh} disabled={refreshing}>
@@ -161,34 +175,95 @@ export function Groups() {
           Atualizar lista
         </Button>
       </header>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="flex flex-wrap gap-2">
+        <Badge variant="outline">{filtered.length} grupos nesta visão</Badge>
+        <Badge variant="secondary">
+          {rows.filter((group) => group.isFavorite).length} favoritos
+        </Badge>
+        <Badge variant="outline">
+          {accounts.filter((account) => account.status === "READY").length}{" "}
+          contas prontas
+        </Badge>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Grupos disponíveis", value: rows.length, icon: Users },
           {
-            label: "Favoritos para ofertas",
-            value: rows.filter((group) => group.isFavorite).length,
-            icon: Star,
+            label: "Participantes nos favoritos",
+            value: measured.length
+              ? measured
+                  .reduce(
+                    (sum, group) => sum + (group.participantCount ?? 0),
+                    0
+                  )
+                  .toLocaleString("pt-BR")
+              : "—",
+            icon: Users,
+            description: `${measured.length} de ${favoriteGroups.length} favoritos com contagem`,
+            color: "text-primary",
           },
           {
-            label: "Contas com sessão pronta",
-            value: accounts.filter((account) => account.status === "READY")
-              .length,
-            icon: Smartphone,
+            label: "Entradas hoje nos favoritos",
+            value: monitored.length
+              ? "+" +
+                monitored
+                  .reduce((sum, group) => sum + (group.joinedToday ?? 0), 0)
+                  .toLocaleString("pt-BR")
+              : "—",
+            icon: UserPlus,
+            description: "Eventos recebidos pelo publicador",
+            color: "text-emerald-700 dark:text-emerald-300",
           },
-        ].map(({ label, value, icon: Icon }) => (
-          <Card key={label} className="gap-0 py-0">
-            <CardContent className="flex items-center gap-4 p-5">
-              <span className="bg-primary/10 text-primary rounded-xl p-3">
-                <Icon className="size-5" />
-              </span>
-              <div>
-                <p className="text-2xl font-semibold">{value}</p>
+          {
+            label: "Saídas hoje nos favoritos",
+            value: monitored.length
+              ? "−" +
+                monitored
+                  .reduce((sum, group) => sum + (group.leftToday ?? 0), 0)
+                  .toLocaleString("pt-BR")
+              : "—",
+            icon: UserMinus,
+            description: "Eventos recebidos pelo publicador",
+            color: "text-rose-700 dark:text-rose-300",
+          },
+          {
+            label: "Favoritos quase lotados",
+            value: favoriteGroups.filter(isNearFull).length,
+            icon: CircleAlert,
+            description: "A partir de 90% da referência",
+            color: "text-orange-700 dark:text-orange-300",
+          },
+        ].map(({ label, value, icon: Icon, description, color }) => (
+          <Card
+            key={label}
+            className="border-primary/20 gap-0 rounded-2xl border-b-4 py-0"
+          >
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between gap-2">
                 <p className="text-muted-foreground text-xs">{label}</p>
+                <Icon className={cn("size-4", color)} />
               </div>
+              <p
+                className={cn(
+                  "mt-3 text-3xl font-semibold tracking-tight",
+                  color
+                )}
+              >
+                {value}
+              </p>
+              <p className="text-muted-foreground mt-2 text-[11px]">
+                {description}
+              </p>
             </CardContent>
           </Card>
         ))}
       </div>
+      <p className="text-muted-foreground text-xs leading-relaxed">
+        Indicadores apenas dos grupos favoritados, respeitando a conta
+        selecionada. A busca e o filtro da listagem não alteram estes totais. A
+        soma considera participações, não pessoas únicas. Entradas e saídas são
+        registradas enquanto o publicador está conectado; períodos offline podem
+        ficar sem histórico. O dia considera o horário de Brasília.
+      </p>
       <div className="border-primary/20 bg-primary/5 flex items-start gap-3 rounded-2xl border p-4 text-sm">
         <Star className="text-primary mt-0.5 size-4 shrink-0" />
         <p className="text-muted-foreground leading-relaxed">
@@ -387,7 +462,15 @@ export function Groups() {
                           : "bg-muted text-muted-foreground"
                       )}
                     >
-                      <Users className="size-5" />
+                      <span className="text-sm font-semibold">
+                        {group.name
+                          .trim()
+                          .split(/\s+/)
+                          .slice(0, 2)
+                          .map((part) => Array.from(part)[0])
+                          .join("")
+                          .toLocaleUpperCase("pt-BR")}
+                      </span>
                     </div>
                     <div className="min-w-0 flex-1 basis-1/2">
                       <div className="flex flex-wrap items-center gap-2">
@@ -408,6 +491,7 @@ export function Groups() {
                         {account?.name ?? "Conta do WhatsApp"}
                         {group.accountPhone ? " · +" + group.accountPhone : ""}
                       </p>
+                      <GroupMetrics group={group} />
                     </div>
                     <div className="ml-auto flex shrink-0 items-center gap-2">
                       <Button
@@ -457,6 +541,19 @@ export function Groups() {
           </>
         )}
       </Card>
+      <p className="text-muted-foreground text-xs">
+        A ocupação usa uma referência para grupos comuns; comunidades e grupos
+        especiais podem ter regras diferentes.{" "}
+        <a
+          href="https://faq.whatsapp.com/3242937609289432/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline underline-offset-4"
+        >
+          Consultar orientação do WhatsApp
+        </a>
+        .
+      </p>
     </div>
   );
 }

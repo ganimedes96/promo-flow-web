@@ -10,9 +10,11 @@ import {
   Radio,
   Store,
   Activity,
+  MessageCircle,
 } from "lucide-react";
 
 export const identifierLinks: { [key: string]: string } = {
+  "/mirroring": "Espelhar grupos",
   "/control-panel": "Painel de controle",
   "/connections": "Conexões",
   "/groups": "Grupos",
@@ -24,6 +26,7 @@ export const identifierLinks: { [key: string]: string } = {
   "/extension": "Extensão",
   "/stores": "Lojas",
   "/operations": "Operação",
+  "/message-settings": "Minhas mensagens",
   "/users": "Usuários",
   "/users/create": "Adicionar usuário",
   "/users/[id]/update": "Editar usuário",
@@ -37,6 +40,18 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
+  {
+    title: "Espelhar grupos",
+    icon: <Radio />,
+    href: "/mirroring",
+    requiredPermissions: [],
+  },
+  {
+    title: "Minhas mensagens",
+    icon: <MessageCircle />,
+    href: "/message-settings",
+    requiredPermissions: [],
+  },
   {
     title: "Operação",
     icon: <Activity />,

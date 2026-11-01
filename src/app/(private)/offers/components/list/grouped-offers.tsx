@@ -1,4 +1,5 @@
 "use client";
+import { MirrorOfferAction } from "./mirror-offer";
 import { PromotionImage } from "@/app/(private)/promotions/components/promotion-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -105,7 +106,9 @@ export const groupedColumns: ColumnDef<OfferGroup>[] = [
     key: "destinations",
     header: "Grupos",
     render: (_value, group) =>
-      `${group.destinations.length} destino${group.destinations.length === 1 ? "" : "s"}`,
+      group.product.mirrorAffiliateStatus && !group.product.whatsappGroup
+        ? "Escolher destino"
+        : `${group.destinations.filter((offer) => offer.whatsappGroup).length} destino${group.destinations.filter((offer) => offer.whatsappGroup).length === 1 ? "" : "s"}`,
   },
   {
     key: "product.status",
@@ -168,8 +171,12 @@ export function OfferDestinations({ group }: { group: OfferGroup }) {
   );
 }
 export function OfferGroupActions({ group }: { group: OfferGroup }) {
-  const scheduleCount = group.destinations.filter((offer) =>
-    ["READY", "FAILED", "CANCELLED"].includes(offer.status)
+  const scheduleCount = group.destinations.filter(
+    (offer) =>
+      ["READY", "FAILED", "CANCELLED"].includes(offer.status) &&
+      !!offer.whatsappGroup &&
+      (!offer.mirrorAffiliateStatus ||
+        offer.mirrorAffiliateStatus === "APPLIED")
   ).length;
   const cancelCount = group.destinations.filter(
     (offer) => offer.status === "SCHEDULED"
@@ -191,6 +198,8 @@ export function OfferGroupActions({ group }: { group: OfferGroup }) {
       toast.success(`${response.data.updated} agendamento(s) cancelado(s).`),
   });
   const busy = schedule.isPending || cancel.isPending;
+  if (group.product.mirrorAffiliateStatus && !group.product.whatsappGroup)
+    return <MirrorOfferAction offer={group.product} />;
   return (
     <div className="flex flex-wrap items-center gap-2">
       <AlertDialog>
