@@ -9,13 +9,26 @@ export function ApiErrorCard({
   onRetry,
   retrying = false,
   className,
+  reference,
+  error,
 }: {
   title?: string;
   description?: string;
   onRetry: () => void;
   retrying?: boolean;
   className?: string;
+  reference?: string;
+  error?: unknown;
 }) {
+  const errorReference =
+    typeof error === "object" &&
+    error !== null &&
+    "requestId" in error &&
+    typeof error.requestId === "string" &&
+    /^[a-zA-Z0-9_-]{1,100}$/.test(error.requestId)
+      ? error.requestId
+      : undefined;
+  const diagnosticReference = reference || errorReference;
   return (
     <Card
       role="alert"
@@ -66,6 +79,11 @@ export function ApiErrorCard({
           Se o problema continuar, aguarde alguns instantes antes de tentar
           outra vez.
         </p>
+        {diagnosticReference && (
+          <p className="text-muted-foreground mt-4 font-mono text-xs break-all">
+            Referência: {diagnosticReference}
+          </p>
+        )}
       </CardContent>
     </Card>
   );

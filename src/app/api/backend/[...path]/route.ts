@@ -23,7 +23,7 @@ async function forward(request: NextRequest, context: Context) {
     return failure("Recurso inválido.", 400);
   const path = "/" + segments.join("/");
   const readOnly =
-    /^\/(?:categories|stores|telegram|collection-sources\/whatsapp|billing\/(?:access|plans)|offers(?:\/(?:grouped|filter-groups))?|promotions(?:\/manage)?|users|whatsapp\/(?:session|groups|connections(?:\/[a-fA-F0-9-]{36}(?:\/groups)?)?))$/.test(
+    /^\/(?:operations\/status|categories|stores|telegram|collection-sources\/whatsapp|billing\/(?:access|plans)|offers(?:\/(?:grouped|filter-groups))?|promotions(?:\/manage)?|users|whatsapp\/(?:session|groups|connections(?:\/[a-fA-F0-9-]{36}(?:\/groups)?)?))$/.test(
       path
     );
   const duplicateLookup =

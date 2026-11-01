@@ -7,6 +7,9 @@ const usersKeys = {
 };
 
 export const queryKeys = {
+  operations: {
+    status: (userId?: string) => ["operations", "status", userId] as const,
+  },
   stores: {
     all: ["stores"] as const,
     list: (userId?: string) => ["stores", userId] as const,

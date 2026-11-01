@@ -35,6 +35,7 @@ export function AccountAccessBoundary({
     return (
       <div className="flex min-h-[55vh] items-center justify-center py-8">
         <ApiErrorCard
+          error={access.error}
           title="Não foi possível confirmar seu acesso"
           description="Não conseguimos consultar sua conta neste momento. Tente novamente para continuar no PromoFlow."
           onRetry={() => {

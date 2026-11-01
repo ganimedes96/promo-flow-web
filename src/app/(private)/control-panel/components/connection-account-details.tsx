@@ -45,6 +45,7 @@ export function ConnectionAccountDetails({
     return (
       <div className="p-6">
         <ApiErrorCard
+          error={error}
           title="Não foi possível atualizar esta conexão"
           onRetry={onRefresh}
           retrying={refreshing}

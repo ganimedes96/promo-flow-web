@@ -43,6 +43,7 @@ export function ConnectionPanel({
   if (error)
     return (
       <ApiErrorCard
+        error={error}
         title="Não foi possível carregar sua conta do WhatsApp"
         onRetry={onRefresh}
         retrying={refreshing}

@@ -138,6 +138,7 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
         </div>
       ) : error ? (
         <ApiErrorCard
+          error={error}
           title="Não foi possível carregar as promoções"
           onRetry={() => {
             void list.refetch();

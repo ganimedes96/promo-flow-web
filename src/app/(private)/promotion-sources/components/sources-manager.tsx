@@ -70,6 +70,7 @@ export function SourcesManager() {
   if (query.isError || !query.data)
     return (
       <ApiErrorCard
+        error={query.error}
         title="Não foi possível consultar as fontes"
         onRetry={() => void query.refetch()}
         retrying={query.isFetching}

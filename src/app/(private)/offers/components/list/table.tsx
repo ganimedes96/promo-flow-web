@@ -102,6 +102,7 @@ export function OffersTable() {
         />
         {list.error && (
           <ApiErrorCard
+            error={list.error}
             title="Não foi possível carregar suas ofertas"
             description={list.error.message}
             onRetry={() => {

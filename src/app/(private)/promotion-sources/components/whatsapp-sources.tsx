@@ -126,6 +126,7 @@ export function WhatsAppSources() {
   if (query.isError || accounts.isError)
     return (
       <ApiErrorCard
+        error={query.error || accounts.error}
         title="Não foi possível consultar as fontes do WhatsApp"
         onRetry={refresh}
         retrying={query.isFetching || accounts.isFetching}

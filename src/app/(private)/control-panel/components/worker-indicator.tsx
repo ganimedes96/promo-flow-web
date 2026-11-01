@@ -62,9 +62,9 @@ export function WorkerIndicator({
         {unavailable
           ? "Não foi possível confirmar se o worker está ativo. Aguarde a próxima atualização."
           : !online
-            ? "O envio das ofertas depende do worker em execução. Inicie-o com pnpm start na pasta do worker."
+            ? "O publicador está sem comunicação. Suas ofertas continuam salvas e aguardam a retomada do serviço."
             : !enabled
-              ? "O worker está ativo e pode sincronizar o WhatsApp. Habilite ENABLE_PUBLISHING para publicar ofertas."
+              ? "O publicador está ativo, mas os envios estão desativados. O responsável pela operação precisa habilitá-los."
               : "O worker está em comunicação com a API. As ofertas serão enviadas quando o WhatsApp estiver conectado e a fila estiver liberada."}
       </p>
       {worker?.lastSeenAt && (

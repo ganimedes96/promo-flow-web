@@ -120,6 +120,7 @@ export function Connections() {
       </div>
       {list.error ? (
         <ApiErrorCard
+          error={list.error}
           title="Não foi possível carregar suas conexões"
           onRetry={() => {
             void list.refetch();

@@ -832,3 +832,10 @@ O conversor do Mercado Livre solicita a loja cadastrada e exige a capacidade mer
 ### Endereço do gerador e etapa da loja
 
 O formulário Lojas permite informar linkBuilderUrl. O atalho usa o valor salvo, e a extensão 0.12.0 (mercado-affiliate-v5) o utiliza durante a conversão. O guia passa a ter cinco etapas e inclui Configurar sua loja antes de preparar a oferta, com progresso calculado pelo total de etapas. A configuração é conferida ao retornar da página Lojas. É necessário aplicar a migração 20261101020000_store_link_builder antes de publicar este frontend.
+
+
+## Painel de Operação
+
+A rota /operations é exclusiva do administrador e usa CanServer, a permissão managePromotions e autorização AdminGuard na API. Consulta /operations/status a cada 15s somente com a página ativa; falha interrompe o polling até nova tentativa. Mostra último contato, plataformas habilitadas, publicação habilitada, parada informada e contagens globais da fila. Dados antigos ficam explicitamente identificados após uma falha. Copiar diagnóstico copia somente os dados administrativos exibidos, sem credenciais ou conteúdo das ofertas.
+
+HandleError preserva requestId e não acrescenta códigos HTTP ao texto. Respostas inválidas/HTML são convertidas em mensagem compreensível. ApiErrorCard mostra a referência disponível nas páginas principais. Testes do cliente, sem rede externa: node --test test/api-errors.test.cjs. A API com a migração CollectorRuntime deve ser publicada antes deste frontend; reinicie os processos locais para o coletor registrar sua atividade. Recuperação de senha não foi implementada nesta etapa.

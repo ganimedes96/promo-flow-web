@@ -28,7 +28,14 @@ export async function fetchServer<T>(
     ...options,
     body: options?.body ? JSON.stringify(options.body) : undefined,
   }).catch((e) => {
-    console.error("Fetch error:", e);
+    console.error(
+      JSON.stringify({
+        event: "web.api.unreachable",
+        method: options?.method ?? "GET",
+        path: path.split("?")[0],
+        errorType: e instanceof Error ? e.name : "UnknownError",
+      })
+    );
 
     throw new HandleError({
       message:
@@ -53,6 +60,7 @@ export async function fetchServer<T>(
         message: errorData?.message,
         status: errorData?.status,
         code: errorData?.code,
+        requestId: errorData?.requestId,
         timestamp: new Date().toISOString(),
       };
     }
@@ -60,6 +68,7 @@ export async function fetchServer<T>(
       message: errorData?.message || "Erro ao processar a requisição.",
       status: errorData?.status || "error",
       code: errorData?.code || response.status,
+      requestId: errorData?.requestId,
       timestamp: new Date().toISOString(),
     });
   }

@@ -235,6 +235,7 @@ export function Groups() {
         {groups.error || connections.error ? (
           <div className="p-6">
             <ApiErrorCard
+              error={groups.error || connections.error}
               title="Não foi possível carregar seus grupos"
               onRetry={refresh}
               retrying={refreshing}
