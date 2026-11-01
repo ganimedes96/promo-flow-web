@@ -3,7 +3,7 @@ import { ControlledProductCategory } from "@/domains/categories/components/contr
 import { OfferFormSkeleton } from "@/components/feedback/loading-skeletons";
 import type { ImportedOfferDraft } from "@/domains/offers/extension-import";
 import { useCallback, useEffect, useRef } from "react";
-import { isMercadoLivreLink } from "@/domains/offers/affiliate-links";
+import { isConvertibleLink } from "@/domains/offers/affiliate-links";
 import { MercadoLivreAffiliate } from "@/domains/offers/components/mercado-livre-affiliate";
 import { useSession } from "next-auth/react";
 import type { WhatsAppConnectionAccount } from "@/domains/whatsapp/connections";
@@ -155,7 +155,7 @@ function OfferFields({
   });
   const values = useWatch({ control });
   const needsCentralAffiliate =
-    !!sourcePromotionId && !offer && isMercadoLivreLink(values.sourceUrl);
+    !!sourcePromotionId && !offer && isConvertibleLink(values.sourceUrl);
   const receiveAffiliate = useCallback(
     (url: string) =>
       setValue("affiliateUrl", url, {

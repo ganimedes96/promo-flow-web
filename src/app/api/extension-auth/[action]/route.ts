@@ -62,6 +62,10 @@ async function forward(request: NextRequest, context: Context) {
     if (!/^Bearer [a-f0-9]{64}$/.test(authorization))
       return failure("Conecte a extensão ao PromoFlow novamente.", 401);
     headers.Authorization = authorization;
+    if (
+      request.headers.get("x-extension-capabilities") === "shopee-affiliate-v1"
+    )
+      headers["x-extension-capabilities"] = "shopee-affiliate-v1";
     if (conversion) {
       if (!request.headers.get("content-type")?.startsWith("application/json"))
         return failure("Use dados em JSON.", 415);

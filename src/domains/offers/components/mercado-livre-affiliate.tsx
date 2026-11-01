@@ -9,7 +9,11 @@ import { ArrowUpRight, CheckCircle2, Link2, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/lib/toast";
-import { isMercadoLivreLink } from "@/domains/offers/affiliate-links";
+import {
+  isConvertibleLink,
+  isMercadoLivreLink,
+  isShopeeLink,
+} from "@/domains/offers/affiliate-links";
 function record(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -31,18 +35,20 @@ export function MercadoLivreAffiliate({
   autoConvertKey?: string;
   affiliateUrl?: string;
 }) {
+  const shopee = isShopeeLink(sourceUrl);
+  const storeName = shopee ? "Shopee" : "Mercado Livre";
   const { data: session } = useSession();
   const accountId = session?.user.id;
   const stores = useQuery({
     queryKey: queryKeys.stores.list(accountId),
     queryFn: getStores,
-    enabled: !!accountId && isMercadoLivreLink(sourceUrl),
+    enabled: !!accountId && isConvertibleLink(sourceUrl),
     staleTime: 0,
     refetchOnWindowFocus: true,
     retry: false,
   });
   const store = stores.data?.find(
-    (item) => item.marketplace === "MERCADO_LIVRE"
+    (item) => item.marketplace === (shopee ? "SHOPEE" : "MERCADO_LIVRE")
   );
   const [installed, setInstalled] = useState<boolean | null>(null);
   const [feedback, setFeedback] = useState<{
@@ -79,7 +85,8 @@ export function MercadoLivreAffiliate({
       const data = event.data;
       if (
         data.type === "PROMOFLOW_EXTENSION_READY" &&
-        data.feature === "mercado-affiliate-v5"
+        data.feature ===
+          (shopee ? "shopee-affiliate-v1" : "mercado-affiliate-v5")
       ) {
         setInstalled(true);
         return;
@@ -138,7 +145,10 @@ export function MercadoLivreAffiliate({
         data.type === "PROMOFLOW_AFFILIATE_RESULT" &&
         pending.current &&
         data.accountId === accountId &&
-        isMercadoLivreLink(data.affiliateUrl)
+        typeof data.affiliateUrl === "string" &&
+        (shopee
+          ? isShopeeLink(data.affiliateUrl)
+          : isMercadoLivreLink(data.affiliateUrl))
       ) {
         if (
           affiliateRef.current.trim() !==
@@ -163,7 +173,7 @@ export function MercadoLivreAffiliate({
           url: sourceUrl,
           text:
             data.mode === "automatic"
-              ? "Link gerado no Mercado Livre e preenchido na sua oferta. Confira antes de salvar."
+              ? `Link gerado na loja ${storeName} e preenchido na sua oferta. Confira antes de salvar.`
               : "Link manual recebido da loja. Confira se foi gerado pela sua conta antes de salvar.",
           pending: false,
           error: false,
@@ -185,12 +195,12 @@ export function MercadoLivreAffiliate({
       if (pending.current) abortConversion(pending.current.id, accountId);
       pending.current = null;
     };
-  }, [accountId, sourceUrl]);
+  }, [accountId, sourceUrl, shopee, storeName]);
   const begin = useCallback(() => {
     if (
       !accountId ||
       !store ||
-      !isMercadoLivreLink(sourceUrl) ||
+      !isConvertibleLink(sourceUrl) ||
       pending.current
     )
       return;
@@ -203,7 +213,7 @@ export function MercadoLivreAffiliate({
     if (timeout.current) clearTimeout(timeout.current);
     setFeedback({
       url: sourceUrl,
-      text: "Abrindo o Mercado Livre para converter o link pela sua conta. Seus campos e grupos ficam preservados.",
+      text: `Abrindo ${storeName} para converter o link pela sua conta. Seus campos e grupos ficam preservados.`,
       pending: true,
       error: false,
     });
@@ -226,14 +236,14 @@ export function MercadoLivreAffiliate({
         error: true,
       });
     }, 180000);
-  }, [accountId, sourceUrl, store]);
+  }, [accountId, sourceUrl, store, storeName]);
   useEffect(() => {
     if (
       !store ||
       !autoConvertKey ||
       !accountId ||
       installed !== true ||
-      !isMercadoLivreLink(sourceUrl) ||
+      !isConvertibleLink(sourceUrl) ||
       affiliateUrl.trim()
     )
       return;
@@ -271,7 +281,7 @@ export function MercadoLivreAffiliate({
     pending.current = null;
     begin();
   };
-  if (!isMercadoLivreLink(sourceUrl)) return null;
+  if (!isConvertibleLink(sourceUrl)) return null;
   if (stores.isPending)
     return (
       <p className="text-muted-foreground flex items-center gap-2 text-xs sm:col-span-2">
@@ -296,9 +306,7 @@ export function MercadoLivreAffiliate({
   if (!store?.linkBuilderUrl)
     return (
       <div className="border-primary/25 bg-primary/5 space-y-2 rounded-xl border p-4 sm:col-span-2">
-        <p className="text-sm font-semibold">
-          Configure sua conta do Mercado Livre
-        </p>
+        <p className="text-sm font-semibold">Configure sua conta {storeName}</p>
         <p className="text-muted-foreground text-xs">
           Cadastre seu perfil e sua etiqueta em Lojas para converter os links
           desta oferta. Os campos já preenchidos serão mantidos.
@@ -330,8 +338,8 @@ export function MercadoLivreAffiliate({
             Link de afiliado aplicado com sucesso!
           </p>
           <p className="text-xs leading-relaxed">
-            O link gerado no Mercado Livre foi preenchido nesta oferta. Confira
-            os dados e salve quando estiver pronto.
+            O link gerado em {storeName} foi preenchido nesta oferta. Confira os
+            dados e salve quando estiver pronto.
           </p>
           <span
             className="block max-w-full truncate text-xs font-medium"
@@ -383,11 +391,11 @@ export function MercadoLivreAffiliate({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="flex items-center gap-2 text-sm font-semibold">
-            <Link2 className="size-4" /> Seu link do Mercado Livre
+            <Link2 className="size-4" /> Seu link de {storeName}
           </p>
           <p className="text-muted-foreground mt-1 max-w-xl text-xs">
             {autoConvertKey
-              ? "Estamos preparando esta promoção com o seu link de afiliado. A extensão usa a conta do Mercado Livre aberta no seu Chrome e devolve o resultado a este formulário."
+              ? `Estamos preparando esta promoção com o seu link de afiliado. A extensão usa a conta ${storeName} aberta no seu Chrome e devolve o resultado a este formulário.`
               : "A extensão abre o produto, usa o gerador oficial da conta aberta no seu Chrome e preenche seu link de afiliado. Os demais campos e grupos ficam preservados."}
           </p>
         </div>
@@ -453,8 +461,8 @@ export function MercadoLivreAffiliate({
         </p>
       )}
       <p className="text-muted-foreground text-xs">
-        Requer a extensão 0.12.0 ou superior, conectada à mesma conta do
-        PromoFlow, e login no programa de afiliados do Mercado Livre. A etiqueta
+        Requer a extensão 0.14.0 ou superior, conectada à mesma conta do
+        PromoFlow, e login no programa de afiliados da loja. A etiqueta
         utilizada será a cadastrada em Lojas ou, se estiver em branco, a atual
         do gerador.
       </p>

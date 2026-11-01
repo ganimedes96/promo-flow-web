@@ -25,6 +25,8 @@ type Props = {
   unavailableLabel: string;
   capturedCount: number;
   lastCapturedAt?: string | null;
+  lastCheckedAt?: string | null;
+  captureError?: string | null;
   busy: boolean;
   toggleDisabled: boolean;
   onToggle: () => void;
@@ -151,6 +153,20 @@ export function MirrorSourceCard(props: Props) {
               ? "Novas mensagens com produtos serão capturadas enquanto o coletor estiver ativo."
               : "Novas capturas estão pausadas. As ofertas anteriores continuam salvas."}
         </p>
+        {props.lastCheckedAt && (
+          <p className="text-muted-foreground text-xs">
+            Última verificação:{" "}
+            {formatDate(props.lastCheckedAt, "dd/MM · HH:mm")}
+          </p>
+        )}
+        {props.captureError && (
+          <p
+            role="status"
+            className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs leading-relaxed text-rose-700 dark:text-rose-300"
+          >
+            {props.captureError}
+          </p>
+        )}
         <div className="mt-auto flex items-center gap-2 border-t pt-4">
           <Button
             className="flex-1"

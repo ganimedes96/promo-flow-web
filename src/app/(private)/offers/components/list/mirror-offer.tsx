@@ -1,4 +1,5 @@
 "use client";
+import { isShopeeLink } from "@/domains/offers/affiliate-links";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { Users, Check, Link2, ArrowRight, Sparkles } from "lucide-react";
@@ -134,7 +135,9 @@ function MirrorDestinationForm({
         <div className="bg-primary/5 space-y-4 rounded-xl border p-4">
           <p className="text-sm font-semibold">
             {offer.mirrorConversionStatus === "RECONNECT"
-              ? "Reconectar Mercado Livre"
+              ? isShopeeLink(offer.sourceUrl)
+                ? "Reconectar Shopee"
+                : "Reconectar Mercado Livre"
               : offer.mirrorConversionStatus === "CONVERTING"
                 ? "A extensão está convertendo seu link"
                 : offer.mirrorConversionStatus === "STORE_REQUIRED"
@@ -144,10 +147,10 @@ function MirrorDestinationForm({
                     : "Aguardando seu link de afiliado"}
           </p>
           <p className="text-muted-foreground text-xs">
-            A extensão atualizada processa Mercado Livre com o site fechado,
-            enquanto o Chrome está aberto e conectado ao PromoFlow. Se a conta
-            do Mercado Livre expirou, entre novamente na loja. Amazon e Shopee
-            continuam com link manual.
+            A extensão atualizada processa Mercado Livre e Shopee com o site
+            fechado, enquanto o Chrome está aberto e conectado ao PromoFlow. Se
+            a conta da loja expirou, entre novamente na loja. Amazon continua
+            com link manual.
           </p>
           {offer.mirrorConversionStatus &&
             offer.mirrorConversionStatus !== "CONVERTING" && (
@@ -164,11 +167,15 @@ function MirrorDestinationForm({
                 {offer.mirrorConversionStatus === "RECONNECT" && (
                   <Button asChild type="button" size="sm" variant="outline">
                     <a
-                      href="https://www.mercadolivre.com.br/"
+                      href={
+                        isShopeeLink(offer.sourceUrl)
+                          ? "https://affiliate.shopee.com.br/offer/custom_link"
+                          : "https://www.mercadolivre.com.br/"
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Entrar no Mercado Livre
+                      Entrar na loja
                     </a>
                   </Button>
                 )}

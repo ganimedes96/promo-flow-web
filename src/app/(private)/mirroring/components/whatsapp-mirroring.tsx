@@ -99,15 +99,15 @@ export function WhatsAppMirroring() {
             <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-relaxed">
               Capturamos novas mensagens com links de produtos. Elas entram em
               Ofertas, sem destino e sem envio automático. A extensão atualizada
-              converte os links do Mercado Livre pela sua conta, mesmo com o
-              site fechado, enquanto o Chrome estiver aberto. Depois, escolha o
-              grupo na tabela e revise antes de agendar.
+              converte os links do Mercado Livre e da Shopee pela sua conta,
+              mesmo com o site fechado, enquanto o Chrome estiver aberto.
+              Depois, escolha o grupo na tabela e revise antes de agendar.
             </p>
             <p className="text-muted-foreground mt-2 text-xs">
-              Requer extensão 0.13.0 ou superior, conectada à sua conta no
-              ambiente selecionado. Amazon e Shopee precisam do seu link
-              informado manualmente. Só serão acompanhadas mensagens novas
-              enquanto os serviços de coleta estiverem ativos.
+              Requer extensão 0.14.0 ou superior, conectada à sua conta no
+              ambiente selecionado. Amazon precisa do seu link informado
+              manualmente. Só serão acompanhadas mensagens novas enquanto os
+              serviços de coleta estiverem ativos.
             </p>
           </div>
           <Button asChild className="self-center">

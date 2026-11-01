@@ -1,3 +1,4 @@
+import { isShopeeLink } from "@/domains/offers/affiliate-links";
 import { PromotionImage } from "@/app/(private)/promotions/components/promotion-image";
 import { OfferQueueActions } from "./queue-actions";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +31,9 @@ export function offerDisplayStatus(offer: Offer): {
     return {
       label:
         offer.mirrorConversionStatus === "RECONNECT"
-          ? "Reconectar Mercado Livre"
+          ? isShopeeLink(offer.sourceUrl)
+            ? "Reconectar Shopee"
+            : "Reconectar Mercado Livre"
           : offer.mirrorConversionStatus === "CONVERTING"
             ? "Convertendo link"
             : offer.mirrorConversionStatus === "FAILED"

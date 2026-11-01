@@ -29,7 +29,9 @@ export function StoreForm({
         store?.linkBuilderUrl ??
         (marketplace === "MERCADO_LIVRE"
           ? "https://www.mercadolivre.com.br/afiliados/linkbuilder#hub"
-          : ""),
+          : marketplace === "SHOPEE"
+            ? "https://affiliate.shopee.com.br/offer/custom_link"
+            : ""),
       name: store?.name ?? `Minha conta ${storeNames[marketplace]}`,
       affiliateProfile: store?.affiliateProfile ?? "",
       campaignTag: store?.campaignTag ?? "",
@@ -99,15 +101,25 @@ export function StoreForm({
         <ControlledInput
           control={form.control}
           name="campaignTag"
-          label="Etiqueta de campanha (opcional)"
-          placeholder="Nome exato da etiqueta na loja"
+          label={
+            marketplace === "SHOPEE"
+              ? "Sub_id 1 (opcional)"
+              : "Etiqueta de campanha (opcional)"
+          }
+          placeholder={
+            marketplace === "SHOPEE"
+              ? "Ex.: promoflow"
+              : "Nome exato da etiqueta na loja"
+          }
           maxLength={100}
           disabled={save.isPending}
         />
         <p className="text-muted-foreground text-xs">
           {marketplace === "MERCADO_LIVRE"
             ? "Informe o nome exato para a extensão selecionar no gerador oficial. Em branco, será usada a etiqueta atual do gerador."
-            : "Informação salva para organizar suas campanhas. A conversão automática desta plataforma ainda não está disponível."}
+            : marketplace === "SHOPEE"
+              ? "A extensão preenche este identificador no Sub_id 1 do conversor oficial. Deixe vazio para não informar campanha."
+              : "Informação salva para organizar suas campanhas. A conversão automática desta plataforma ainda não está disponível."}
         </p>
       </div>
       <div className="space-y-2">
@@ -115,7 +127,7 @@ export function StoreForm({
           control={form.control}
           name="linkBuilderUrl"
           label={
-            marketplace === "MERCADO_LIVRE"
+            marketplace !== "AMAZON"
               ? "URL do gerador de links"
               : "URL do painel de afiliados (opcional)"
           }
@@ -126,7 +138,9 @@ export function StoreForm({
         <p className="text-muted-foreground text-xs">
           {marketplace === "MERCADO_LIVRE"
             ? "Abra o Gerador de links oficial do Mercado Livre, copie o endereço da barra do navegador e cole aqui. A extensão usará esse endereço durante a conversão."
-            : "Informe um endereço oficial da loja. Por enquanto, será usado apenas como atalho para o seu painel."}
+            : marketplace === "SHOPEE"
+              ? "Use https://affiliate.shopee.com.br/offer/custom_link, o conversor oficial da Shopee."
+              : "Informe um endereço oficial da loja. Por enquanto, será usado apenas como atalho para o seu painel."}
         </p>
       </div>
       <ControlledSwitch

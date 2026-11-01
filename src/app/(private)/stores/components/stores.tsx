@@ -91,8 +91,8 @@ export function Stores() {
         <ShieldCheck className="text-primary mt-0.5 size-5 shrink-0" />
         <p className="text-muted-foreground text-sm">
           Suas senhas e sessões permanecem no Chrome. A conversão automática
-          está disponível para o Mercado Livre; Shopee e Amazon ficam
-          cadastradas para organizar suas informações.
+          está disponível para Mercado Livre e Shopee; Amazon fica cadastradas
+          para organizar suas informações.
         </p>
       </div>
       {stores.isError ? (
@@ -153,11 +153,9 @@ export function Stores() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Badge
-                    variant={
-                      marketplace === "MERCADO_LIVRE" ? "secondary" : "outline"
-                    }
+                    variant={marketplace !== "AMAZON" ? "secondary" : "outline"}
                   >
-                    {marketplace === "MERCADO_LIVRE"
+                    {marketplace !== "AMAZON"
                       ? "Conversão pela extensão"
                       : "Conversão ainda indisponível"}
                   </Badge>

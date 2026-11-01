@@ -190,6 +190,8 @@ export function TelegramMirroring() {
               unavailableLabel="Aguardando conexão ou acesso"
               capturedCount={source.capturedCount}
               lastCapturedAt={source.lastCapturedAt}
+              lastCheckedAt={source.lastCheckedAt}
+              captureError={source.lastError}
               busy={busy}
               toggleDisabled={!source.enabled && !ready}
               onToggle={() =>
@@ -201,8 +203,9 @@ export function TelegramMirroring() {
         </div>
       )}
       <p className="text-muted-foreground text-xs">
-        Imagens e links são capturados para revisão. Mercado Livre entra na fila
-        de conversão da extensão; outras lojas continuam com seu link manual.
+        Imagens e links são capturados para revisão. Mercado Livre e Shopee
+        entram na fila de conversão da extensão; outras lojas continuam com seu
+        link manual.
       </p>
     </div>
   );
