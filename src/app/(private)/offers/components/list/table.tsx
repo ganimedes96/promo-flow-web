@@ -156,11 +156,29 @@ export function OffersTable() {
           className="max-h-[65vh] max-w-full min-w-0 overflow-auto rounded-md lg:max-h-none lg:overflow-visible"
           role="region"
           aria-label="Tabela de ofertas"
+          onClick={(event) => {
+            const target = event.target;
+            if (
+              !(target instanceof Element) ||
+              target.closest(
+                'button,a,input,select,textarea,label,summary,[role="button"],[role="link"],[contenteditable="true"]'
+              )
+            )
+              return;
+            if (window.getSelection()?.isCollapsed === false) return;
+            const row = target.closest("tr");
+            if (!row || !event.currentTarget.contains(row)) return;
+            // Reuse the table's accessible expansion control without changing action buttons.
+            const trigger = row.querySelector<HTMLButtonElement>(
+              ":scope > td:first-child > button[aria-expanded][aria-controls]"
+            );
+            trigger?.click();
+          }}
           hidden={empty || (!!list.error && !list.data)}
           tabIndex={0}
         >
           <DataTable
-            className="max-w-full min-w-0 [&_[data-slot=table-container]]:max-h-[65vh] [&_[data-slot=table-container]]:overflow-auto [&_table]:min-w-[920px] [&_thead]:sticky [&_thead]:top-0 [&_thead]:z-10"
+            className="[&_tbody>tr:has(>td>button[aria-expanded])]:hover:bg-primary/10 max-w-full min-w-0 [&_[data-slot=table-container]]:max-h-[65vh] [&_[data-slot=table-container]]:overflow-auto [&_table]:min-w-[920px] [&_tbody>tr:has(>td>button[aria-expanded])]:cursor-pointer [&_thead]:sticky [&_thead]:top-0 [&_thead]:z-10"
             data={list.data?.data ?? []}
             columns={groupedColumns}
             actions={(group) => <OfferGroupActions group={group} />}
