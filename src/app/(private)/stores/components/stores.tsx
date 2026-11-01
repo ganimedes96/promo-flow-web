@@ -215,14 +215,14 @@ export function Stores() {
                       </Button>
                     )}
                   </div>
-                  {marketplace === "MERCADO_LIVRE" && (
+                  {store?.linkBuilderUrl && (
                     <a
-                      href="https://www.mercadolivre.com.br/afiliados/linkbuilder#hub"
+                      href={store.linkBuilderUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary flex items-center gap-1 text-xs font-medium"
                     >
-                      Abrir gerador oficial
+                      Abrir painel da loja
                       <ArrowUpRight className="size-3" />
                     </a>
                   )}

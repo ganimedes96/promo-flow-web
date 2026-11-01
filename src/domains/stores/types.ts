@@ -21,6 +21,28 @@ export const storeInputSchema = z.object({
     .trim()
     .max(100)
     .regex(/^[^\p{Cc}]*$/u, "Etiqueta inválida."),
+  linkBuilderUrl: z
+    .string()
+    .trim()
+    .max(2048)
+    .refine(
+      (value) =>
+        !value ||
+        (() => {
+          try {
+            const url = new URL(value);
+            return (
+              url.protocol === "https:" &&
+              !url.username &&
+              !url.password &&
+              !url.port
+            );
+          } catch {
+            return false;
+          }
+        })(),
+      "Informe uma URL HTTPS válida."
+    ),
   isDefault: z.boolean(),
 });
 export type StoreInput = z.infer<typeof storeInputSchema>;
@@ -30,6 +52,7 @@ export const storeSchema = storeInputSchema.extend({
   marketplace: z.enum(marketplaces),
   affiliateProfile: z.string().nullable(),
   campaignTag: z.string().nullable(),
+  linkBuilderUrl: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

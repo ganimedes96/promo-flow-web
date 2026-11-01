@@ -25,6 +25,11 @@ export function StoreForm({
 }) {
   const form = useForm<StoreInput>({
     defaultValues: {
+      linkBuilderUrl:
+        store?.linkBuilderUrl ??
+        (marketplace === "MERCADO_LIVRE"
+          ? "https://www.mercadolivre.com.br/afiliados/linkbuilder#hub"
+          : ""),
       name: store?.name ?? `Minha conta ${storeNames[marketplace]}`,
       affiliateProfile: store?.affiliateProfile ?? "",
       campaignTag: store?.campaignTag ?? "",
@@ -48,7 +53,8 @@ export function StoreForm({
               field === "name" ||
               field === "affiliateProfile" ||
               field === "campaignTag" ||
-              field === "isDefault"
+              field === "isDefault" ||
+              field === "linkBuilderUrl"
             )
               form.setError(field, { message: issue.message });
           }
@@ -102,6 +108,25 @@ export function StoreForm({
           {marketplace === "MERCADO_LIVRE"
             ? "Informe o nome exato para a extensão selecionar no gerador oficial. Em branco, será usada a etiqueta atual do gerador."
             : "Informação salva para organizar suas campanhas. A conversão automática desta plataforma ainda não está disponível."}
+        </p>
+      </div>
+      <div className="space-y-2">
+        <ControlledInput
+          control={form.control}
+          name="linkBuilderUrl"
+          label={
+            marketplace === "MERCADO_LIVRE"
+              ? "URL do gerador de links"
+              : "URL do painel de afiliados (opcional)"
+          }
+          placeholder="https://..."
+          maxLength={2048}
+          disabled={save.isPending}
+        />
+        <p className="text-muted-foreground text-xs">
+          {marketplace === "MERCADO_LIVRE"
+            ? "Abra o Gerador de links oficial do Mercado Livre, copie o endereço da barra do navegador e cole aqui. A extensão usará esse endereço durante a conversão."
+            : "Informe um endereço oficial da loja. Por enquanto, será usado apenas como atalho para o seu painel."}
         </p>
       </div>
       <ControlledSwitch

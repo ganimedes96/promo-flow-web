@@ -79,7 +79,7 @@ export function MercadoLivreAffiliate({
       const data = event.data;
       if (
         data.type === "PROMOFLOW_EXTENSION_READY" &&
-        data.feature === "mercado-affiliate-v4"
+        data.feature === "mercado-affiliate-v5"
       ) {
         setInstalled(true);
         return;
@@ -293,7 +293,7 @@ export function MercadoLivreAffiliate({
         </Button>
       </div>
     );
-  if (!store)
+  if (!store?.linkBuilderUrl)
     return (
       <div className="border-primary/25 bg-primary/5 space-y-2 rounded-xl border p-4 sm:col-span-2">
         <p className="text-sm font-semibold">
@@ -453,7 +453,7 @@ export function MercadoLivreAffiliate({
         </p>
       )}
       <p className="text-muted-foreground text-xs">
-        Requer a extensão 0.11.0 ou superior, conectada à mesma conta do
+        Requer a extensão 0.12.0 ou superior, conectada à mesma conta do
         PromoFlow, e login no programa de afiliados do Mercado Livre. A etiqueta
         utilizada será a cadastrada em Lojas ou, se estiver em branco, a atual
         do gerador.

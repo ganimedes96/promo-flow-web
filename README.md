@@ -817,7 +817,7 @@ Sem confirmacao exige Conferir envio no grupo antes de liberar qualquer reenvio.
 
 ## Guia de primeiros passos
 
-O Painel de controle inclui um guia com quatro etapas derivadas dos dados reais: extensão 0.10.0 conectada à mesma conta e ambiente, WhatsApp READY, grupo favorito vinculado ao número conectado e pelo menos uma oferta salva. A extensão responde apenas o identificador da conta para conferência, nunca credenciais. Consulte novamente ao retornar à janela ou pelo botão Conferir progresso. Erros de consulta não são tratados como conclusão.
+O Painel de controle inclui um guia com cinco etapas derivadas dos dados reais: extensão 0.10.0 conectada à mesma conta e ambiente, WhatsApp READY, grupo favorito vinculado ao número conectado, loja cadastrada com URL do gerador/painel e pelo menos uma oferta salva. A extensão responde apenas o identificador da conta para conferência, nunca credenciais. Consulte novamente ao retornar à janela ou pelo botão Conferir progresso. Erros de consulta não são tratados como conclusão.
 
 Os atalhos usam /extension, /connections, /groups e /promotions; nada é instalado, cadastrado ou enviado pelo guia. Continuar depois recolhe o card neste navegador por usuário, e Retomar guia o reabre. A animação original de boas-vindas com prancheta está em public/animations/promoflow-capybara-onboarding.json, gerada por python scripts/generate-onboarding-mascot.py, separada da animação da home. Há pausa e respeito ao movimento reduzido. Sem mudança na API ou migration. Atualize o frontend e recarregue a extensão para confirmar a primeira etapa.
 
@@ -827,3 +827,8 @@ Os atalhos usam /extension, /connections, /groups e /promotions; nada é instala
 A rota privada /stores permite cadastrar somente Mercado Livre, Shopee e Amazon, uma configuração por plataforma. Formulários usam React Hook Form, ControlledInput e ControlledSwitch, validação Zod e Server Actions com useServerAction. Query keys estão em queryKeys.stores; alterações invalidam a listagem e a configuração consultada pelo formulário de oferta. É possível editar, remover (sem excluir ofertas) e escolher uma loja padrão para aparecer primeiro.
 
 O conversor do Mercado Livre solicita a loja cadastrada e exige a capacidade mercado-affiliate-v4 da extensão 0.11.0, que lê a etiqueta pela API. Perfil é informativo; a autenticação do afiliado continua no Chrome. Shopee e Amazon mostram que a conversão automática ainda não está disponível. Publique a API com a migração AffiliateStore antes do frontend; recarregue a extensão atualizada.
+
+
+### Endereço do gerador e etapa da loja
+
+O formulário Lojas permite informar linkBuilderUrl. O atalho usa o valor salvo, e a extensão 0.12.0 (mercado-affiliate-v5) o utiliza durante a conversão. O guia passa a ter cinco etapas e inclui Configurar sua loja antes de preparar a oferta, com progresso calculado pelo total de etapas. A configuração é conferida ao retornar da página Lojas. É necessário aplicar a migração 20261101020000_store_link_builder antes de publicar este frontend.

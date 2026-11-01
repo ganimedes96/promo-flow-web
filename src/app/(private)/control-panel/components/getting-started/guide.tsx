@@ -16,6 +16,7 @@ import {
   Sparkles,
   Star,
   ShoppingBag,
+  Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +26,7 @@ import {
   getWhatsAppConnections,
   getWhatsAppGroups,
 } from "@/domains/whatsapp/client";
+import { getStores } from "@/domains/stores/client";
 import { getOffers } from "@/domains/offers/client";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { GuideMascot } from "./mascot";
@@ -97,6 +99,12 @@ export function GettingStartedGuide({ userId }: { userId: string }) {
             account.connectedPhone === group.accountPhone
         )
     ) ?? false;
+  const stores = useQuery({
+    queryKey: queryKeys.stores.list(userId),
+    queryFn: getStores,
+    refetchInterval: collapsed ? false : 15000,
+    retry: false,
+  });
   const steps = [
     {
       icon: Puzzle,
@@ -131,6 +139,14 @@ export function GettingStartedGuide({ userId }: { userId: string }) {
       done: hasFavorites,
     },
     {
+      icon: Store,
+      title: "Configure sua loja de afiliado",
+      text: "Cadastre sua conta de afiliado e a URL do gerador em Lojas. Para converter links do Mercado Livre, configure essa plataforma.",
+      href: "/stores",
+      action: "Configurar minha loja",
+      done: stores.data?.some((store) => !!store.linkBuilderUrl) ?? false,
+    },
+    {
       icon: ShoppingBag,
       title: "Prepare sua primeira oferta",
       text: "Escolha um produto na Central, confira os dados e seu link de afiliado e salve. Agendar o envio é uma ação separada.",
@@ -142,10 +158,12 @@ export function GettingStartedGuide({ userId }: { userId: string }) {
   const complete = steps.filter((step) => step.done).length;
   const current = steps.findIndex((step) => !step.done);
   const loading =
+    stores.isPending ||
     connections.isPending ||
     offers.isPending ||
     (connected.length > 0 && groups.isPending);
   const error =
+    stores.isError ||
     connections.isError ||
     offers.isError ||
     (connected.length > 0 && groups.isError);
@@ -209,12 +227,12 @@ export function GettingStartedGuide({ userId }: { userId: string }) {
             </span>
           </div>
           <h2 id="getting-started-title" className="mt-4 text-xl font-semibold">
-            {complete === 4
+            {complete === steps.length
               ? "Tudo pronto para dar flow!"
               : "Vamos preparar seu primeiro achado?"}
           </h2>
           <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-            {complete === 4
+            {complete === steps.length
               ? "Sua configuração está pronta e a primeira oferta foi salva. Você escolhe quando colocá-la na fila."
               : "A capivara te acompanha. Complete os passos no seu ritmo; o progresso é conferido automaticamente."}
           </p>
@@ -223,12 +241,16 @@ export function GettingStartedGuide({ userId }: { userId: string }) {
               <span>
                 {loading
                   ? "Conferindo seu progresso…"
-                  : `${complete} de 4 etapas concluídas`}
+                  : `${complete} de ${steps.length} etapas concluídas`}
               </span>
-              <span>{loading ? "" : `${complete * 25}%`}</span>
+              <span>
+                {loading
+                  ? ""
+                  : `${Math.round((complete / steps.length) * 100)}%`}
+              </span>
             </div>
             <Progress
-              value={loading ? 0 : complete * 25}
+              value={loading ? 0 : Math.round((complete / steps.length) * 100)}
               aria-label="Progresso dos primeiros passos"
             />
           </div>
@@ -310,6 +332,7 @@ export function GettingStartedGuide({ userId }: { userId: string }) {
                 void connections.refetch();
                 if (connected.length) void groups.refetch();
                 void offers.refetch();
+                void stores.refetch();
               }}
             >
               <RefreshCw className="size-3.5" />
@@ -322,7 +345,7 @@ export function GettingStartedGuide({ userId }: { userId: string }) {
               foi apagado. Tente conferir novamente.
             </p>
           )}
-          {complete === 4 && (
+          {complete === steps.length && (
             <Button asChild className="w-full">
               <Link href="/offers">
                 Ver minhas ofertas
