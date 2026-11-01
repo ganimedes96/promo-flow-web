@@ -1,4 +1,5 @@
 "use client";
+import { ExternalLink } from "lucide-react";
 import { MirrorOfferAction } from "./mirror-offer";
 import { FormSheet } from "@/components/form/containers/form-sheet";
 import { UpdateOfferForm } from "../form/update";
@@ -23,8 +24,27 @@ export function OfferQueueActions({ offer }: { offer: Offer }) {
     successMessage: "Agendamento cancelado.",
   });
   const busy = schedule.isPending || cancel.isPending;
-  if (offer.mirrorAffiliateStatus && !offer.whatsappGroup)
-    return <MirrorOfferAction offer={offer} />;
+  if (offer.mirrorAffiliateStatus && !offer.whatsappGroup) {
+    const awaitingLink = offer.mirrorAffiliateStatus === "PENDING" && !offer.mirrorConversionStatus;
+    let productUrl: string | null = null;
+    try {
+      const url = new URL(offer.sourceUrl);
+      if (url.protocol === "https:" && !url.username && !url.password) productUrl = url.href;
+    } catch { /* Keep other actions available when the source URL is invalid. */ }
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        {awaitingLink && productUrl && (
+          <Button asChild variant="outline" size="sm">
+            <a href={productUrl} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()}>
+              <ExternalLink className="size-3.5" />
+              Abrir produto
+            </a>
+          </Button>
+        )}
+        <MirrorOfferAction offer={offer} />
+      </div>
+    );
+  }
   if (offer.status === "PUBLISHING" && offer.errorMessage)
     return <ReviewSend offer={offer} />;
   if (offer.status === "SCHEDULED")

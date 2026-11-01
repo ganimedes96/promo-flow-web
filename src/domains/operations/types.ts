@@ -20,3 +20,94 @@ export const operationsSchema = z.object({
   }),
 });
 export type OperationsStatus = z.infer<typeof operationsSchema>;
+
+export const supportUserSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  email: z.string(),
+});
+const connectionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  status: z.string(),
+  isPaused: z.boolean(),
+  connectedName: z.string().nullable(),
+  lastError: z.string().nullable(),
+  lastConnectedAt: z.string().nullable(),
+  lastDisconnectedAt: z.string().nullable(),
+  updatedAt: z.string(),
+});
+const attemptSchema = z.object({
+  id: z.string(),
+  attempt: z.number(),
+  status: z.string(),
+  errorMessage: z.string().nullable(),
+  startedAt: z.string(),
+  finishedAt: z.string().nullable(),
+});
+const supportOfferSchema = z.object({
+  id: z.string(),
+  title: z.string().nullable(),
+  status: z.string(),
+  scheduledAt: z.string().nullable(),
+  publishedAt: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  errorMessage: z.string().nullable(),
+  blockedReason: z.string().nullable(),
+  attempts: z.number(),
+  lastAttemptAt: z.string().nullable(),
+  mirrorAffiliateStatus: z.string().nullable(),
+  connection: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      status: z.string(),
+      isPaused: z.boolean(),
+    })
+    .nullable(),
+  whatsappGroup: z.object({ id: z.string(), name: z.string() }).nullable(),
+  mirrorConversion: z
+    .object({
+      status: z.string(),
+      attempts: z.number(),
+      lastErrorCode: z.string().nullable(),
+      nextAttemptAt: z.string(),
+    })
+    .nullable(),
+  publicationAttempts: z.array(attemptSchema),
+});
+const diagnosticSchema = z.object({
+  id: z.string(),
+  requestId: z.string(),
+  statusCode: z.number(),
+  method: z.string(),
+  route: z.string(),
+  errorType: z.string(),
+  createdAt: z.string(),
+});
+export const supportSchema = z.object({
+  user: supportUserSchema,
+  status: operationsSchema,
+  connections: z.array(connectionSchema),
+  offers: z.object({
+    items: z.array(supportOfferSchema),
+    total: z.number(),
+    page: z.number(),
+    perPage: z.number(),
+  }),
+  errors: z.object({
+    items: z.array(diagnosticSchema),
+    total: z.number(),
+    page: z.number(),
+    perPage: z.number(),
+  }),
+});
+export type SupportOffer = z.infer<typeof supportOfferSchema>;
+export type SupportDiagnostic = z.infer<typeof diagnosticSchema>;
+export type SupportFilters = {
+  userId: string;
+  page: number;
+  errorPage: number;
+  status?: string;
+};

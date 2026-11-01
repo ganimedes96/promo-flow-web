@@ -17,6 +17,10 @@ export const queryKeys = {
     forUser: (userId?: string) => ["message-settings", userId] as const,
   },
   operations: {
+    users: (adminId: string | undefined, search: string) =>
+      ["operations", "users", adminId, search] as const,
+    support: (adminId: string | undefined, filters: object) =>
+      ["operations", "support", adminId, filters] as const,
     status: (userId?: string) => ["operations", "status", userId] as const,
   },
   stores: {

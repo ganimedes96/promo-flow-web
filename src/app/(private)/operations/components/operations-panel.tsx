@@ -1,4 +1,5 @@
 "use client";
+import { SupportPanel } from "./support-panel";
 import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -108,6 +109,7 @@ export function OperationsPanel() {
           </Button>
         </div>
       </header>
+      <SupportPanel />
       {status.isError && (
         <ApiErrorCard
           title="Não foi possível consultar a operação"
@@ -121,6 +123,7 @@ export function OperationsPanel() {
           retrying={status.isFetching}
         />
       )}
+      <h2 className="pt-4 text-lg font-semibold">Visão geral de todos os clientes</h2>
       {status.isPending ? (
         <div
           className="grid gap-4 md:grid-cols-2"
