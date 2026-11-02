@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
-import { Power, Square, RotateCw, Laptop, LoaderCircle, Radio } from "lucide-react";
+import { RotateCw, Laptop, LoaderCircle, Radio } from "lucide-react";
 import { getLocalControl } from "@/domains/operations/client";
 import { controlLocalServices } from "@/domains/operations/actions";
 import type { LocalAction } from "@/domains/operations/types";
@@ -29,12 +29,33 @@ export function LocalControlCard() {
  const data=query.data, command=data.command;
  const pending=command?.status==='QUEUED'||command?.status==='RUNNING';
  const disabled=!data.online||pending||mutation.isPending;
+ const running=data.services.some(service=>service.status==='RUNNING');
+ const allStopped=data.services.length===2&&data.services.every(service=>service.status==='STOPPED');
+ const uncertain=data.services.length!==2||data.services.some(service=>['UNKNOWN','EXTERNAL','STARTING'].includes(service.status));
+ const toggling=pending||mutation.isPending;
  const dispatch=(action:LocalAction)=>mutation.mutate({action,idempotencyKey:crypto.randomUUID()});
- return <Card className="border-primary/30 overflow-hidden">
- <CardHeader className="bg-primary/5 border-b"><div className="flex flex-wrap items-center justify-between gap-3"><CardTitle className="flex items-center gap-2 text-base"><Laptop className="text-primary size-5" />Controle dos serviços locais</CardTitle><Badge className={data.online?"bg-emerald-700 text-white":"bg-orange-600 text-white"}><Radio className="size-3" />{data.online?"Agente conectado":"Agente sem comunicação"}</Badge></div><CardDescription>Inicie ou encerre worker e coletor no seu computador. A ação afeta todos os clientes que usam esses serviços.</CardDescription></CardHeader>
+ return <Card className="border-primary/30 overflow-hidden from-primary/15 via-card to-card bg-gradient-to-br">
+ <CardHeader><div className="flex flex-wrap items-center justify-between gap-3"><CardTitle className="flex items-center gap-2 text-base"><Laptop className="text-primary size-5" />Controle dos serviços locais</CardTitle><Badge className={data.online?"bg-emerald-700 text-white":"bg-orange-600 text-white"}><Radio className="size-3" />{data.online?"Agente conectado":"Agente sem comunicação"}</Badge></div><CardDescription>Inicie ou encerre worker e coletor no seu computador. A ação afeta todos os clientes que usam esses serviços.</CardDescription></CardHeader>
  <CardContent className="space-y-4 pt-5">
  <div className="flex flex-wrap gap-2">{data.services.map(service=><Badge key={service.name} className={service.status==='RUNNING'?'bg-emerald-700 text-white':service.status==='STOPPED'?'bg-slate-700 text-white':'bg-amber-600 text-white'}>{service.name==='worker'?'Publicador':'Coletor'} · {data.online?serviceNames[service.status]:"Último estado: "+serviceNames[service.status]}</Badge>)}</div>
- <div className="flex flex-wrap gap-2"><Button disabled={disabled} onClick={()=>dispatch('START')}><Power className="size-4" />Iniciar serviços</Button><Button variant="outline" disabled={disabled} onClick={()=>setConfirmation('STOP')}><Square className="size-4" />Parar serviços</Button><Button variant="outline" disabled={disabled} onClick={()=>setConfirmation('RESTART')}><RotateCw className="size-4" />Reiniciar serviços</Button></div>
+ <div className="flex flex-wrap items-center gap-3">
+ <Button
+   role="switch"
+   aria-checked={running}
+   aria-label={running ? "Desligar publicador e coletor" : "Ligar publicador e coletor"}
+   disabled={disabled || uncertain}
+   variant={running ? "default" : "outline"}
+   className={running ? "h-12 gap-3 rounded-full bg-emerald-700 px-5 text-white hover:bg-emerald-800" : "h-12 gap-3 rounded-full px-5"}
+   onClick={()=>{if(running)setConfirmation('STOP');else dispatch('START');}}
+ >
+   <span aria-hidden="true" className={"flex h-6 w-10 shrink-0 items-center rounded-full p-1 " + (running ? "bg-white/25" : "bg-muted-foreground/30")}>
+     <span className={"size-4 rounded-full bg-white shadow-sm transition-transform motion-reduce:transition-none " + (running ? "translate-x-4" : "translate-x-0")} />
+   </span>
+   {toggling ? <><LoaderCircle className="size-4 motion-safe:animate-spin" />{command?.action==='STOP' ? "Desligando…" : command?.action==='RESTART' ? "Reiniciando…" : "Ligando…"}</> : running ? "Desligar serviços" : "Ligar serviços"}
+ </Button>
+ <Button variant="outline" disabled={disabled} onClick={()=>setConfirmation('RESTART')}><RotateCw className="size-4" />Reiniciar serviços</Button>
+ <span role="status" className="text-muted-foreground text-xs">{!data.online ? "Aguardando agente" : uncertain ? "Aguardando confirmação do estado" : running ? data.services.every(service=>service.status==='RUNNING') ? "Serviços ligados" : "Serviços parcialmente ligados" : allStopped ? "Serviços desligados" : "Serviços precisam de atenção"}</span>
+ </div>
  {!data.online&&<p className="text-muted-foreground text-xs">Mantenha o computador ligado, sem suspensão e com o agente local ativo. Comandos não são aceitos enquanto ele estiver sem comunicação.</p>}
  {command&&<div role="status" className="bg-muted/50 space-y-2 rounded-lg border p-3 text-xs"><p className="flex items-center gap-2 font-semibold">{pending&&<LoaderCircle className="size-3.5 motion-safe:animate-spin" />}{actionNames[command.action]} serviços · {commandNames[command.status]}</p><p className="text-muted-foreground">Solicitado em {formatDate(command.createdAt,"dd/MM/yyyy HH:mm:ss")}{command.finishedAt?" · Finalizado em "+formatDate(command.finishedAt,"dd/MM/yyyy HH:mm:ss"):""}</p>{command.status==='FAILED'&&<p>Confira os logs locais e se existe uma execução em outro terminal antes de tentar novamente.</p>}{command.status==='UNKNOWN'&&<p>O comando não será repetido automaticamente. Confira o estado dos serviços acima antes de uma nova ação.</p>}</div>}
  {mutation.error&&<p role="alert" className="text-destructive text-xs">{mutation.error.message}</p>}

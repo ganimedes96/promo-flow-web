@@ -1,0 +1,44 @@
+.section {
+  position: relative;
+  scroll-margin-top: 80px;
+}
+.frame {
+  width: 100%;
+  max-width: 1152px;
+  margin-inline: auto;
+  padding: 80px 24px;
+}
+.pinned {
+  height: calc(
+    100svh - var(--feature-sticky-top) + var(--feature-scroll-range)
+  );
+}
+.pinned .sticky {
+  position: sticky;
+  top: var(--feature-sticky-top);
+  height: calc(100svh - var(--feature-sticky-top));
+  display: flex;
+  align-items: center;
+}
+.pinned .frame {
+  padding-block: 18px;
+}
+.pinned .heading {
+  margin-bottom: 12px;
+  align-items: center;
+}
+.pinned .heading h2 {
+  margin-top: 8px;
+  font-size: 28px;
+  line-height: 1.15;
+}
+.pinned .heading > p {
+  font-size: 11px;
+  line-height: 1.6;
+  max-width: 290px;
+}
+
+.pinned .frame {
+  transform: scale(var(--feature-scale, 1));
+  transform-origin: center center;
+}

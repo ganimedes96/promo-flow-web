@@ -69,8 +69,8 @@ export function SupportPanel() {
   });
   return (
     <section className="space-y-5">
-      <Card className="border-primary/25 overflow-hidden">
-        <CardHeader className="bg-primary/5 border-b">
+      <Card className="border-primary/25 overflow-hidden from-primary/15 via-card to-card bg-gradient-to-br">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <UserRoundSearch className="text-primary size-5" />
             Investigar um cliente
@@ -294,7 +294,7 @@ function SupportDetails({ userId }: { userId: string }) {
           ["Sem confirmação", data.status.queue.unconfirmed],
           ["Com falha", data.status.queue.failed],
         ].map(([label, count]) => (
-          <Card key={label}>
+          <Card key={label} className="from-primary/15 via-card to-card bg-gradient-to-br">
             <CardContent className="pt-4">
               <p className="text-muted-foreground text-xs">{label}</p>
               <p className="mt-2 text-2xl font-bold">{count}</p>
@@ -304,7 +304,7 @@ function SupportDetails({ userId }: { userId: string }) {
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         {data.connections.map((connection) => (
-          <Card key={connection.id}>
+          <Card key={connection.id} className="from-primary/15 via-card to-card bg-gradient-to-br">
             <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <CardTitle className="flex items-center gap-2 text-base">
@@ -344,7 +344,7 @@ function SupportDetails({ userId }: { userId: string }) {
           description="Nenhuma conta WhatsApp foi cadastrada para este cliente."
         />
       )}
-      <Card>
+      <Card className="from-primary/15 via-card to-card bg-gradient-to-br">
         <CardHeader>
           <CardTitle>Ofertas e tentativas de envio</CardTitle>
           <CardDescription>
@@ -446,7 +446,7 @@ function SupportDetails({ userId }: { userId: string }) {
           )}
         </CardContent>
       </Card>
-      <Card>
+      <Card className="from-primary/15 via-card to-card bg-gradient-to-br">
         <CardHeader>
           <CardTitle>Erros da API · últimos 30 dias</CardTitle>
           <CardDescription>

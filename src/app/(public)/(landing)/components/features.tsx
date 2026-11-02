@@ -1,19 +1,12 @@
 import {
   ArrowRight,
-  Link2,
-  Radio,
-  Sparkles,
   Headphones,
   CalendarClock,
   CheckCheck,
   Image,
-  ListOrdered,
-  Monitor,
   Puzzle,
-  ShieldCheck,
-  Users,
 } from "lucide-react";
-import { ResourcePreview } from "./resource-preview";
+import { FeatureSection } from "./feature-section";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 const steps = [
@@ -25,7 +18,7 @@ const steps = [
   {
     icon: Image,
     title: "Dê o seu toque.",
-    text: "Confira imagem, preços e cupom. No Mercado Livre, use a extensão para gerar seu link de afiliado antes de salvar.",
+    text: "Confira imagem, preços e cupom. No Mercado Livre e na Shopee, use a extensão para gerar seu link de afiliado antes de salvar.",
   },
   {
     icon: CalendarClock,
@@ -36,38 +29,6 @@ const steps = [
     icon: CheckCheck,
     title: "Acompanhe o resultado.",
     text: "Veja o status dos envios no painel e republique uma oferta quando fizer sentido para o seu grupo.",
-  },
-];
-const features = [
-  {
-    icon: Puzzle,
-    title: "Do navegador para o cadastro",
-    text: "Menos campos para preencher à mão com a captura pela extensão do Chrome.",
-  },
-  {
-    icon: Users,
-    title: "Seus grupos à mão",
-    text: "Gerencie várias contas de WhatsApp, favorite seus grupos e escolha os destinos sem misturar as conexões.",
-  },
-  {
-    icon: ListOrdered,
-    title: "Uma fila que você acompanha",
-    text: "Filtre por período, conta, grupo e status. Veja os destinos de cada oferta e republique quando quiser.",
-  },
-  {
-    icon: Image,
-    title: "Uma mensagem bem apresentada",
-    text: "Imagem, preço atual, preço original, desconto e cupom quando disponíveis, junto do seu link.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Revisão antes da publicação",
-    text: "Confira o rascunho e evite cadastrar o mesmo produto novamente no mesmo grupo.",
-  },
-  {
-    icon: Monitor,
-    title: "Conexão à vista",
-    text: "Acompanhe o WhatsApp e o status do publicador local no painel de controle.",
   },
 ];
 export function Features() {
@@ -128,201 +89,7 @@ export function Features() {
           </p>
         </div>
       </section>
-      <section id="novidades" className="flow-updates-section">
-        <div className="flow-updates-art" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-          <i>✳</i>
-          <i>↗</i>
-          <i>✦</i>
-        </div>
-        <div className="relative mx-auto max-w-6xl px-6 py-20 lg:py-24">
-          <p className="flow-journey-eyebrow">
-            MAIS CAMINHOS PARA O SEU PRÓXIMO ACHADO
-          </p>
-          <h2 className="mt-4 max-w-2xl text-3xl sm:text-4xl">
-            Encontre. Adapte. Coloque no fluxo.
-          </h2>
-          <p className="mt-5 max-w-2xl text-sm leading-relaxed">
-            Além de capturar nas lojas, descubra produtos na Central e prepare
-            ofertas com a sua identidade e os seus destinos.
-          </p>
-          <div className="flow-updates-grid">
-            {[
-              {
-                icon: Sparkles,
-                label: "CENTRAL DE PROMOÇÕES",
-                title: "Seu próximo achado já pode estar aqui.",
-                text: "Veja as novidades em destaque, encontre produtos por categoria e prepare sua própria oferta a partir da Central.",
-                stages: [
-                  "Novidades",
-                  "Escolher produto",
-                  "Preparar minha oferta",
-                ],
-              },
-              {
-                icon: Radio,
-                label: "DESCOBERTAS PARA VOCÊ",
-                title: "Menos procura. Mais bons achados.",
-                text: "Encontre promoções reunidas na Central, confira os detalhes e escolha o que combina com seus grupos. Depois, prepare a oferta do seu jeito.",
-                stages: [
-                  "Explorar a Central",
-                  "Conferir os detalhes",
-                  "Preparar sua oferta",
-                ],
-              },
-              {
-                icon: Link2,
-                label: "SEU LINK DE AFILIADO",
-                title: "Do achado ao seu link, com menos cliques.",
-                text: "Ao preparar uma oferta do Mercado Livre na Central, a extensão pode abrir o gerador oficial e preencher o link gerado pela sua conta.",
-                stages: [
-                  "Mercado Livre",
-                  "Gerador oficial",
-                  "Seu link na oferta",
-                ],
-              },
-            ].map(({ icon: Icon, label, title, text, stages }, index) => (
-              <article key={label} className="flow-update-card">
-                <span className="flow-update-label">
-                  <Icon size={18} />
-                  {label}
-                </span>
-                <div
-                  className={`flow-update-demo flow-update-demo-${index}`}
-                  aria-hidden="true"
-                >
-                  <div className="flow-update-demo-bar">
-                    <span>● ● ●</span>
-                    <b>
-                      {
-                        [
-                          "CENTRAL / NOVIDADES",
-                          "CENTRAL / DESCOBERTAS",
-                          "AFILIADOS / CONVERSÃO",
-                        ][index]
-                      }
-                    </b>
-                  </div>
-                  {index === 0 ? (
-                    <div className="flow-update-products">
-                      {[
-                        "Fone Bluetooth",
-                        "Achado para casa",
-                        "Kit de camisetas",
-                        "Fone Bluetooth",
-                      ].map((product, item) => (
-                        <div key={`${product}-${item}`}>
-                          <Headphones size={22} />
-                          <span>
-                            <b>{product}</b>
-                            <small>Pronto para preparar</small>
-                          </span>
-                          <em>NOVO</em>
-                        </div>
-                      ))}
-                    </div>
-                  ) : index === 1 ? (
-                    <div className="flow-update-capture">
-                      <span>Tecnologia</span>
-                      <span>Casa e utilidades</span>
-                      <div className="flow-update-signal">
-                        <i />
-                        <i />
-                        <i />
-                      </div>
-                      <b>
-                        <Radio size={20} /> Novo achado
-                      </b>
-                      <small>Confira e prepare sua oferta</small>
-                    </div>
-                  ) : (
-                    <div className="flow-update-convert">
-                      <span>
-                        Produto encontrado <CheckCheck size={14} />
-                      </span>
-                      <div>
-                        <Link2 size={25} />
-                        <i />
-                        <ArrowRight size={19} />
-                        <i />
-                        <CheckCheck size={25} />
-                      </div>
-                      <b>Seu link de afiliado</b>
-                      <small>meli.la/seu-link</small>
-                    </div>
-                  )}
-                </div>
-                <h3>{title}</h3>
-                <p>{text}</p>
-                <ol aria-label={`Etapas: ${label.toLowerCase()}`}>
-                  {stages.map((stage) => (
-                    <li key={stage}>
-                      <CheckCheck size={14} />
-                      {stage}
-                    </li>
-                  ))}
-                </ol>
-              </article>
-            ))}
-          </div>
-          <p className="mt-6 max-w-3xl text-xs leading-relaxed">
-            A conversão do Mercado Livre precisa da extensão instalada e da sua
-            conta de afiliado conectada no Chrome. Você confere o resultado
-            antes de salvar. Escolher um produto na Central não publica
-            automaticamente nos grupos.
-          </p>
-        </div>
-      </section>
-      <section id="recursos" className="flow-resources-section">
-        <div className="mx-auto max-w-6xl px-6 py-20 lg:py-24">
-          <div className="flow-resources-heading">
-            <div>
-              <p className="text-primary text-xs font-semibold tracking-widest uppercase">
-                MENOS ABAS. MAIS POSSIBILIDADES.
-              </p>
-              <h2 className="mt-4 max-w-xl text-3xl sm:text-4xl">
-                Seu trabalho,
-                <br />
-                <span>em um só fluxo.</span>
-              </h2>
-            </div>
-            <p>
-              As ferramentas certas para cada etapa. Da captura ao histórico,
-              sem perder o fio da oferta.
-            </p>
-          </div>
-          <div className="flow-resources-grid">
-            {features.map(({ icon: Icon, title, text }, index) => (
-              <article
-                className={`flow-resource-card flow-resource-card-${index}`}
-                key={title}
-              >
-                <div className="flow-resource-card-top">
-                  <span>
-                    <Icon size={17} />
-                  </span>
-                  <b>0{index + 1} / RECURSO</b>
-                  <span aria-hidden="true">↗</span>
-                </div>
-                <ResourcePreview index={index} />
-                <div className="flow-resource-card-copy">
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-          <div className="flow-resource-bottom-line">
-            <span>CAPTURAR</span>
-            <i />
-            <span>ORGANIZAR</span>
-            <i />
-            <span>COMPARTILHAR</span>
-          </div>
-        </div>
-      </section>
+      <FeatureSection />
       <section id="extensao" className="flow-extension-section">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:py-24">
           <div className="flow-extension-copy">

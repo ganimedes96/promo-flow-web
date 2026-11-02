@@ -7,6 +7,7 @@ const usersKeys = {
 };
 
 export const queryKeys = {
+  clients: { all:["clients"] as const, list:(adminId:string|undefined,filters:object)=>["clients","list",adminId,filters] as const, detail:(adminId:string|undefined,id:string)=>["clients","detail",adminId,id] as const },
   mirroring: {
     telegram: (userId?: string) => ["mirroring", "telegram", userId] as const,
     all: ["mirroring"] as const,

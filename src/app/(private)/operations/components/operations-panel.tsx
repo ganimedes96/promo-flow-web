@@ -175,7 +175,7 @@ export function OperationsPanel() {
                 ] as const
               ).map(
                 ({ key, title, icon: Icon, runtime, href, action, text }) => (
-                  <Card key={key}>
+                  <Card key={key} className="from-primary/15 via-card to-card bg-gradient-to-br">
                     <CardHeader>
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <CardTitle className="flex items-center gap-2 text-base">
