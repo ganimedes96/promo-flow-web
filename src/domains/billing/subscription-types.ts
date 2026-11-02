@@ -32,7 +32,33 @@ export const planChangeSchema = z.object({
   checkoutUrl: checkoutUrlSchema.nullable(),
 });
 export type PlanChange = z.infer<typeof planChangeSchema>;
+export const invoiceUrlSchema = z
+  .string()
+  .url()
+  .refine((value) => {
+    const u = new URL(value);
+    return (
+      u.protocol === "https:" &&
+      ["sandbox.asaas.com", "www.asaas.com", "asaas.com"].includes(
+        u.hostname
+      ) &&
+      !u.username &&
+      !u.password &&
+      !u.port
+    );
+  });
+export const customerPaymentSchema = z.object({
+  id: z.string(),
+  planName: z.string(),
+  status: z.string(),
+  valueCents: z.number(),
+  dueDate: z.string(),
+  paymentDate: z.string().nullable(),
+  billingType: z.string().nullable(),
+  invoiceUrl: invoiceUrlSchema.nullable(),
+});
 export const billingStatusSchema = z.object({
+  payments: z.array(customerPaymentSchema).default([]),
   planChange: planChangeSchema.nullable().optional(),
   enabled: z.boolean(),
   environment: z.enum(["sandbox", "production"]),
@@ -48,6 +74,8 @@ export const billingStatusSchema = z.object({
       currentPeriodEnd: z.string().nullable(),
       cancelledAt: z.string().nullable(),
       lastSyncAt: z.string().nullable(),
+      nextDueDate: z.string().nullable().optional(),
+      nextPriceCents: z.number().optional(),
       checkoutUrl: checkoutUrlSchema.nullable(),
       invoiceUrl: z
         .string()

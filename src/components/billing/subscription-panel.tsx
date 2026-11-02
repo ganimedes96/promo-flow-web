@@ -1,4 +1,5 @@
 "use client";
+import { SubscriptionPayments } from "./subscription-payments";
 import Link from "next/link";
 import {
   SubscribeButton,
@@ -120,6 +121,7 @@ export function SubscriptionPanel() {
         </CardContent>
       </Card>
       <SubscriptionBillingStatus />
+      <SubscriptionPayments />
       <div>
         <h2 className="mb-4 text-xl font-semibold">Planos de assinatura</h2>
         {plans.isPending ? (
