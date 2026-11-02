@@ -148,13 +148,13 @@ const navSections = [
     id: "offers",
     title: "Ofertas",
     icon: <Tags />,
-    hrefs: ["/offers", "/promotions", "/mirroring"],
+    hrefs: ["/offers", "/promotions"],
   },
   {
-    id: "whatsapp",
-    title: "WhatsApp",
+    id: "channels",
+    title: "Canais",
     icon: <Smartphone />,
-    hrefs: ["/connections", "/groups", "/message-settings"],
+    hrefs: ["/connections", "/groups", "/mirroring", "/message-settings"],
   },
   {
     id: "settings",

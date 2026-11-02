@@ -1,4 +1,6 @@
 "use client";
+import { AnimatedChannelIcon } from "@/components/brand/animated-channel-icon";
+import { TelegramLinkDialog } from "./telegram-link";
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -6,6 +8,8 @@ import { useForm } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import {
   Plus,
+  Send,
+  Trash2,
   Smartphone,
   MoreHorizontal,
   Star,
@@ -15,6 +19,7 @@ import {
   Users,
   ListOrdered,
 } from "lucide-react";
+import { ControlledCombobox } from "@/components/form/controllers/controlled-combobox";
 import { ControlledInput } from "@/components/form/controllers/controlled-input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +29,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Sheet,
@@ -38,6 +44,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { PageSkeleton } from "@/components/feedback/loading-skeletons";
 import { EmptyStateCard } from "@/components/feedback/empty-state-card";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
@@ -48,6 +63,7 @@ import {
 import { getWhatsAppConnections } from "@/domains/whatsapp/client";
 import {
   saveWhatsAppConnection,
+  deleteWhatsAppConnection,
   updateWhatsAppConnection,
   connectWhatsApp,
 } from "@/domains/whatsapp/actions";
@@ -61,13 +77,32 @@ const invalidations = [
   queryKeys.whatsapp.session,
   queryKeys.whatsapp.groups,
   queryKeys.offers.all,
+  queryKeys.billing.all,
 ];
-export function Connections() {
+export function Connections({
+  initialTelegramOpen = false,
+}: {
+  initialTelegramOpen?: boolean;
+}) {
   const { data: session } = useSession();
   const [editing, setEditing] = useState<
     WhatsAppConnectionAccount | null | undefined
   >();
+  const [switchDefault, setSwitchDefault] = useState(false);
+  const [telegramOpen, setTelegramOpen] = useState(initialTelegramOpen);
   const [selected, setSelected] = useState<string | null>(null);
+  const [removing, setRemoving] = useState<WhatsAppConnectionAccount | null>(
+    null
+  );
+  const remove = useServerAction({
+    mutationFn: deleteWhatsAppConnection,
+    invalidateQueries: invalidations,
+    successMessage: "Conexão excluída. Histórico preservado.",
+    onSuccess: () => {
+      setRemoving(null);
+      setSelected(null);
+    },
+  });
   const closeConnectionSheet = useCallback(() => setSelected(null), []);
   const list = useQuery({
     queryKey: [...queryKeys.whatsapp.connections, session?.user.id],
@@ -94,13 +129,20 @@ export function Connections() {
         <div>
           <h1 className="text-2xl font-semibold">Conexões</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Gerencie seus números do WhatsApp, grupos e envios em um só lugar.
+            Gerencie suas conexões de WhatsApp e Telegram e os destinos das
+            ofertas.
           </p>
         </div>
-        <Button onClick={() => setEditing(null)}>
-          <Plus className="size-4" />
-          Adicionar WhatsApp
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setTelegramOpen(true)}>
+            <Send className="size-4" />
+            Adicionar Telegram
+          </Button>
+          <Button onClick={() => setEditing(null)}>
+            <Plus className="size-4" />
+            Adicionar WhatsApp
+          </Button>
+        </div>
       </div>
       <WorkerIndicator worker={list.data?.worker} unavailable={!!list.error} />
       <div className="bg-primary/5 flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3">
@@ -142,6 +184,7 @@ export function Connections() {
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {rows.map((connection) => {
+            const telegram = connection.provider === "TELEGRAM_BOT";
             const ready = connection.status === "READY";
             const connected = ready && list.data?.worker?.status === "ONLINE";
             const status = connected
@@ -161,16 +204,9 @@ export function Connections() {
                 <CardHeader className="pb-0">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
-                      <span
-                        className={
-                          "flex size-11 shrink-0 items-center justify-center rounded-xl " +
-                          (connected
-                            ? "bg-success/10 text-success"
-                            : "bg-muted text-muted-foreground")
-                        }
-                      >
-                        <Smartphone className="size-5" />
-                      </span>
+                      <AnimatedChannelIcon
+                        platform={telegram ? "telegram" : "whatsapp"}
+                      />
                       <div className="min-w-0">
                         <CardTitle
                           className="truncate text-base"
@@ -179,9 +215,11 @@ export function Connections() {
                           {connection.name}
                         </CardTitle>
                         <p className="text-muted-foreground mt-1 text-xs">
-                          {connection.connectedPhone
-                            ? "+" + connection.connectedPhone
-                            : "Número ainda não vinculado"}
+                          {telegram
+                            ? "Bot do Telegram"
+                            : connection.connectedPhone
+                              ? "+" + connection.connectedPhone
+                              : "Número ainda não vinculado"}
                         </p>
                       </div>
                     </div>
@@ -203,16 +241,28 @@ export function Connections() {
                           Renomear
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          disabled={connection.isDefault || change.isPending}
+                          disabled={telegram || change.isPending}
                           onSelect={() =>
-                            change.mutate({
-                              id: connection.id,
-                              isDefault: true,
-                            })
+                            connection.isDefault
+                              ? setSwitchDefault(true)
+                              : change.mutate({
+                                  id: connection.id,
+                                  isDefault: true,
+                                })
                           }
                         >
                           <Star className="size-4" />
-                          Definir como padrão
+                          {connection.isDefault
+                            ? "Trocar conexão padrão"
+                            : "Definir como padrão"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          disabled={remove.isPending}
+                          onSelect={() => setRemoving(connection)}
+                        >
+                          <Trash2 className="size-4" />
+                          Excluir conexão
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -228,6 +278,9 @@ export function Connections() {
                       )}
                     >
                       {status}
+                    </Badge>
+                    <Badge variant="outline">
+                      {telegram ? "Telegram" : "WhatsApp"}
                     </Badge>
                     {connection.isPaused && (
                       <Badge
@@ -250,7 +303,9 @@ export function Connections() {
                   </div>
                   <p className="text-muted-foreground truncate text-sm">
                     {connection.connectedName ||
-                      "Leia o QR Code para identificar esta conta"}
+                      (telegram
+                        ? "Bot de publicação"
+                        : "Leia o QR Code para identificar esta conta")}
                   </p>
                   <div className="bg-muted/40 grid grid-cols-2 gap-3 rounded-xl p-3 text-xs">
                     <span className="flex items-center gap-2">
@@ -270,19 +325,55 @@ export function Connections() {
                       {connection.lastError}
                     </p>
                   )}
+                  {!telegram && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full justify-between"
+                      disabled={change.isPending}
+                      onClick={() =>
+                        connection.isDefault
+                          ? setSwitchDefault(true)
+                          : change.mutate({
+                              id: connection.id,
+                              isDefault: true,
+                            })
+                      }
+                    >
+                      <span className="flex items-center gap-2">
+                        <Star
+                          className={`size-3.5 ${connection.isDefault ? "fill-current" : ""}`}
+                        />
+                        {connection.isDefault
+                          ? "Conexão padrão"
+                          : "Usar como padrão"}
+                      </span>
+                      {connection.isDefault && (
+                        <span className="text-muted-foreground text-xs">
+                          Trocar
+                        </span>
+                      )}
+                    </Button>
+                  )}
                   <div className="flex flex-wrap gap-2">
                     <Button
                       size="sm"
                       variant={ready ? "outline" : "default"}
                       disabled={connect.isPending}
                       onClick={() =>
-                        connection.status === "DISCONNECTED" ||
-                        connection.status === "ERROR"
-                          ? connect.mutate({ id: connection.id })
-                          : setSelected(connection.id)
+                        telegram
+                          ? setTelegramOpen(true)
+                          : connection.status === "DISCONNECTED" ||
+                              connection.status === "ERROR"
+                            ? connect.mutate({ id: connection.id })
+                            : setSelected(connection.id)
                       }
                     >
-                      {ready ? "Gerenciar conexão" : "Conectar / ver QR"}
+                      {telegram
+                        ? "Vincular grupo / canal"
+                        : ready
+                          ? "Gerenciar conexão"
+                          : "Conectar / ver QR"}
                     </Button>
                     <Button
                       size="sm"
@@ -332,6 +423,62 @@ export function Connections() {
           />
         </DialogContent>
       </Dialog>
+      <AlertDialog
+        open={!!removing}
+        onOpenChange={(open) => {
+          if (!open && !remove.isPending) setRemoving(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir {removing?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {removing?.provider === "TELEGRAM_BOT"
+                ? "O bot deixará de publicar nos destinos desta conexão. Os agendamentos serão cancelados e o histórico será preservado. Para remover o bot do Telegram, retire-o dos grupos e canais pelo próprio Telegram."
+                : "Esta conexão será removida e a sessão será encerrada quando o publicador receber a atualização. Os agendamentos dela serão cancelados e os grupos sairão dos favoritos e do espelhamento. O histórico de ofertas será preservado. Para usar novamente, adicione outra conexão."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {remove.error && (
+            <p role="alert" className="text-destructive text-sm">
+              {remove.error.message}
+            </p>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={remove.isPending}>
+              Voltar
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              disabled={remove.isPending}
+              onClick={() => {
+                if (removing) remove.mutate(removing.id);
+              }}
+            >
+              <Trash2 className="size-4" />
+              {remove.isPending ? "Excluindo…" : "Excluir conexão"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <Dialog open={switchDefault} onOpenChange={setSwitchDefault}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Trocar conexão padrão</DialogTitle>
+            <DialogDescription>
+              Escolha outra conta do WhatsApp. A conexão anterior deixa de ser
+              padrão automaticamente. Seus agendamentos mantêm os destinos já
+              escolhidos.
+            </DialogDescription>
+          </DialogHeader>
+          <DefaultConnectionForm
+            connections={rows.filter(
+              (row) => row.provider !== "TELEGRAM_BOT" && !row.isDefault
+            )}
+            onSuccess={() => setSwitchDefault(false)}
+          />
+        </DialogContent>
+      </Dialog>
+      <TelegramLinkDialog open={telegramOpen} onOpenChange={setTelegramOpen} />
       <Sheet
         open={!!selected}
         onOpenChange={(open) => {
@@ -410,6 +557,62 @@ function ConnectionNameForm({
         disabled={save.isPending}
       >
         {connection ? "Salvar nome" : "Criar e conectar WhatsApp"}
+      </Button>
+    </form>
+  );
+}
+
+function DefaultConnectionForm({
+  connections,
+  onSuccess,
+}: {
+  connections: WhatsAppConnectionAccount[];
+  onSuccess: () => void;
+}) {
+  const form = useForm<{ connectionId: string }>({
+    defaultValues: { connectionId: connections[0]?.id ?? "" },
+  });
+  const save = useServerAction({
+    mutationFn: updateWhatsAppConnection,
+    invalidateQueries: invalidations,
+    successMessage: "Conexão padrão alterada.",
+    onSuccess,
+  });
+  if (!connections.length)
+    return (
+      <p className="bg-primary/5 rounded-xl border p-4 text-sm">
+        Você precisa adicionar outra conexão do WhatsApp para trocar o padrão. O
+        Telegram é escolhido separadamente como destino nas ofertas.
+      </p>
+    );
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={form.handleSubmit(({ connectionId }) =>
+        save.mutate({ id: connectionId, isDefault: true })
+      )}
+    >
+      <ControlledCombobox
+        control={form.control}
+        name="connectionId"
+        label="Nova conexão padrão"
+        placeholder="Escolha uma conexão"
+        options={connections.map((row) => ({
+          id: row.id,
+          name:
+            row.name + (row.connectedPhone ? " · +" + row.connectedPhone : ""),
+        }))}
+        rules={{ required: "Selecione uma conexão." }}
+        disabled={save.isPending}
+      />
+      {save.error && (
+        <p role="alert" className="text-destructive text-sm">
+          {save.error.message}
+        </p>
+      )}
+      <Button type="submit" disabled={save.isPending} className="w-full">
+        <Star className="size-4" />
+        {save.isPending ? "Alterando…" : "Confirmar troca"}
       </Button>
     </form>
   );

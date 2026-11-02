@@ -285,7 +285,7 @@ export function Groups() {
           <ControlledCombobox
             control={control}
             name="connectionId"
-            label="Conta do WhatsApp"
+            label="Conexão de envio"
             placeholder="Todas as conexões"
             options={[
               { id: allConnections, name: "Todas as conexões" },
@@ -293,9 +293,11 @@ export function Groups() {
                 id: account.id,
                 name:
                   account.name +
-                  (account.connectedPhone
-                    ? " · +" + account.connectedPhone
-                    : ""),
+                  (account.provider === "TELEGRAM_BOT"
+                    ? " · Telegram"
+                    : account.connectedPhone
+                      ? " · +" + account.connectedPhone
+                      : ""),
               })),
             ]}
           />
@@ -321,7 +323,7 @@ export function Groups() {
             <EmptyStateCard
               icon={Users}
               title="Seus grupos vão aparecer aqui"
-              description="Conecte uma conta do WhatsApp e aguarde a sincronização. Depois, favorite os grupos que vão receber suas ofertas."
+              description="Conecte o WhatsApp ou vincule um destino do Telegram. Depois, favorite os grupos que vão receber suas ofertas."
               action={
                 <Button asChild>
                   <Link href="/connections">
@@ -488,8 +490,12 @@ export function Groups() {
                         )}
                       </div>
                       <p className="text-muted-foreground mt-1 truncate text-xs">
-                        {account?.name ?? "Conta do WhatsApp"}
-                        {group.accountPhone ? " · +" + group.accountPhone : ""}
+                        {account?.name ?? "Conexão de envio"}
+                        {group.platform === "TELEGRAM"
+                          ? " · Telegram"
+                          : group.accountPhone
+                            ? " · WhatsApp +" + group.accountPhone
+                            : ""}
                       </p>
                       <GroupMetrics group={group} />
                     </div>

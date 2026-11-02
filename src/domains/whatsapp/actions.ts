@@ -222,3 +222,16 @@ export async function setFavoriteGroups(body: {
     return connectionError(error);
   }
 }
+
+export async function deleteWhatsAppConnection(
+  id: string
+): Promise<ApiResponse<{ id: string }> | ApiResponseError> {
+  try {
+    return await fetchServer<ApiResponse<{ id: string }>>(
+      "/whatsapp/connections/" + z.string().uuid().parse(id),
+      { method: "DELETE" }
+    );
+  } catch (error) {
+    return connectionError(error);
+  }
+}

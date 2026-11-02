@@ -1,0 +1,142 @@
+.icon {
+  display: inline-flex;
+  position: relative;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(
+    0 4px 7px color-mix(in srgb, currentColor 20%, transparent)
+  );
+}
+.icon svg {
+  overflow: visible;
+}
+.whatsapp {
+  color: #20b765;
+}
+.telegram {
+  color: #229ed9;
+}
+.ripple {
+  transform-origin: 24px 24px;
+  animation: ripple 3.6s ease-out infinite;
+  opacity: 0;
+}
+.delayed {
+  animation-delay: 1.8s;
+}
+.bubble {
+  transform-origin: 24px 24px;
+  animation: bubble 3.6s ease-in-out infinite;
+}
+.phone {
+  transform-origin: 24px 24px;
+  animation: ring 3.6s ease-in-out infinite;
+}
+.spark {
+  transform-origin: 36px 13px;
+  animation: sparkle 3.6s ease-in-out infinite;
+}
+.plane {
+  transform-origin: 24px 24px;
+  animation: fly 3.8s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+.trail {
+  animation: trail 3.8s ease-in-out infinite;
+}
+@keyframes ripple {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+  65%,
+  100% {
+    transform: scale(1.36);
+    opacity: 0;
+  }
+}
+@keyframes bubble {
+  0%,
+  40%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  20% {
+    transform: translateY(-1px) scale(1.04);
+  }
+}
+@keyframes ring {
+  0%,
+  8%,
+  26%,
+  100% {
+    transform: rotate(0);
+  }
+  12%,
+  20% {
+    transform: rotate(-9deg);
+  }
+  16%,
+  24% {
+    transform: rotate(7deg);
+  }
+}
+@keyframes sparkle {
+  0%,
+  8%,
+  45%,
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  20%,
+  30% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+}
+@keyframes fly {
+  0%,
+  100% {
+    transform: translate(-1px, 1px) rotate(0);
+  }
+  35% {
+    transform: translate(2px, -2px) rotate(-6deg);
+  }
+  65% {
+    transform: translate(0, -1px) rotate(2deg);
+  }
+}
+@keyframes trail {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateX(2px);
+  }
+  30%,
+  45% {
+    opacity: 0.6;
+    transform: translateX(-1px);
+  }
+  70% {
+    opacity: 0;
+    transform: translateX(-3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ripple,
+  .bubble,
+  .phone,
+  .spark,
+  .plane,
+  .trail {
+    animation: none;
+  }
+  .ripple,
+  .trail,
+  .spark {
+    opacity: 0;
+  }
+}

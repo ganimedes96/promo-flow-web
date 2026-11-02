@@ -6,6 +6,7 @@ import { formatDate } from "@/utils/date";
 export const GROUP_CAPACITY_REFERENCE = 1024;
 export function isNearFull(group: WhatsAppGroup) {
   return (
+    group.platform !== "TELEGRAM" &&
     !group.isCommunity &&
     group.participantCount != null &&
     group.participantCount >= Math.ceil(GROUP_CAPACITY_REFERENCE * 0.9) &&
@@ -16,7 +17,10 @@ export function GroupMetrics({ group }: { group: WhatsAppGroup }) {
   const count = group.participantCount;
   const hasCount = count != null;
   const hasCapacity =
-    hasCount && !group.isCommunity && count <= GROUP_CAPACITY_REFERENCE;
+    hasCount &&
+    group.platform !== "TELEGRAM" &&
+    !group.isCommunity &&
+    count <= GROUP_CAPACITY_REFERENCE;
   const nearFull = isNearFull(group);
   return (
     <div className="mt-3 max-w-xl space-y-2">
@@ -60,7 +64,9 @@ export function GroupMetrics({ group }: { group: WhatsAppGroup }) {
           </div>
         ) : (
           <span className="text-muted-foreground text-xs">
-            Histórico ainda não iniciado
+            {group.platform === "TELEGRAM"
+              ? "Contagem no vínculo com o bot"
+              : "Histórico ainda não iniciado"}
           </span>
         )}
       </div>
@@ -83,7 +89,7 @@ export function GroupMetrics({ group }: { group: WhatsAppGroup }) {
         <p className="text-muted-foreground text-xs">
           {hasCount
             ? "Limite de ocupação não informado para este grupo."
-            : "Aguardando a leitura dos participantes pelo WhatsApp."}
+            : "Aguardando a leitura dos participantes."}
         </p>
       )}
       {group.participantsUpdatedAt && (

@@ -1,0 +1,148 @@
+.grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  isolation: isolate;
+}
+.slot {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  cursor: pointer;
+}
+.card {
+  position: relative;
+  width: 100%;
+  border-radius: 1rem;
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--primary) 7%, var(--card)),
+    var(--card) 50%
+  );
+  transition:
+    box-shadow 260ms ease,
+    background-color 260ms ease;
+  animation: arrive 500ms both;
+}
+.card:hover {
+  box-shadow: 0 16px 32px -22px
+    color-mix(in oklab, var(--primary) 50%, transparent);
+}
+.chosen {
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--primary) 13%, var(--card)),
+    var(--card) 70%
+  );
+}
+.selection {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  pointer-events: none;
+  border: 3px solid var(--primary);
+  border-radius: 1rem;
+  box-shadow:
+    0 0 0 5px color-mix(in oklab, var(--primary) 22%, transparent),
+    0 0 24px -6px color-mix(in oklab, var(--primary) 55%, transparent),
+    0 12px 30px -18px var(--primary);
+  transition:
+    transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 450ms ease,
+    height 450ms ease,
+    opacity 200ms ease;
+}
+.glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 95% 0%,
+    color-mix(in oklab, var(--primary) 15%, transparent),
+    transparent 60%
+  );
+  opacity: 0.3;
+  transition: opacity 350ms ease;
+}
+.card:hover .glow,
+.chosen .glow {
+  opacity: 1;
+}
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: color-mix(in oklab, var(--primary) 12%, transparent);
+  color: var(--primary);
+  border-radius: 0.875rem;
+  transition: transform 300ms ease;
+}
+.card:hover .icon {
+  transform: rotate(-8deg) scale(1.1);
+}
+.check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  transition:
+    background-color 250ms ease,
+    border-color 250ms ease,
+    transform 250ms ease;
+}
+.checked {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  transform: scale(1.08);
+}
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.5rem;
+  transition: transform 220ms ease;
+}
+.feature:hover {
+  transform: translateX(3px);
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 639px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+  .selection,
+  .card,
+  .glow,
+  .icon,
+  .check,
+  .feature {
+    transition: none;
+  }
+  .card:hover .icon,
+  .checked,
+  .feature:hover {
+    transform: none;
+  }
+}

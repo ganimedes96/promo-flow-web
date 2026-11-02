@@ -26,6 +26,7 @@ export const sessionSchema = z.object({
   lastError: z.string().nullable().optional(),
 });
 export const groupSchema = z.object({
+  platform: z.enum(["WHATSAPP", "TELEGRAM"]).optional(),
   participantCount: z.number().int().nonnegative().nullable().optional(),
   participantsUpdatedAt: z.string().nullable().optional(),
   growthTrackedFrom: z.string().nullable().optional(),

@@ -138,7 +138,11 @@ export function SubscriptionPayments() {
     ["PENDING", "OVERDUE"].includes(p.status)
   );
   return (
-    <section className="space-y-4" aria-label="Cobranças da assinatura">
+    <section
+      className="space-y-4"
+      id="subscription-payments"
+      aria-label="Cobranças da assinatura"
+    >
       {row && (
         <div className="grid gap-4 sm:grid-cols-2">
           <Card className="from-primary/10 via-card to-card bg-gradient-to-br">

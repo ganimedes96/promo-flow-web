@@ -75,6 +75,10 @@ export const queryKeys = {
     list: (params?: Params) => ["offers", "list", params ?? {}] as const,
     grouped: (params?: Params) => ["offers", "grouped", params ?? {}] as const,
   },
+  telegramPublisher: {
+    all: ["telegram-publisher"] as const,
+    status: ["telegram-publisher", "status"] as const,
+  },
   whatsapp: {
     connections: ["whatsapp", "connections"] as const,
     sessionFor: (id?: string) =>

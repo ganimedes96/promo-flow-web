@@ -22,7 +22,6 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogCancel,
-  AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -32,6 +31,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ControlledInput } from "@/components/form/controllers/controlled-input";
 import { ControlledSingleCheckbox } from "@/components/form/controllers/controlled-single-checkbox";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { useSubscription } from "@/domains/billing/use-subscription";
@@ -72,11 +72,15 @@ export function SubscriptionBillingStatus() {
       void invalidateQuery(queryKeys.billing.access(userId));
   }, [revision, userId]);
   const [confirm, setConfirm] = useState(false);
+  const cancelForm = useForm({ defaultValues: { password: "" } });
   const cancel = useServerAction({
     mutationFn: cancelSubscription,
     invalidateQueries: [queryKeys.billing.all],
     successMessage: "Renovação cancelada. Seu período pago será preservado.",
-    onSuccess: () => setConfirm(false),
+    onSuccess: () => {
+      cancelForm.reset();
+      setConfirm(false);
+    },
   });
   const sync = useServerAction({
     mutationFn: syncSubscription,
@@ -208,25 +212,63 @@ export function SubscriptionBillingStatus() {
                 continua até o fim do período confirmado.
               </p>
             )}
-            <AlertDialog open={confirm} onOpenChange={setConfirm}>
+            <AlertDialog
+              open={confirm}
+              onOpenChange={(open) => {
+                if (cancel.isPending) return;
+                if (!open) cancelForm.reset();
+                setConfirm(open);
+              }}
+            >
               <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Cancelar a renovação?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    As próximas cobranças desta assinatura serão interrompidas.
-                    O período já pago continua disponível. Cancelar não solicita
-                    estorno.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Voltar</AlertDialogCancel>
-                  <AlertDialogAction
+                <form
+                  className="space-y-5"
+                  onSubmit={cancelForm.handleSubmit(({ password }) =>
+                    cancel.mutate({ id: row.id, password })
+                  )}
+                >
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Cancelar a renovação?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      As próximas cobranças desta assinatura serão
+                      interrompidas. O período já pago continua disponível.
+                      Cancelar não solicita estorno.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <ControlledInput
+                    control={cancelForm.control}
+                    name="password"
+                    label="Confirme sua senha"
+                    placeholder="Senha da sua conta PromoFlow"
+                    type="password"
+                    autoComplete="current-password"
+                    maxLength={128}
                     disabled={cancel.isPending}
-                    onClick={() => cancel.mutate(row.id)}
-                  >
-                    Confirmar cancelamento
-                  </AlertDialogAction>
-                </AlertDialogFooter>
+                    rules={{ required: "Informe sua senha para confirmar." }}
+                  />
+                  {cancel.error && (
+                    <p role="alert" className="text-destructive text-sm">
+                      {cancel.error.message}
+                    </p>
+                  )}
+                  <AlertDialogFooter>
+                    <AlertDialogCancel
+                      type="button"
+                      disabled={cancel.isPending}
+                    >
+                      Voltar
+                    </AlertDialogCancel>
+                    <Button
+                      variant="destructive"
+                      type="submit"
+                      disabled={cancel.isPending}
+                    >
+                      {cancel.isPending
+                        ? "Cancelando…"
+                        : "Confirmar cancelamento"}
+                    </Button>
+                  </AlertDialogFooter>
+                </form>
               </AlertDialogContent>
             </AlertDialog>
           </>

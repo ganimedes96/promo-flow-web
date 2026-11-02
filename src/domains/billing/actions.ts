@@ -35,13 +35,17 @@ export async function createSubscriptionCheckout(
     return failure(error);
   }
 }
-export async function cancelSubscription(
-  id: string
-): Promise<ApiResponse<BillingStatus> | ApiResponseError> {
+export async function cancelSubscription(input: {
+  id: string;
+  password: string;
+}): Promise<ApiResponse<BillingStatus> | ApiResponseError> {
   try {
     return await fetchServer<ApiResponse<BillingStatus>>(
-      "/billing/subscription/" + z.string().uuid().parse(id) + "/cancel",
-      { method: "POST" }
+      "/billing/subscription/" + z.string().uuid().parse(input.id) + "/cancel",
+      {
+        method: "POST",
+        body: { password: z.string().min(1).max(128).parse(input.password) },
+      }
     );
   } catch (error) {
     return failure(error);

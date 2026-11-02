@@ -1,0 +1,89 @@
+.card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  padding-block: 1.25rem;
+  gap: 0;
+  background: linear-gradient(
+    140deg,
+    color-mix(in oklab, var(--primary) 11%, var(--card)),
+    var(--card) 75%
+  );
+  transition:
+    transform 280ms ease,
+    box-shadow 280ms ease;
+  animation: enter 450ms both;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px -23px var(--primary);
+}
+.telegram {
+  background: linear-gradient(
+    140deg,
+    color-mix(in oklab, var(--primary) 6%, var(--card)),
+    var(--card) 75%
+  );
+}
+.texture {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.35;
+  pointer-events: none;
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--primary) 30%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 18px 18px;
+  mask-image: linear-gradient(135deg, black, transparent 65%);
+}
+.orbit {
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  width: 160px;
+  height: 160px;
+  top: -95px;
+  right: -60px;
+  border: 1px dashed color-mix(in oklab, var(--primary) 25%, transparent);
+  border-radius: 50%;
+  animation: orbit 26s linear infinite;
+}
+.orbit::after {
+  content: "";
+  position: absolute;
+  top: 30px;
+  left: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  opacity: 0.4;
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .orbit {
+    animation: none;
+    transition: none;
+  }
+  .card:hover {
+    transform: none;
+  }
+}

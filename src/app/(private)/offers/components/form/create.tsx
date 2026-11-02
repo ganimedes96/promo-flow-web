@@ -458,15 +458,17 @@ function OfferFields({
               <ControlledCombobox
                 control={control}
                 name="connectionId"
-                label="Conta do WhatsApp *"
+                label="Conexão de envio *"
                 placeholder="Escolha a conexão responsável pelo envio"
                 options={connections.map((connection) => ({
                   id: connection.id,
                   name:
                     connection.name +
-                    (connection.connectedPhone
-                      ? " · +" + connection.connectedPhone
-                      : "") +
+                    (connection.provider === "TELEGRAM_BOT"
+                      ? " · Telegram"
+                      : connection.connectedPhone
+                        ? " · WhatsApp +" + connection.connectedPhone
+                        : " · WhatsApp") +
                     (connection.status !== "READY"
                       ? " · desconectada"
                       : connection.isPaused

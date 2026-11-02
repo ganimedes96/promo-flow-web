@@ -1,4 +1,5 @@
 "use client";
+import { CheckCircle2 } from "lucide-react";
 import { MirrorOfferAction } from "./mirror-offer";
 import { PromotionImage } from "@/app/(private)/promotions/components/promotion-image";
 import { Badge } from "@/components/ui/badge";
@@ -200,6 +201,20 @@ export function OfferGroupActions({ group }: { group: OfferGroup }) {
   const busy = schedule.isPending || cancel.isPending;
   if (group.product.mirrorAffiliateStatus && !group.product.whatsappGroup)
     return <MirrorOfferAction offer={group.product} />;
+  if (
+    group.destinations.length > 0 &&
+    group.destinations.every((offer) => offer.status === "PUBLISHED")
+  )
+    return (
+      <span
+        className="inline-flex items-center gap-2 text-sm font-semibold whitespace-nowrap text-emerald-700 dark:text-emerald-300"
+        title="Todos os destinos foram publicados. Para enviar novamente, abra os destinos e use Republicar."
+      >
+        <CheckCircle2 aria-hidden="true" className="size-5 shrink-0" />
+        Publicação concluída
+      </span>
+    );
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <AlertDialog>

@@ -169,7 +169,7 @@ export function OfferFilters({
             <ControlledCombobox
               control={control}
               name="connectionId"
-              label="Conta do WhatsApp"
+              label="Conexão de envio"
               placeholder="Todas as conexões"
               options={[
                 { id: "all", name: "Todas as conexões" },

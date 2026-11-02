@@ -1,6 +1,6 @@
 import { GettingStartedGuide } from "./components/getting-started/guide";
 import { getServerSession } from "@/lib/next-auth/auth";
-import { WhatsAppConnection } from "./components/whatsapp-connection";
+import { ChannelOverview } from "./components/channel-overview";
 
 export default async function ControlPanelPage() {
   const session = await getServerSession();
@@ -11,11 +11,11 @@ export default async function ControlPanelPage() {
           Olá, {session?.user.name}
         </h1>
         <p className="text-muted-foreground text-sm">
-          Sua conta, sua conexão e o próximo passo para mandar boas ofertas.
+          Seus canais e o próximo passo para mandar boas ofertas.
         </p>
       </header>
       {session?.user.id && <GettingStartedGuide userId={session.user.id} />}
-      <WhatsAppConnection />
+      <ChannelOverview />
     </div>
   );
 }
