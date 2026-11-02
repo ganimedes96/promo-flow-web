@@ -114,8 +114,8 @@ export type SupportFilters = {
 
 export const localControlSchema = z.object({
  online: z.boolean(), lastSeenAt: z.string().nullable(),
- services: z.array(z.object({ name: z.enum(['worker','collector']), status: z.enum(['RUNNING','STOPPED','STARTING','ERROR','EXTERNAL','UNKNOWN']) })),
- command: z.object({ id: z.string(), action: z.enum(['START','STOP','RESTART']), status: z.enum(['QUEUED','RUNNING','SUCCEEDED','FAILED','UNKNOWN','EXPIRED']), createdAt: z.string(), finishedAt: z.string().nullable(), errorCode: z.string().nullable() }).nullable(),
+ services: z.array(z.object({ name: z.enum(['worker','collector']), backend: z.enum(['pm2','docker']).optional(), status: z.enum(['RUNNING','STOPPED','STARTING','ERROR','EXTERNAL','UNKNOWN']) })),
+ command: z.object({ id: z.string(), action: z.enum(['START','STOP','RESTART','RECREATE']), status: z.enum(['QUEUED','RUNNING','SUCCEEDED','FAILED','UNKNOWN','EXPIRED']), createdAt: z.string(), finishedAt: z.string().nullable(), errorCode: z.string().nullable() }).nullable(),
 });
 export type LocalControl = z.infer<typeof localControlSchema>;
-export type LocalAction = 'START'|'STOP'|'RESTART';
+export type LocalAction = 'START'|'STOP'|'RESTART'|'RECREATE';
