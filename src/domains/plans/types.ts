@@ -1,6 +1,7 @@
 import { z } from "zod";
 export const planCodes = ["TRIAL", "ESSENTIAL", "PROFESSIONAL"] as const;
 export const planInputSchema = z.object({
+  password: z.string().max(128).optional(),
   name: z.string().trim().min(2).max(60),
   description: z.string().trim().max(500),
   monthlyPriceCents: z.number().int().min(0).max(1000000),
@@ -15,7 +16,7 @@ export const planInputSchema = z.object({
   expectedUpdatedAt: z.string().datetime(),
 });
 export const planSchema = planInputSchema
-  .omit({ expectedUpdatedAt: true })
+  .omit({ expectedUpdatedAt: true, password: true })
   .extend({
     code: z.enum(planCodes),
     updatedAt: z.string(),

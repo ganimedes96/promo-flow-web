@@ -76,8 +76,8 @@ export function PlansPanel() {
         <Badge variant="outline">Administração</Badge>
         <h1 className="mt-3 text-3xl font-semibold">Planos e limites</h1>
         <p className="text-muted-foreground mt-2 text-sm">
-          Defina a capacidade de cada plano. A cobrança será conectada ao Asaas
-          na próxima etapa.
+          Defina a capacidade de cada plano. Preços novos se aplicam às novas
+          contratações; assinaturas existentes mantêm o valor contratado.
         </p>
       </header>
       <div className="bg-primary/10 border-primary/25 rounded-xl border p-4 text-sm">
@@ -202,6 +202,7 @@ function PlanEditor({
 }) {
   const form = useForm<PlanForm>({
     defaultValues: {
+      password: "",
       name: plan.name,
       description: plan.description,
       price: plan.monthlyPriceCents / 100,
@@ -215,6 +216,8 @@ function PlanEditor({
       isActive: plan.isActive,
     },
   });
+  const priceChanged =
+    Math.round(form.watch("price") * 100) !== plan.monthlyPriceCents;
   const update = useServerAction({
     mutationFn: savePlan,
     invalidateQueries: [queryKeys.plans.all, ["billing"]],
@@ -232,11 +235,18 @@ function PlanEditor({
           });
           return;
         }
-        const { price, ...values } = parsed.data;
+        const { price, password, ...values } = parsed.data;
+        if (priceChanged && !password) {
+          form.setError("password", {
+            message: "Informe sua senha para alterar o preço.",
+          });
+          return;
+        }
         update.mutate({
           code: plan.code,
           body: {
             ...values,
+            ...(priceChanged ? { password } : {}),
             monthlyPriceCents: Math.round(price * 100),
             expectedUpdatedAt: plan.updatedAt,
           },
@@ -264,6 +274,25 @@ function PlanEditor({
         label="Mensalidade (R$)"
         disabled={update.isPending || plan.code === "TRIAL"}
       />
+      {priceChanged && (
+        <div className="border-primary/25 bg-primary/10 space-y-3 rounded-xl border p-4">
+          <p className="text-sm">
+            Para confirmar a alteração de {money(plan.monthlyPriceCents)} para{" "}
+            {money(Math.round(form.watch("price") * 100))}, informe sua senha de
+            administrador. Assinaturas existentes mantêm o preço contratado.
+          </p>
+          <ControlledInput
+            control={form.control}
+            name="password"
+            label="Sua senha de administrador"
+            type="password"
+            placeholder="Confirme sua senha"
+            autoComplete="current-password"
+            maxLength={128}
+            disabled={update.isPending}
+          />
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         {limits.map((item) => (
           <ControlledInput
