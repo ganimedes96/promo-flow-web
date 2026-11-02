@@ -1,6 +1,12 @@
 "use client";
 import { isShopeeLink } from "@/domains/offers/affiliate-links";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import {
+  requestMirrorConversion,
+  type ConversionRetryFeedback,
+} from "@/domains/mirroring/extension";
+import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
 import { Users, Check, Link2, ArrowRight, Sparkles } from "lucide-react";
 import { Offer } from "@/domains/offers/types";
@@ -52,7 +58,7 @@ export function MirrorOfferAction({ offer }: { offer: Offer }) {
           <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
             {open && (
               <MirrorDestinationForm
-                key={offer.id + offer.mirrorAffiliateStatus}
+                key={offer.id}
                 offer={offer}
                 onDone={() => setOpen(false)}
               />
@@ -70,6 +76,9 @@ function MirrorDestinationForm({
   offer: Offer;
   onDone: () => void;
 }) {
+  const { data: session } = useSession();
+  const [retryFeedback, setRetryFeedback] =
+    useState<ConversionRetryFeedback | null>(null);
   const form = useForm({
     defaultValues: {
       affiliateUrl: offer.affiliateUrl ?? "",
@@ -86,8 +95,17 @@ function MirrorDestinationForm({
   const retry = useServerAction({
     mutationFn: retryMirrorConversion,
     invalidateQueries: [queryKeys.offers.all],
-    successMessage:
-      "Conversão liberada para a extensão. Mantenha o Chrome aberto.",
+    disableSuccessToast: true,
+    onMutate: () =>
+      setRetryFeedback({
+        ok: true,
+        message: "Solicitando nova tentativa à extensão…",
+      }),
+    onSuccess: async (_response, offerId) =>
+      setRetryFeedback(
+        await requestMirrorConversion(offerId, session?.user.id)
+      ),
+    onError: (error) => setRetryFeedback({ ok: false, message: error.message }),
   });
 
   return (
@@ -162,7 +180,9 @@ function MirrorDestinationForm({
                   disabled={retry.isPending}
                   onClick={() => retry.mutate(offer.id)}
                 >
-                  Tentar conversão novamente
+                  {retry.isPending
+                    ? "Solicitando conversão…"
+                    : "Tentar conversão novamente"}
                 </Button>
                 {offer.mirrorConversionStatus === "RECONNECT" && (
                   <Button asChild type="button" size="sm" variant="outline">
@@ -181,6 +201,20 @@ function MirrorDestinationForm({
                 )}
               </div>
             )}
+          {offer.mirrorConversionStatus === "STORE_REQUIRED" && (
+            <Button asChild size="sm" variant="outline">
+              <Link href="/stores">Configurar minha loja</Link>
+            </Button>
+          )}
+          {retryFeedback && (
+            <div
+              role="status"
+              aria-live="polite"
+              className={`rounded-xl border p-3 text-sm ${retryFeedback.ok ? "border-primary/30 bg-primary/10" : "border-destructive/30 bg-destructive/5 text-destructive"}`}
+            >
+              {retryFeedback.message}
+            </div>
+          )}
           {retry.error && (
             <p role="alert" className="text-destructive text-xs">
               {retry.error.message}

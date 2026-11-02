@@ -63,9 +63,7 @@ export async function Header({ children }: HeaderProps) {
               <ToggleTheme />
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <ButtonLogout />
-            </DropdownMenuItem>
+            <ButtonLogout asMenuItem />
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
