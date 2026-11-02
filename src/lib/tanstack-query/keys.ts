@@ -7,7 +7,13 @@ const usersKeys = {
 };
 
 export const queryKeys = {
-  clients: { all:["clients"] as const, list:(adminId:string|undefined,filters:object)=>["clients","list",adminId,filters] as const, detail:(adminId:string|undefined,id:string)=>["clients","detail",adminId,id] as const },
+  clients: {
+    all: ["clients"] as const,
+    list: (adminId: string | undefined, filters: object) =>
+      ["clients", "list", adminId, filters] as const,
+    detail: (adminId: string | undefined, id: string) =>
+      ["clients", "detail", adminId, id] as const,
+  },
   mirroring: {
     telegram: (userId?: string) => ["mirroring", "telegram", userId] as const,
     all: ["mirroring"] as const,
@@ -18,7 +24,8 @@ export const queryKeys = {
     forUser: (userId?: string) => ["message-settings", userId] as const,
   },
   operations: {
-    localControl: (userId?: string) => ["operations", "local-control", userId] as const,
+    localControl: (userId?: string) =>
+      ["operations", "local-control", userId] as const,
     users: (adminId: string | undefined, search: string) =>
       ["operations", "users", adminId, search] as const,
     support: (adminId: string | undefined, filters: object) =>
@@ -47,7 +54,14 @@ export const queryKeys = {
       excludeRecent = false
     ) => ["promotions", page, manage, userId, excludeRecent] as const,
   },
+  plans: {
+    all: ["managed-plans"] as const,
+    list: (adminId?: string) => ["managed-plans", adminId] as const,
+  },
   billing: {
+    all: ["billing"] as const,
+    subscription: (userId?: string) =>
+      ["billing", "subscription", userId] as const,
     access: (userId?: string) => ["billing", "access", userId] as const,
     plans: ["billing", "plans"] as const,
   },

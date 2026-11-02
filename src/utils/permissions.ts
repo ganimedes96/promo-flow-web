@@ -1,6 +1,7 @@
 import { Permission } from "@/domains/auth/enums";
 
 export const routePermissionsMap = {
+  "/plans": {view:Permission.managePromotions,create:Permission.managePromotions,update:Permission.managePromotions,delete:Permission.managePromotions},
   "/clients": {view:Permission.managePromotions,create:Permission.managePromotions,update:Permission.managePromotions,delete:Permission.managePromotions},
   "/operations": {
     view: Permission.managePromotions,

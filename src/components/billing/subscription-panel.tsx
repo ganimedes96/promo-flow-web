@@ -1,5 +1,9 @@
 "use client";
 import Link from "next/link";
+import {
+  SubscribeButton,
+  SubscriptionBillingStatus,
+} from "./subscription-checkout";
 import { CreditCard } from "lucide-react";
 import { EmptyStateCard } from "@/components/feedback/empty-state-card";
 import {
@@ -37,9 +41,11 @@ export function SubscriptionPanel() {
               ? "Assinatura ativa"
               : access.data?.status === "EXPIRED"
                 ? "Teste encerrado"
-                : "10 dias para experimentar"}
+                : "Período de teste gratuito"}
           </Badge>
-          <CardTitle className="text-2xl">Seu plano no PromoFlow</CardTitle>
+          <CardTitle className="text-2xl">
+            {access.data?.plan?.name || "Seu plano no PromoFlow"}
+          </CardTitle>
           <CardDescription>
             {access.data?.status === "EXPIRED"
               ? "Seu período de teste terminou. Seus dados e histórico estão preservados. Novas operações ficam pausadas até a ativação de uma assinatura."
@@ -60,6 +66,52 @@ export function SubscriptionPanel() {
               <AlertDescription>{access.error.message}</AlertDescription>
             </Alert>
           )}
+          {access.data?.plan && access.data.usage && (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                {
+                  label: "Conexões WhatsApp",
+                  used: access.data.usage.connections,
+                  limit: access.data.plan.maxConnections,
+                },
+                {
+                  label: "Grupos de destino",
+                  used: access.data.usage.groups,
+                  limit: access.data.plan.maxGroups,
+                },
+                {
+                  label: "Origens espelhadas",
+                  used: access.data.usage.mirroredGroups,
+                  limit: access.data.plan.maxMirroredGroups,
+                },
+                {
+                  label: "Lojas configuradas",
+                  used: access.data.usage.stores,
+                  limit: access.data.plan.maxStores,
+                },
+                {
+                  label: "Publicações hoje",
+                  used: access.data.usage.publications,
+                  limit: access.data.plan.maxDailyPublications,
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="bg-primary/5 rounded-xl border p-3"
+                >
+                  <p className="text-muted-foreground text-xs">{item.label}</p>
+                  <p className="mt-1 font-semibold">
+                    {item.used} / {item.limit}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+          <p className="text-muted-foreground text-xs">
+            Cada envio para um grupo consome uma publicação. Envios sem
+            confirmação reservam a cota; falhas confirmadas liberam a reserva.
+            Renovação diária à meia-noite de São Paulo.
+          </p>
           {access.data?.canUseApp && (
             <Button asChild variant="outline">
               <Link href="/control-panel">Voltar ao painel</Link>
@@ -67,6 +119,7 @@ export function SubscriptionPanel() {
           )}
         </CardContent>
       </Card>
+      <SubscriptionBillingStatus />
       <div>
         <h2 className="mb-4 text-xl font-semibold">Planos de assinatura</h2>
         {plans.isPending ? (
@@ -93,7 +146,7 @@ export function SubscriptionPanel() {
             }
           />
         ) : (
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             {plans.data.map((plan) => (
               <Card key={plan.code}>
                 <CardHeader>
@@ -113,11 +166,11 @@ export function SubscriptionPanel() {
                   </p>
                   <p className="text-muted-foreground text-sm">
                     Até {plan.maxGroups} grupos • {plan.maxConnections}{" "}
-                    conexão(ões)
+                    conexão(ões) • {plan.maxMirroredGroups} origens espelhadas •{" "}
+                    {plan.maxDailyPublications} publicações/dia •{" "}
+                    {plan.maxStores} lojas
                   </p>
-                  <Button disabled className="w-full">
-                    Pagamento em configuração
-                  </Button>
+                  <SubscribeButton plan={plan} />
                 </CardContent>
               </Card>
             ))}

@@ -875,3 +875,13 @@ A conversão utiliza abas auxiliares inativas do gerador oficial e as fecha ao t
 
 ### Vincular vários destinos de uma captura
 O sheet de ofertas permite selecionar até 20 grupos favoritos de contas conectadas. PUT `/mirroring/offers/:id/destinations` aceita `groupIds` únicos e vincula todos atomicamente. Cada grupo recebe um registro no mesmo `batchId`, mantendo uma linha agrupada na tabela. Nenhum destino é agendado. Repetir a mesma seleção não duplica registros. O endpoint singular permanece compatível. Não há nova migration.
+
+
+## Administração de planos
+
+`/plans` permite ao admin editar Teste grátis, Essencial e Profissional; usa o domínio `plans`, Server Actions, componentes controlados e query keys centralizadas. API nova e migration `20261102010000_plan_limits` devem estar disponíveis antes do deploy web. `/subscription` mostra os limites e o consumo da conta; a cobrança permanece desabilitada até a integração com Asaas. Não coloque credenciais de pagamento no frontend.
+
+
+### Contratação recorrente
+
+`/subscription` permite confirmar a recorrência mensal e abrir o checkout hospedado do Asaas, consultar a confirmação, abrir fatura pendente e cancelar a renovação. O navegador não informa preços ao backend nem recebe credenciais Asaas; o retorno da página de pagamento não é usado como prova de pagamento. Para publicar, a API deve estar com a migration `20261102020000_asaas_recurring` e o webhook configurado. Primeiro meio habilitado: cartão de crédito recorrente. Trocas de plano exigem cancelar a recorrência anterior, sem prorrata automática.

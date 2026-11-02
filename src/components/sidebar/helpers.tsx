@@ -27,6 +27,7 @@ export const identifierLinks: { [key: string]: string } = {
   "/stores": "Lojas",
   "/operations": "Operação",
   "/message-settings": "Minhas mensagens",
+  "/plans": "Planos e limites",
   "/clients": "Clientes",
   "/users": "Usuários",
   "/users/create": "Adicionar usuário",
@@ -41,6 +42,7 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
+  {title:"Planos e limites",icon:<CreditCard />,href:"/plans",requiredPermissions:[Permission.managePromotions]},
   {title:"Clientes",icon:<Users />,href:"/clients",requiredPermissions:[Permission.managePromotions]},
   {
     title: "Espelhar grupos",
@@ -169,6 +171,7 @@ const navSections = [
       "/promotion-sources",
       "/operations",
       "/clients",
+      "/plans",
       "/users",
     ],
   },

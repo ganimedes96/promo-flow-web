@@ -59,6 +59,28 @@ export function AccountAccessBoundary({
           </Button>
         </div>
       )}
+      {access.data.plan &&
+        access.data.usage &&
+        (access.data.usage.publications >=
+          access.data.plan.maxDailyPublications ||
+          access.data.usage.groups > access.data.plan.maxGroups ||
+          access.data.usage.mirroredGroups >
+            access.data.plan.maxMirroredGroups) && (
+          <div
+            role="status"
+            className="bg-primary/10 border-primary/25 flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 text-sm"
+          >
+            <p>
+              {access.data.usage.publications >=
+              access.data.plan.maxDailyPublications
+                ? "Você atingiu a cota de publicações de hoje. A fila aguarda a renovação à meia-noite de São Paulo."
+                : "Há grupos acima do limite do seu plano. Reduza os favoritos ou as origens espelhadas para retomar."}
+            </p>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/subscription">Ver limites</Link>
+            </Button>
+          </div>
+        )}
       {children}
     </>
   );

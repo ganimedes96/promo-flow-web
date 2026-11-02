@@ -4,6 +4,16 @@ export interface AccountAccess {
   trialEndsAt: string;
   subscriptionActiveUntil: string | null;
   daysRemaining: number;
+  plan?: (SubscriptionPlan & { trialDays: number }) | null;
+  usage?: {
+    connections: number;
+    groups: number;
+    mirroredGroups: number;
+    stores: number;
+    publications: number;
+  };
+  publicationDay?: string;
+  publicationTimezone?: string;
 }
 export interface SubscriptionPlan {
   code: string;
@@ -12,4 +22,8 @@ export interface SubscriptionPlan {
   monthlyPriceCents: number;
   maxGroups: number;
   maxConnections: number;
+  maxMirroredGroups: number;
+  maxDailyPublications: number;
+  maxStores: number;
+  watermarkEnabled: boolean;
 }

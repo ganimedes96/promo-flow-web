@@ -1,4 +1,5 @@
 "use client";
+import { useAccountAccess } from "@/domains/billing/use-account-access";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
@@ -65,6 +66,9 @@ export function MessageSettings() {
   return <TemplateForm initial={settings.data} />;
 }
 function TemplateForm({ initial }: { initial: MessageTemplate }) {
+  const access = useAccountAccess();
+  const watermarkAllowed =
+    access.data?.plan?.watermarkEnabled ?? !access.data?.plan;
   const form = useForm<MessageTemplate>({ defaultValues: initial });
   const values = useWatch({ control: form.control });
   const parsed = messageTemplateSchema.safeParse(values);
@@ -114,7 +118,11 @@ function TemplateForm({ initial }: { initial: MessageTemplate }) {
               });
               return;
             }
-            save.mutate(result.data);
+            save.mutate({
+              ...result.data,
+              watermarkEnabled:
+                watermarkAllowed && result.data.watermarkEnabled,
+            });
           })}
         >
           <Card className="border-primary/25 overflow-hidden">
@@ -174,8 +182,14 @@ function TemplateForm({ initial }: { initial: MessageTemplate }) {
                     control={form.control}
                     name="watermarkEnabled"
                     label="Aplicar minha marca d’água"
-                    disabled={save.isPending}
+                    disabled={save.isPending || !watermarkAllowed}
                   />
+                  {!watermarkAllowed && (
+                    <p className="text-muted-foreground text-xs">
+                      Marca d’água disponível nos planos pagos. Consulte sua
+                      assinatura.
+                    </p>
+                  )}
                   <ControlledInput
                     control={form.control}
                     name="watermarkText"
