@@ -10,12 +10,19 @@ export function useSubscription() {
     queryFn: getBillingSubscription,
     enabled: !!session?.user.id,
     retry: false,
-    refetchInterval: (query) =>
-      ["CREATING", "WAITING", "REVIEW_REQUIRED"].includes(
-        query.state.data?.subscription?.status || ""
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (
+        ["CREATING", "WAITING", "REVIEW_REQUIRED"].includes(
+          data?.subscription?.status || ""
+        ) ||
+        ["REQUESTING", "WAITING", "REVIEW_REQUIRED", "PAID_APPLYING"].includes(
+          data?.planChange?.status || ""
+        )
       )
-        ? 10000
-        : false,
+        return 10000;
+      return data?.planChange?.status === "SCHEDULED" ? 60000 : false;
+    },
     staleTime: 5000,
   });
 }

@@ -15,7 +15,25 @@ export const checkoutUrlSchema = z
       !url.port
     );
   });
+export const planChangeSchema = z.object({
+  id: z.string().uuid(),
+  kind: z.enum(["UPGRADE", "DOWNGRADE"]),
+  status: z.string(),
+  targetPlanCode: z.string(),
+  targetPlanName: z.string(),
+  targetPriceCents: z.number(),
+  previousPlanName: z.string(),
+  previousPriceCents: z.number(),
+  amountCents: z.number(),
+  periodStart: z.string(),
+  periodEnd: z.string(),
+  effectiveAt: z.string(),
+  expiresAt: z.string(),
+  checkoutUrl: checkoutUrlSchema.nullable(),
+});
+export type PlanChange = z.infer<typeof planChangeSchema>;
 export const billingStatusSchema = z.object({
+  planChange: planChangeSchema.nullable().optional(),
   enabled: z.boolean(),
   environment: z.enum(["sandbox", "production"]),
   subscription: z
@@ -23,6 +41,7 @@ export const billingStatusSchema = z.object({
       id: z.string().uuid(),
       planCode: z.string(),
       planName: z.string(),
+      effectivePlanName: z.string().optional(),
       priceCents: z.number(),
       status: z.string(),
       expiresAt: z.string(),

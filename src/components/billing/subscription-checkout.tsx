@@ -1,5 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { invalidateQuery } from "@/lib/tanstack-query/methods";
+import { ChangePlanButton, PlanChangeNotice } from "./plan-change";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { CreditCard, RefreshCw, ShieldCheck, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,6 +62,15 @@ const labels: Record<string, string> = {
 };
 export function SubscriptionBillingStatus() {
   const query = useSubscription();
+  const { data: session } = useSession();
+  const userId = session?.user.id;
+  const revision = query.data
+    ? `${query.data.subscription?.planCode}:${query.data.subscription?.status}:${query.data.subscription?.currentPeriodEnd}:${query.data.subscription?.effectivePlanName}:${query.data.planChange?.id}:${query.data.planChange?.status}`
+    : "";
+  useEffect(() => {
+    if (revision && userId)
+      void invalidateQuery(queryKeys.billing.access(userId));
+  }, [revision, userId]);
   const [confirm, setConfirm] = useState(false);
   const cancel = useServerAction({
     mutationFn: cancelSubscription,
@@ -125,6 +137,14 @@ export function SubscriptionBillingStatus() {
                 <ShieldCheck className="text-primary size-7" />
               )}
             </div>
+            {row.effectivePlanName &&
+              row.effectivePlanName !== row.planName && (
+                <p className="text-sm">
+                  Limites em uso neste período:{" "}
+                  <strong>{row.effectivePlanName}</strong>.
+                </p>
+              )}
+            <PlanChangeNotice />
             {row.currentPeriodEnd && (
               <p className="text-sm">
                 Período pago até{" "}
@@ -245,6 +265,12 @@ export function SubscribeButton({ plan }: { plan: SubscriptionPlan }) {
   const row = query.data?.subscription;
   const hasOpen =
     !!row && !["CANCELLED", "EXPIRED", "FAILED"].includes(row.status);
+  if (
+    row?.status === "ACTIVE" &&
+    !row.cancelledAt &&
+    plan.code !== row.planCode
+  )
+    return <ChangePlanButton subscriptionId={row.id} planCode={plan.code} />;
   return (
     <>
       <Button
