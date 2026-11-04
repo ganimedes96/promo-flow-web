@@ -50,7 +50,7 @@ export function LocalControlCard() {
  {pending&&command?.action==='START'?<LoaderCircle className="size-4 motion-safe:animate-spin" />:<Play className="size-4" />}
  {pending&&command?.action==='START'?"Iniciando…":docker?"Iniciar containers":"Iniciar serviços"}
  </Button>
- <Button variant="destructive" disabled={disabled||uncertain||allStopped} className="gap-2" onClick={()=>setConfirmation('STOP')}>
+ <Button variant="destructive" disabled={disabled||allStopped||(uncertain&&!docker)} className="gap-2" onClick={()=>setConfirmation('STOP')}>
  {pending&&command?.action==='STOP'?<LoaderCircle className="size-4 motion-safe:animate-spin" />:<Square className="size-4" />}
  {pending&&command?.action==='STOP'?"Desligando…":docker?"Desligar containers":"Desligar serviços"}
  </Button>
