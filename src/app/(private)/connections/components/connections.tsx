@@ -1,4 +1,8 @@
 "use client";
+import {
+  ActivityHistory,
+  SupportReference,
+} from "@/components/feedback/activity-history";
 import { AnimatedChannelIcon } from "@/components/brand/animated-channel-icon";
 import { TelegramLinkDialog } from "./telegram-link";
 import { useCallback, useState } from "react";
@@ -318,13 +322,19 @@ export function Connections({
                     </span>
                   </div>
                   {connection.lastError && (
-                    <p
-                      className="text-destructive line-clamp-2 text-xs"
-                      title={connection.lastError}
-                    >
-                      {connection.lastError}
-                    </p>
+                    <div className="border-destructive/25 bg-destructive/5 space-y-2 rounded-lg border p-3">
+                      <p className="text-destructive text-xs">
+                        {connection.activityEvents?.[0]?.message ??
+                          "Não foi possível preparar esta conexão. Tente novamente ou procure o suporte."}
+                      </p>
+                      {connection.activityEvents?.[0] && (
+                        <SupportReference
+                          event={connection.activityEvents[0]}
+                        />
+                      )}
+                    </div>
                   )}
+                  <ActivityHistory resource={{ connectionId: connection.id }} />
                   {!telegram && (
                     <Button
                       size="sm"

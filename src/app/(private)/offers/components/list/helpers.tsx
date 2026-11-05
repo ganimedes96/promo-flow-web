@@ -1,3 +1,7 @@
+import {
+  ActivityHistory,
+  SupportReference,
+} from "@/components/feedback/activity-history";
 import { isShopeeLink } from "@/domains/offers/affiliate-links";
 import { PromotionImage } from "@/app/(private)/promotions/components/promotion-image";
 import { OfferQueueActions } from "./queue-actions";
@@ -178,24 +182,30 @@ export const columns: ColumnDef<Offer>[] = [
   {
     key: "errorMessage",
     header: "Observação",
-    render: (_value, row) =>
-      row.queueBlockedReason ? (
-        <span
-          className="text-warning block max-w-60 truncate text-xs"
-          title={row.queueBlockedReason}
-        >
-          {row.queueBlockedReason}
-        </span>
-      ) : row.errorMessage ? (
-        <span
-          className="text-destructive block max-w-60 truncate text-xs"
-          title={row.errorMessage}
-        >
-          {row.errorMessage}
-        </span>
-      ) : (
-        "—"
-      ),
+    render: (_value, row) => (
+      <div className="max-w-64 min-w-44 space-y-2">
+        {(row.queueBlockedReason || row.errorMessage) && (
+          <p
+            className="text-warning line-clamp-2 text-xs"
+            title={
+              row.queueBlockedReason ||
+              row.activityEvents?.[0]?.message ||
+              undefined
+            }
+          >
+            {row.queueBlockedReason ||
+              (row.activityEvents?.[0]?.message ??
+                (row.status === "PUBLISHING"
+                  ? "Envio sem confirmação. Confira o grupo antes de reenviar."
+                  : "Não foi possível concluir a operação. Consulte o histórico."))}
+          </p>
+        )}
+        {row.errorMessage && row.activityEvents?.[0] && (
+          <SupportReference event={row.activityEvents[0]} />
+        )}
+        <ActivityHistory resource={{ offerId: row.id }} />
+      </div>
+    ),
   },
   {
     key: "id",

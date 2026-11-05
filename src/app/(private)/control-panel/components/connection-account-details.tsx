@@ -1,4 +1,5 @@
 "use client";
+import { ConnectionProgress } from "./connection-progress";
 
 import { QRCodeSVG } from "qrcode.react";
 import {
@@ -9,7 +10,6 @@ import {
   QrCode,
   RefreshCw,
   Smartphone,
-  WifiOff,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -99,7 +99,7 @@ export function ConnectionAccountDetails({
             className={cn(
               "relative mx-auto mb-5 flex size-20 items-center justify-center rounded-3xl border shadow-sm",
               connected
-                ? "border-success/25 bg-success/10 text-success"
+                ? "border-emerald-400/35 bg-emerald-400/10 text-emerald-500 dark:text-emerald-400"
                 : "border-primary/20 bg-primary/10 text-primary"
             )}
           >
@@ -115,7 +115,7 @@ export function ConnectionAccountDetails({
             {connected && (
               <span
                 aria-hidden="true"
-                className="border-card bg-success absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full border-4 text-white"
+                className="border-card bg-emerald-400 absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full border-4 text-emerald-950"
               >
                 <Check className="size-3" />
               </span>
@@ -211,14 +211,7 @@ export function ConnectionAccountDetails({
           )}
         </section>
 
-        {session.lastError && (
-          <Alert variant="destructive" className="mt-4">
-            <WifiOff className="size-4" />
-            <AlertDescription className="break-words">
-              {session.lastError}
-            </AlertDescription>
-          </Alert>
-        )}
+        <ConnectionProgress session={session} busy={busy} onRetry={onConnect} />
         {session.isPaused && (
           <Alert className="border-warning/25 bg-warning/5 mt-4">
             <AlertDescription>
@@ -252,7 +245,7 @@ export function ConnectionAccountDetails({
         )}
         {connected && (
           <div className="bg-primary/5 mt-5 flex items-start gap-3 rounded-2xl p-4 text-sm">
-            <CheckCircle2 className="text-primary mt-0.5 size-4 shrink-0" />
+            <CheckCircle2 className="text-emerald-500 dark:text-emerald-400 mt-0.5 size-4 shrink-0" />
             <p className="text-muted-foreground leading-relaxed">
               Pode fechar esta janela. Na hora de preparar uma oferta, selecione
               esta conexão e os grupos de destino.

@@ -1,5 +1,8 @@
+import { activityEventSchema } from "@/domains/activity/types";
 import { z } from "zod";
 export const sessionSchema = z.object({
+  activityEvents: activityEventSchema.array().optional(),
+  updatedAt: z.string().optional(),
   id: z.string().uuid().optional(),
   name: z.string().optional(),
   isDefault: z.boolean().optional(),

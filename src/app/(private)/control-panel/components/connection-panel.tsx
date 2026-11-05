@@ -1,4 +1,5 @@
 "use client";
+import { ConnectionProgress } from "./connection-progress";
 
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
@@ -21,7 +22,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ConnectionPanelSkeleton } from "@/components/feedback/loading-skeletons";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { cn } from "@/lib/shadcn/utils";
@@ -327,15 +327,9 @@ export function ConnectionPanel({
           </div>
         ))}
       </div>
-      {session.lastError && (
-        <div className="relative px-6 pb-5 sm:px-8 lg:px-10">
-          <Alert variant="destructive">
-            <AlertDescription className="break-words">
-              {session.lastError}
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
+      <div className="px-6 pb-5">
+        <ConnectionProgress session={session} busy={busy} onRetry={onConnect} />
+      </div>
       <div className="border-primary/15 relative flex flex-wrap items-center justify-between gap-3 border-t px-6 py-4 sm:px-8 lg:px-10">
         <p className="text-muted-foreground flex items-center gap-2 text-xs">
           <RefreshCw className="size-3.5" />

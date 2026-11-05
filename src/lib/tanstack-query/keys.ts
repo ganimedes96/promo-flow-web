@@ -7,6 +7,12 @@ const usersKeys = {
 };
 
 export const queryKeys = {
+  activity: {
+    history: (userId: string | undefined, resource: object) =>
+      ["activity", userId, resource] as const,
+    reference: (adminId: string | undefined, code: string) =>
+      ["activity-reference", adminId, code] as const,
+  },
   clients: {
     all: ["clients"] as const,
     list: (adminId: string | undefined, filters: object) =>

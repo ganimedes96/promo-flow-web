@@ -1,4 +1,5 @@
 "use client";
+import { ActivityReferenceLookup } from "./activity-reference";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
@@ -69,7 +70,8 @@ export function SupportPanel() {
   });
   return (
     <section className="space-y-5">
-      <Card className="border-primary/25 overflow-hidden from-primary/15 via-card to-card bg-gradient-to-br">
+      <ActivityReferenceLookup />
+      <Card className="border-primary/25 from-primary/15 via-card to-card overflow-hidden bg-gradient-to-br">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <UserRoundSearch className="text-primary size-5" />
@@ -95,7 +97,7 @@ export function SupportPanel() {
               label="Cliente em investigação"
               searchPlaceholder="Digite o nome ou e-mail do cliente"
               onSearchChange={setSearch}
-              onOptionSelect={option => setSelectedLabel(option?.name)}
+              onOptionSelect={(option) => setSelectedLabel(option?.name)}
               selectedLabel={selectedLabel}
               placeholder="Selecione o cliente"
               loading={users.isFetching || term !== debouncedSearch}
@@ -294,7 +296,10 @@ function SupportDetails({ userId }: { userId: string }) {
           ["Sem confirmação", data.status.queue.unconfirmed],
           ["Com falha", data.status.queue.failed],
         ].map(([label, count]) => (
-          <Card key={label} className="from-primary/15 via-card to-card bg-gradient-to-br">
+          <Card
+            key={label}
+            className="from-primary/15 via-card to-card bg-gradient-to-br"
+          >
             <CardContent className="pt-4">
               <p className="text-muted-foreground text-xs">{label}</p>
               <p className="mt-2 text-2xl font-bold">{count}</p>
@@ -304,14 +309,23 @@ function SupportDetails({ userId }: { userId: string }) {
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         {data.connections.map((connection) => (
-          <Card key={connection.id} className="from-primary/15 via-card to-card bg-gradient-to-br">
+          <Card
+            key={connection.id}
+            className="from-primary/15 via-card to-card bg-gradient-to-br"
+          >
             <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <MessageCircle className="size-4" />
                   {connection.name}
                 </CardTitle>
-                <SupportStatus status={connection.status === "READY" ? "CONNECTED" : connection.status} />
+                <SupportStatus
+                  status={
+                    connection.status === "READY"
+                      ? "CONNECTED"
+                      : connection.status
+                  }
+                />
               </div>
               <CardDescription>
                 {connection.connectedName || "Sem nome de conta disponível"}

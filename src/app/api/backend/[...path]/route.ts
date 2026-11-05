@@ -23,7 +23,7 @@ async function forward(request: NextRequest, context: Context) {
     return failure("Recurso inválido.", 400);
   const path = "/" + segments.join("/");
   const readOnly =
-    /^\/(?:plans|clients(?:\/[a-fA-F0-9-]{36})?|mirroring(?:\/telegram)?|message-settings|telegram-publisher\/status|operations\/(?:status|users|support|local-control)|categories|stores|telegram|collection-sources\/whatsapp|billing\/(?:access|plans|subscription)|offers(?:\/(?:grouped|filter-groups))?|promotions(?:\/manage)?|users|whatsapp\/(?:session|groups|connections(?:\/[a-fA-F0-9-]{36}(?:\/groups)?)?))$/.test(
+    /^\/(?:activity(?:\/reference\/PF-[A-F0-9]{20})?|plans|clients(?:\/[a-fA-F0-9-]{36})?|mirroring(?:\/telegram)?|message-settings|telegram-publisher\/status|operations\/(?:status|users|support|local-control)|categories|stores|telegram|collection-sources\/whatsapp|billing\/(?:access|plans|subscription)|offers(?:\/(?:grouped|filter-groups))?|promotions(?:\/manage)?|users|whatsapp\/(?:session|groups|connections(?:\/[a-fA-F0-9-]{36}(?:\/groups)?)?))$/.test(
       path
     );
   const duplicateLookup =

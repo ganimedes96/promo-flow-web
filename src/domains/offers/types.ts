@@ -1,3 +1,4 @@
+import type { ActivityEvent } from "@/domains/activity/types";
 import { z } from "zod";
 import { categorySelectionSchema } from "@/domains/categories/types";
 const httpUrl = z
@@ -80,6 +81,7 @@ export type OfferFormValues = Omit<
   addToQueue: boolean;
 };
 export interface Offer {
+  activityEvents?: ActivityEvent[];
   mirrorAffiliateStatus?: string | null;
   mirrorConversionStatus?: string | null;
   messageHeadline?: string | null;
