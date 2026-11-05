@@ -1,4 +1,5 @@
 export interface AccountAccess {
+  billingMode?: "BETA" | "STANDARD";
   status: "TRIALING" | "ACTIVE" | "EXPIRED";
   canUseApp: boolean;
   trialEndsAt: string;

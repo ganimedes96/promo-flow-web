@@ -37,7 +37,8 @@ import { queryKeys } from "@/lib/tanstack-query/keys";
 import { formatDate } from "@/utils/date";
 export function SubscriptionPanel() {
   const access = useAccountAccess();
-  const billing = useSubscription();
+  const beta = access.data?.billingMode === "BETA";
+  const billing = useSubscription(!!access.data && !beta);
   const [plansExpanded, setPlansExpanded] = useState<boolean | null>(null);
   const showPlans = plansExpanded ?? access.data?.status !== "ACTIVE";
   const outstanding = (billing.data?.payments ?? [])
@@ -54,6 +55,7 @@ export function SubscriptionPanel() {
   const plans = useQuery({
     queryKey: queryKeys.billing.plans,
     queryFn: getSubscriptionPlans,
+    enabled: !!access.data && !beta,
   });
   if (access.isPending) return <SubscriptionSkeleton />;
   return (
@@ -61,7 +63,7 @@ export function SubscriptionPanel() {
       <Card className="from-primary/10 via-card to-card bg-gradient-to-br">
         <CardHeader>
           <Badge variant="outline">
-            {access.data?.status === "ACTIVE"
+            {beta ? (access.data?.canUseApp ? "Acesso beta" : "Acesso beta encerrado") : access.data?.status === "ACTIVE"
               ? "Assinatura ativa"
               : access.data?.status === "EXPIRED"
                 ? "Teste encerrado"
@@ -71,7 +73,7 @@ export function SubscriptionPanel() {
             {access.data?.plan?.name || "Seu plano no PromoFlow"}
           </CardTitle>
           <CardDescription>
-            {access.data?.status === "EXPIRED"
+            {beta ? (access.data?.canUseApp ? "Seu acesso beta inclui os recursos e limites abaixo. Nenhuma cobrança será feita durante este período." : "Seu acesso beta terminou. Entre em contato com o administrador para solicitar uma extensão.") : access.data?.status === "EXPIRED"
               ? "Seu período de teste terminou. Seus dados e histórico estão preservados. Novas operações ficam pausadas até a ativação de uma assinatura."
               : "Acompanhe seu acesso e conheça os planos disponíveis."}
           </CardDescription>
@@ -90,7 +92,7 @@ export function SubscriptionPanel() {
               <AlertDescription>{access.error.message}</AlertDescription>
             </Alert>
           )}
-          {(payment || overdue) && (
+          {!beta && (payment || overdue) && (
             <div
               role="status"
               className={`motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-1 flex flex-col gap-4 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between ${overdue ? "border-destructive/40 bg-destructive/10" : "border-amber-500/35 bg-amber-500/10"}`}
@@ -267,6 +269,7 @@ export function SubscriptionPanel() {
           )}
         </CardContent>
       </Card>
+      {!beta && <>
       <SubscriptionBillingStatus />
       <div>
         <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -334,6 +337,7 @@ export function SubscriptionPanel() {
         </div>
       </div>
       <SubscriptionPayments />
+      </>}
     </div>
   );
 }
