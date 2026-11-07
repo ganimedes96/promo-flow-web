@@ -65,7 +65,7 @@ export function ClientAdjustment({ id }: { id: string }) {
   const mutation = useServerAction({
     mutationFn: adjustClientSubscription,
     invalidateQueries: [queryKeys.clients.all],
-    successMessage: "Ajuste agendado para a próxima mensalidade.",
+    successMessage: "Aumentos liberados. Novo valor programado para a recorrência.",
     onSuccess: () => void query.refetch(),
   });
   const current = query.data?.billing.find(
@@ -144,8 +144,8 @@ export function ClientAdjustment({ id }: { id: string }) {
             Ajuste individual da assinatura
           </CardTitle>
           <CardDescription>
-            Personalize as cotas e os recursos deste cliente. A configuração
-            entra em vigor após o pagamento do próximo ciclo.
+            Aumentos são liberados após a confirmação do ajuste. Reduções entram
+            em vigor após o pagamento do próximo ciclo.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
@@ -182,7 +182,7 @@ export function ClientAdjustment({ id }: { id: string }) {
             <CalendarClock className="size-4" /> Ajuste já programado
           </p>
           <p className="text-muted-foreground mt-1">
-            Vigência prevista para {formatDate(pending, "dd/MM/yyyy")} ·{" "}
+            Novo valor previsto a partir de {formatDate(pending, "dd/MM/yyyy")} ·{" "}
             {((current.nextCustomPriceCents ?? 0) / 100).toLocaleString(
               "pt-BR",
               { style: "currency", currency: "BRL" },
@@ -260,13 +260,13 @@ export function ClientAdjustment({ id }: { id: string }) {
         <div className="bg-muted/50 rounded-lg border p-3 text-sm">
           <p className="font-medium">Próxima cobrança prevista</p>
           <p className="text-muted-foreground mt-1">
-            {formatDate(current.currentPeriodEnd, "dd/MM/yyyy")}. Cobranças já
-            emitidas não serão alteradas. Todas as cotas personalizadas só serão
-            liberadas após a confirmação do pagamento do próximo ciclo.
+            {formatDate(current.currentPeriodEnd, "dd/MM/yyyy")}. Os aumentos
+            serão liberados após a confirmação no Asaas. Reduções entram em vigor
+            após o pagamento do novo ciclo. Cobranças já emitidas não mudam.
           </p>
         </div>
         <Button type="submit" disabled={mutation.isPending || !!pending}>
-          {mutation.isPending ? "Agendando ajuste…" : "Agendar para próxima fatura"}
+          {mutation.isPending ? "Aplicando ajuste…" : "Confirmar ajuste"}
         </Button>
       </form>
       {mutation.error && (

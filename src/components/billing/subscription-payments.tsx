@@ -173,8 +173,9 @@ export function SubscriptionPayments() {
               {row.nextPriceCents !== undefined &&
                 row.nextPriceCents !== row.priceCents && (
                   <p className="text-muted-foreground text-xs">
-                    Valor da próxima renovação considera a troca de plano
-                    agendada.
+                    {row.customAdjustment
+                      ? "Valor previsto para as próximas cobranças ainda não emitidas."
+                      : "Valor da próxima renovação considera a troca de plano agendada."}
                   </p>
                 )}
               <p className="text-muted-foreground text-xs">

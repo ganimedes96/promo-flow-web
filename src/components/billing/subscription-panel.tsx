@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useSubscription } from "@/domains/billing/use-subscription";
 import { SubscriptionPlans } from "./subscription-plans";
 import { SubscriptionPayments } from "./subscription-payments";
+import { SubscriptionAdjustmentNotice } from "./subscription-adjustment-notice";
 import Link from "next/link";
 import { SubscriptionBillingStatus } from "./subscription-checkout";
 import {
@@ -60,6 +61,12 @@ export function SubscriptionPanel() {
   if (access.isPending) return <SubscriptionSkeleton />;
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6">
+      {!beta && billing.data?.subscription?.customAdjustment && (
+        <SubscriptionAdjustmentNotice
+          subscription={billing.data.subscription}
+          plan={access.data?.plan}
+        />
+      )}
       <Card className="from-primary/10 via-card to-card bg-gradient-to-br">
         <CardHeader>
           <Badge variant="outline">

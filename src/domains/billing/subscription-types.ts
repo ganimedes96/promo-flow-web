@@ -76,6 +76,18 @@ export const billingStatusSchema = z.object({
       lastSyncAt: z.string().nullable(),
       nextDueDate: z.string().nullable().optional(),
       nextPriceCents: z.number().optional(),
+      customAdjustment: z.object({
+        priceCents: z.number(),
+        effectiveAt: z.string(),
+        limits: z.object({
+          maxGroups: z.number().optional(),
+          maxConnections: z.number().optional(),
+          maxMirroredGroups: z.number().optional(),
+          maxDailyPublications: z.number().optional(),
+          maxStores: z.number().optional(),
+          watermarkEnabled: z.boolean().optional(),
+        }),
+      }).nullable().optional(),
       checkoutUrl: checkoutUrlSchema.nullable(),
       invoiceUrl: z
         .string()
