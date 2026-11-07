@@ -16,7 +16,13 @@ import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 
 
-export function ReviewSend({ offer }: { offer: Offer }) {
+export function ReviewSend({
+  offer,
+  label = "Conferir envio",
+}: {
+  offer: Pick<Offer, "id" | "attempts" | "title" | "whatsappGroup">;
+  label?: string;
+}) {
   const [attempt, setAttempt] = useState<number | null>(null);
   const review = useServerAction<Offer, Parameters<typeof reviewOffer>[0]>({
     mutationFn: reviewOffer,
@@ -38,7 +44,7 @@ export function ReviewSend({ offer }: { offer: Offer }) {
         onClick={() => setAttempt(offer.attempts)}
       >
         <SearchCheck className="size-4" aria-hidden="true" />
-        Conferir envio
+        {label}
       </Button>
       <Dialog
         open={attempt !== null}

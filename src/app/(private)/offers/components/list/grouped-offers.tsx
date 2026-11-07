@@ -1,6 +1,7 @@
 "use client";
 import { CheckCircle2 } from "lucide-react";
 import { MirrorOfferAction } from "./mirror-offer";
+import { ReviewSend } from "./review-send";
 import { PromotionImage } from "@/app/(private)/promotions/components/promotion-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -160,6 +161,14 @@ export const groupedColumns: ColumnDef<OfferGroup>[] = [
       return (
         <div className="max-w-60 space-y-1">
           <p>{offerDisplayStatus(first).label}</p>
+          {first.queueBlockedBy && (
+            <p className="text-muted-foreground whitespace-normal wrap-anywhere text-xs leading-relaxed">
+              Bloqueada por “{first.queueBlockedBy.title || "oferta anterior"}”
+              {first.queueBlockedBy.whatsappGroup?.name
+                ? ` no grupo ${first.queueBlockedBy.whatsappGroup.name}`
+                : ""}.
+            </p>
+          )}
           <p className="text-muted-foreground whitespace-normal wrap-anywhere text-xs leading-relaxed">
             {first.queueBlockedReason}
           </p>
@@ -207,6 +216,9 @@ export function OfferGroupActions({ group }: { group: OfferGroup }) {
   const cancelCount = group.destinations.filter(
     (offer) => offer.status === OfferStatus.SCHEDULED
   ).length;
+  const blockedBy = group.destinations.find(
+    (offer) => offer.queueBlockedBy
+  )?.queueBlockedBy;
   const schedule = useServerAction<OfferGroupActionResult, string>({
     mutationFn: scheduleOfferGroup,
     invalidateQueries: [queryKeys.offers.all],
@@ -242,6 +254,12 @@ export function OfferGroupActions({ group }: { group: OfferGroup }) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
+      {blockedBy && (
+        <ReviewSend
+          offer={blockedBy}
+          label="Conferir envio anterior"
+        />
+      )}
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
-import { Users, Settings2 } from "lucide-react";
+import { Users, Settings2, SlidersHorizontal } from "lucide-react";
 import { getClients } from "@/domains/clients/client";
 import type { Client } from "@/domains/clients/types";
 import { queryKeys } from "@/lib/tanstack-query/keys";
@@ -25,10 +25,12 @@ import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { formatDate } from "@/utils/date";
 import { SupportPagination } from "../../operations/components/support-pagination";
 import { ClientDetails } from "./client-details";
+import { ClientAdjustment } from "./client-adjustment";
 import { ClientStatus } from "./client-status";
 export function ClientsPanel() {
   const { data: session } = useSession();
   const [selected, setSelected] = useState<string | null>(null);
+  const [adjusting, setAdjusting] = useState<string | null>(null);
   const form = useForm({ defaultValues: { search: "", status: "ALL" } });
   const values = useWatch({ control: form.control });
   const search = useDebounce((values.search ?? "").trim(), 400),
@@ -171,14 +173,29 @@ export function ClientsPanel() {
             columns={columns}
             getRowKey={(client) => client.id}
             actions={(client) => (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setSelected(client.id)}
-              >
-                <Settings2 className="size-3.5" />
-                Gerenciar
-              </Button>
+              <div className="flex flex-wrap justify-end gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={
+                    !client.subscriptionActiveUntil ||
+                    new Date(client.subscriptionActiveUntil).getTime() <= Date.now()
+                  }
+                  title="Ajustar limite e mensalidade para a próxima fatura"
+                  onClick={() => setAdjusting(client.id)}
+                >
+                  <SlidersHorizontal className="size-3.5" />
+                  Ajustar plano
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setSelected(client.id)}
+                >
+                  <Settings2 className="size-3.5" />
+                  Gerenciar
+                </Button>
+              </div>
             )}
           />
           <SupportPagination
@@ -205,6 +222,24 @@ export function ClientsPanel() {
           </SheetHeader>
           <div className="min-h-0 flex-1 overflow-y-auto p-6">
             {selected && <ClientDetails key={selected} id={selected} />}
+          </div>
+        </SheetContent>
+      </Sheet>
+      <Sheet
+        open={!!adjusting}
+        onOpenChange={(open) => {
+          if (!open) setAdjusting(null);
+        }}
+      >
+        <SheetContent className="flex flex-col gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-2xl">
+          <SheetHeader className="border-b p-6">
+            <SheetTitle>Ajuste individual</SheetTitle>
+            <SheetDescription>
+              Configure limite e mensalidade para a renovação do cliente.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="min-h-0 flex-1 overflow-y-auto p-6">
+            {adjusting && <ClientAdjustment key={adjusting} id={adjusting} />}
           </div>
         </SheetContent>
       </Sheet>

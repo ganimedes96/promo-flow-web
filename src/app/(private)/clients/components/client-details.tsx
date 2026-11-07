@@ -62,6 +62,11 @@ export function ClientDetails({ id }: { id: string }) {
     return (
       <ApiErrorCard
         title="Não foi possível consultar o cliente"
+        description={
+          query.error instanceof Error
+            ? query.error.message
+            : "Não foi possível carregar os dados deste cliente. Tente novamente."
+        }
         error={query.error}
         onRetry={() => void query.refetch()}
         retrying={query.isFetching}
@@ -197,17 +202,41 @@ export function ClientDetails({ id }: { id: string }) {
                 <p className="font-semibold">
                   {item.action === "EXTEND_TRIAL"
                     ? "Teste ampliado"
-                    : item.after.isDisabled
-                      ? "Conta desativada"
-                      : "Conta reativada"}
+                    : item.action === "ADJUST_SUBSCRIPTION"
+                      ? "Ajuste individual de assinatura"
+                      : typeof item.after.isDisabled === "boolean"
+                        ? item.after.isDisabled
+                          ? "Conta desativada"
+                          : "Conta reativada"
+                        : "Acesso atualizado"}
                 </p>
                 <p className="text-muted-foreground mt-1">
                   {date(item.createdAt)}
                 </p>
                 {item.action === "EXTEND_TRIAL" && (
                   <p className="mt-2">
-                    De {date(item.before.trialEndsAt)} para{" "}
-                    {date(item.after.trialEndsAt)}
+                    {item.before.trialEndsAt && item.after.trialEndsAt
+                      ? `De ${date(item.before.trialEndsAt)} para ${date(item.after.trialEndsAt)}`
+                      : "Os prazos deste registro antigo não estão disponíveis."}
+                  </p>
+                )}
+                {item.action === "ADJUST_SUBSCRIPTION" && (
+                  <p className="mt-2">
+                    {item.before.dailyLimit} → {item.after.dailyLimit} publicações/dia ·{" "}
+                    {item.before.priceCents !== undefined &&
+                      (item.before.priceCents / 100).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}{" "}
+                    →{" "}
+                    {item.after.priceCents !== undefined &&
+                      (item.after.priceCents / 100).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    {item.after.effectiveAt &&
+                      ` · previsto para ${date(item.after.effectiveAt)}`}
+                    {item.after.status === "FAILED" && " · falhou no Asaas"}
                   </p>
                 )}
                 {item.reason && (

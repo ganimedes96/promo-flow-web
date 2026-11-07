@@ -116,6 +116,12 @@ export interface Offer {
   filterMatched?: boolean;
   queueBlockedCode?: Exclude<OfferWaitReason, OfferWaitReason.AFFILIATE> | null;
   queueBlockedReason?: string | null;
+  queueBlockedBy?: {
+    id: string;
+    title: string | null;
+    attempts: number;
+    whatsappGroup: { id: string; name: string } | null;
+  } | null;
   status: OfferStatus;
   whatsappGroup: { id: string; name: string } | null;
 }

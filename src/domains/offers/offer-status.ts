@@ -52,7 +52,7 @@ export const OFFER_WAIT_REASON_INFO: Record<OfferWaitReason, { label: string; he
   [OfferWaitReason.AUTOMATION_DAILY_LIMIT]: { label: "Limite diário atingido", help: "A fila continua quando houver cota diária disponível." },
   [OfferWaitReason.WORKER_OFFLINE]: { label: "Publicador offline", help: "Inicie o worker para retomar os envios." },
   [OfferWaitReason.PUBLISHING_DISABLED]: { label: "Envios desativados", help: "Ative novamente a publicação na conexão." },
-  [OfferWaitReason.PREVIOUS_UNCONFIRMED]: { label: "Aguardando conferência", help: "Confirme o resultado do envio anterior antes de liberar o próximo." },
+  [OfferWaitReason.PREVIOUS_UNCONFIRMED]: { label: "Aguardando conferência", help: "Uma oferta anterior deste grupo pode ter sido enviada. Confira o resultado dela antes de liberar a fila." },
   [OfferWaitReason.PREVIOUS_SENDING]: { label: "Aguardando envio anterior", help: "A fila libera o próximo envio depois que o anterior terminar." },
   [OfferWaitReason.AFFILIATE]: { label: "Aguardando link de afiliado", help: "Conclua a conversão do link antes de preparar o envio." },
 };

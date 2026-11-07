@@ -50,7 +50,13 @@ export function OfferQueueActions({ offer }: { offer: Offer }) {
     return <ReviewSend offer={offer} />;
   if (offer.status === OfferStatus.SCHEDULED)
     return (
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
+        {offer.queueBlockedBy && (
+          <ReviewSend
+            offer={offer.queueBlockedBy}
+            label="Conferir envio anterior"
+          />
+        )}
         <Button
           type="button"
           variant="outline"

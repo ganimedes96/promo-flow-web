@@ -14,13 +14,27 @@ export const clientSchema = z.object({
   accessStatus: z.string().optional(),
   effectivePlanName: z.string().optional(),
 });
-const snapshot = z.object({ trialEndsAt: z.string(), isDisabled: z.boolean() });
+const snapshot = z
+  .object({
+    trialEndsAt: z.string().optional(),
+    isDisabled: z.boolean().optional(),
+    dailyLimit: z.number().optional(),
+    priceCents: z.number().optional(),
+    effectiveAt: z.string().optional(),
+    status: z.string().optional(),
+  })
+  .catch({});
 export const clientBillingSchema = z.object({
   id: z.string(),
   environment: z.string(),
   planCode: z.string(),
   planName: z.string(),
   priceCents: z.number(),
+  effectiveDailyLimit: z.number(),
+  maxDailyPublicationsOverride: z.number().nullable(),
+  nextMaxDailyPublications: z.number().nullable(),
+  nextCustomPriceCents: z.number().nullable(),
+  nextCustomEffectiveAt: z.string().nullable(),
   status: z.string(),
   currentPeriodEnd: z.string().nullable(),
   cancelledAt: z.string().nullable(),
@@ -76,3 +90,11 @@ export const changeClientSchema = z
     ])
   );
 export type ChangeClient = z.infer<typeof changeClientSchema>;
+export const adjustClientSubscriptionSchema = z.object({
+  dailyLimit: z.number().int().min(1).max(10000),
+  priceCents: z.number().int().min(100).max(1000000),
+  reason: z.string().trim().min(1).max(300),
+});
+export type AdjustClientSubscription = z.infer<
+  typeof adjustClientSubscriptionSchema
+>;

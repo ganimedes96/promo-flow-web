@@ -51,7 +51,7 @@ export function ControlledTimePicker<FormType extends FieldValues>({
       name={name}
       rules={rules}
       render={({ field: { onChange, value }, fieldState: { error } }) => {
-        const time = typeof value === "string" ? value : "";
+        const time: string = typeof value === "string" ? value : "";
         const [hour = "00", minute = "00"] = time.split(":");
         const availableMinutes = hour === "24" ? ["00"] : minutes;
 
