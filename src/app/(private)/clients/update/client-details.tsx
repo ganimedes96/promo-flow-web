@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { formatDate } from "@/utils/date";
 import { ClientBillingHistory } from "./client-billing-history";
-import { ClientStatus } from "./client-status";
+import { ClientStatus } from "../components/client-status";
 const date = (value: string) => formatDate(value, "dd/MM/yyyy HH:mm");
 export function ClientDetails({ id }: { id: string }) {
   const { data: session } = useSession();

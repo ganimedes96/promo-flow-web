@@ -49,7 +49,7 @@ import {
 } from "@/domains/stores/types";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { useServerAction } from "@/hooks/use-server-action";
-import { StoreForm } from "./store-form";
+import { StoreForm } from "../components/store-form";
 export function Stores() {
   const { data: session } = useSession();
   const [editing, setEditing] = useState<Marketplace | null>(null);

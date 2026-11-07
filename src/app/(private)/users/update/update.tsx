@@ -9,7 +9,7 @@ import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import { roleOptions } from "./helpers";
+import { roleOptions } from "../components/form-helpers";
 
 interface UpdateUserFormProps {
   user: User;

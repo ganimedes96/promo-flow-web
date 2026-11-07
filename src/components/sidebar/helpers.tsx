@@ -34,8 +34,6 @@ export const identifierLinks: { [key: string]: string } = {
   "/plans": "Planos e limites",
   "/clients": "Clientes",
   "/users": "Usuários",
-  "/users/create": "Adicionar usuário",
-  "/users/[id]/update": "Editar usuário",
 };
 
 export interface NavItem {

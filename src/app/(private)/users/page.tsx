@@ -2,7 +2,7 @@ import { CanServer } from "@/components/can/server";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Permission } from "@/domains/auth/enums";
 import { ShieldAlert } from "lucide-react";
-import { UsersTable } from "./components/list/table";
+import { UsersTable } from "./list/table";
 
 export default function UsersPage() {
   return (

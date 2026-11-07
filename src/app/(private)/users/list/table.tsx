@@ -7,33 +7,34 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import { ListPagination } from "@/components/pagination";
 import { deleteUser } from "@/domains/users/actions";
 import { getUsers } from "@/domains/users/client";
-import { User } from "@/domains/users/types";
-import { usePaginatedList } from "@/hooks/use-paginated-list";
+import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { UserPlus } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { CreateUserForm } from "../form/create";
-import { UpdateUserForm } from "../form/update";
+import { CreateUserForm } from "../create/create";
+import { UpdateUserForm } from "../update/update";
 import { columns } from "./helpers";
 
 export function UsersTable() {
   const { data: session } = useSession();
-  const {
-    items: users,
-    error,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isRefetching,
-    total,
-    currentTotal,
-  } = usePaginatedList<User>({
-    queryKey: queryKeys.users.list(),
-    queryFn: ({ page }) => getUsers({ page }),
+  const [page, setPage] = useState(1);
+  const perPage = 10;
+  const list = useQuery({
+    queryKey: queryKeys.users.list({ page, perPage, userId: session?.user.id }),
+    queryFn: () => getUsers({ page, limit: perPage }),
+    enabled: !!session?.user.id,
+    placeholderData: keepPreviousData,
   });
+  const users = list.data?.data ?? [];
+  const total = list.data?.pagination.total ?? 0;
+  const lastPage = Math.max(1, list.data?.pagination.lastPage ?? 1);
+  const loading = list.isPending || list.isPlaceholderData;
+  if (list.data && !list.isPlaceholderData && page > lastPage)
+    setPage(Math.max(1, lastPage));
 
   return (
     <Card>
@@ -49,7 +50,7 @@ export function UsersTable() {
       </CardHeader>
 
       <CardContent>
-        {error && (
+        {list.error && (
           <Alert variant="destructive" className="mb-4">
             <AlertDescription>
               Não foi possível carregar os usuários. Tente novamente.
@@ -57,14 +58,14 @@ export function UsersTable() {
           </Alert>
         )}
 
-        {!isLoading && total > 0 && (
+        {!loading && total > 0 && (
           <p className="text-muted-foreground mb-3 text-sm">
-            {currentTotal} de {total} usuários carregados
-            {isRefetching && !isFetchingNextPage ? " · Atualizando..." : ""}
+            {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} de {total} usuários
+            {list.isFetching ? " · Atualizando..." : ""}
           </p>
         )}
 
-        {!isLoading && !error && !users.length && (
+        {!loading && !list.error && !users.length && (
           <EmptyStateCard
             icon={UserPlus}
             title="Ainda não há usuários nesta lista"
@@ -74,20 +75,16 @@ export function UsersTable() {
         )}
         <div
           hidden={
-            (!isLoading && !error && !users.length) ||
-            (!!error && !users.length)
+            (!loading && !list.error && !users.length) ||
+            (!!list.error && !users.length)
           }
         >
           <DataTable
             data={users}
             columns={columns}
-            loading={isLoading}
+            loading={loading}
             getRowKey={(user) => user.id}
             emptyMessage="Nenhum usuário cadastrado."
-            infiniteScroll
-            hasNextPage={hasNextPage}
-            isFetchingNextPage={isFetchingNextPage}
-            onLoadMore={fetchNextPage}
             actions={(user) => (
               <>
                 <FormSheet
@@ -109,6 +106,17 @@ export function UsersTable() {
             )}
           />
         </div>
+        {total > 0 && (
+          <div className="mt-4">
+            <ListPagination
+              page={page}
+              totalPages={lastPage}
+              onPage={setPage}
+              busy={loading}
+              label="Paginação dos usuários"
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

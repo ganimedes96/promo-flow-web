@@ -8,14 +8,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableHeader,
-  TableHead,
-  TableRow,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
+import { DataTable, type ColumnDef } from "@/components/ui/data-table";
 import { formatDate } from "@/utils/date";
 const money = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
@@ -37,6 +30,26 @@ const labels: Record<string, string> = {
   REFUNDED: "Estornado",
   DELETED: "Excluída",
 };
+type ClientPayment = ClientBilling["payments"][number];
+const paymentColumns: ColumnDef<ClientPayment>[] = [
+  {
+    key: "dueDate",
+    header: "Vencimento",
+    primary: true,
+    render: (_, payment) => payment.dueDate.split("-").reverse().join("/"),
+  },
+  {
+    key: "valueCents",
+    header: "Valor",
+    render: (_, payment) => money(payment.valueCents),
+  },
+  {
+    key: "status",
+    header: "Situação",
+    isStatus: true,
+    render: (_, payment) => labels[payment.status] || payment.status,
+  },
+];
 export function ClientBillingHistory({
   billing,
 }: {
@@ -101,30 +114,11 @@ export function ClientBillingHistory({
                 </p>
               </div>
               {row.payments.length ? (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Vencimento</TableHead>
-                        <TableHead>Valor</TableHead>
-                        <TableHead>Situação</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {row.payments.map((payment) => (
-                        <TableRow key={payment.remoteId}>
-                          <TableCell>
-                            {payment.dueDate.split("-").reverse().join("/")}
-                          </TableCell>
-                          <TableCell>{money(payment.valueCents)}</TableCell>
-                          <TableCell>
-                            {labels[payment.status] || payment.status}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                <DataTable
+                  data={row.payments}
+                  columns={paymentColumns}
+                  getRowKey={(payment) => payment.remoteId}
+                />
               ) : (
                 <p className="text-muted-foreground text-xs">
                   Nenhuma cobrança sincronizada.

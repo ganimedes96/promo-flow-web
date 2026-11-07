@@ -155,6 +155,8 @@ src/
     └── text.ts             # Utilitários de texto
 ```
 
+Nas páginas organizadas por operação, mantenha `list/`, `create/` ou `register/` e `update/` diretamente na pasta da página, conforme as operações existentes. Componentes compartilhados entre essas operações ficam em `components/`. Arquivos especiais do Next.js, como `page.tsx` e `loading.tsx`, permanecem na pasta da rota.
+
 ---
 
 ## Arquitetura de Rotas
@@ -512,6 +514,10 @@ Todos recebem `name`, `control` e `rules` (regras do React Hook Form).
 ## Componentes de UI
 
 Os componentes em `src/components/ui/` são provenientes do **shadcn/ui** e não devem ser editados diretamente. Para customizações, crie um componente wrapper.
+
+Para listagens tabulares, prefira `DataTable` de `src/components/ui/data-table.tsx`, definindo as colunas com `ColumnDef` e aproveitando seus estados de carregamento, ações e apresentação responsiva. Use os elementos básicos de `table.tsx` quando a estrutura não puder ser representada pela `DataTable`.
+
+Para listagens com páginas numeradas, use `ListPagination` de `src/components/pagination.tsx`, passando a página, o total de páginas e a função de navegação. O componente segue o padrão da listagem de ofertas e deve ser reutilizado em novas telas. Para listas incrementais com “carregar mais”, use `usePaginatedList`.
 
 Para adicionar novos componentes do shadcn:
 

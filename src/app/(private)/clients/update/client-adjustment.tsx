@@ -1,14 +1,5 @@
 "use client";
-import { useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { useQuery } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { CalendarClock, Coins, SlidersHorizontal } from "lucide-react";
-import { getClient } from "@/domains/clients/client";
-import { adjustClientSubscription } from "@/domains/clients/actions";
-import type { AdjustClientSubscription } from "@/domains/clients/types";
-import { queryKeys } from "@/lib/tanstack-query/keys";
-import { useServerAction } from "@/hooks/use-server-action";
+import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { ControlledInput } from "@/components/form/controllers/controlled-input";
 import { ControlledInputCurrency } from "@/components/form/controllers/controlled-input-currency";
 import { ControlledSwitch } from "@/components/form/controllers/controlled-switch";
@@ -21,8 +12,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ApiErrorCard } from "@/components/feedback/api-error-card";
+import { adjustClientSubscription } from "@/domains/clients/actions";
+import { getClient } from "@/domains/clients/client";
+import type { AdjustClientSubscription } from "@/domains/clients/types";
+import { useServerAction } from "@/hooks/use-server-action";
+import { queryKeys } from "@/lib/tanstack-query/keys";
 import { formatDate } from "@/utils/date";
+import { useQuery } from "@tanstack/react-query";
+import { CalendarClock, Coins, SlidersHorizontal } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 const limits = [
   ["maxGroups", "Grupos de destino", 10000],
@@ -65,15 +65,17 @@ export function ClientAdjustment({ id }: { id: string }) {
   const mutation = useServerAction({
     mutationFn: adjustClientSubscription,
     invalidateQueries: [queryKeys.clients.all],
-    successMessage: "Aumentos liberados. Novo valor programado para a recorrência.",
-    onSuccess: () => void query.refetch(),
+    successMessage:
+      "Aumentos liberados. Novo valor programado para a recorrência.",
+    onSuccess: () => query.refetch(),
   });
   const current = query.data?.billing.find(
     (item) =>
       item.status === "ACTIVE" &&
       !!item.currentPeriodEnd &&
+      // eslint-disable-next-line react-hooks/purity
       new Date(item.currentPeriodEnd).getTime() > Date.now() &&
-      !item.cancelledAt,
+      !item.cancelledAt
   );
   useEffect(() => {
     if (!current) return;
@@ -113,7 +115,7 @@ export function ClientAdjustment({ id }: { id: string }) {
       <ApiErrorCard
         title="Não foi possível carregar a assinatura"
         error={query.error}
-        onRetry={() => void query.refetch()}
+        onRetry={() => query.refetch()}
         retrying={query.isFetching}
       />
     );
@@ -169,9 +171,13 @@ export function ClientAdjustment({ id }: { id: string }) {
             </p>
           </div>
           <div className="bg-background/70 rounded-lg border p-3 sm:col-span-2">
-            <p className="text-muted-foreground text-xs">Recurso de marca d’água</p>
+            <p className="text-muted-foreground text-xs">
+              Recurso de marca d’água
+            </p>
             <p className="mt-1 font-semibold">
-              {current.effectiveLimits.watermarkEnabled ? "Liberado" : "Desativado"}
+              {current.effectiveLimits.watermarkEnabled
+                ? "Liberado"
+                : "Desativado"}
             </p>
           </div>
         </CardContent>
@@ -182,11 +188,13 @@ export function ClientAdjustment({ id }: { id: string }) {
             <CalendarClock className="size-4" /> Ajuste já programado
           </p>
           <p className="text-muted-foreground mt-1">
-            Novo valor previsto a partir de {formatDate(pending, "dd/MM/yyyy")} ·{" "}
+            Novo valor previsto a partir de {formatDate(pending, "dd/MM/yyyy")}{" "}
+            ·{" "}
             {((current.nextCustomPriceCents ?? 0) / 100).toLocaleString(
               "pt-BR",
-              { style: "currency", currency: "BRL" },
-            )} por mês.
+              { style: "currency", currency: "BRL" }
+            )}{" "}
+            por mês.
           </p>
           <ul className="text-muted-foreground mt-3 grid gap-x-4 gap-y-1 sm:grid-cols-2">
             {limits.map(([key, label]) => (
@@ -195,15 +203,15 @@ export function ClientAdjustment({ id }: { id: string }) {
               </li>
             ))}
             <li>
-              Marca d’água: <strong>{pendingLimits.watermarkEnabled ? "Liberada" : "Desativada"}</strong>
+              Marca d’água:{" "}
+              <strong>
+                {pendingLimits.watermarkEnabled ? "Liberada" : "Desativada"}
+              </strong>
             </li>
           </ul>
         </div>
       )}
-      <form
-        className="space-y-4"
-        onSubmit={form.handleSubmit(submit)}
-      >
+      <form className="space-y-4" onSubmit={form.handleSubmit(submit)}>
         <div className="grid gap-4 sm:grid-cols-2">
           {limits.map(([key, label, max]) => (
             <ControlledInput
@@ -261,8 +269,9 @@ export function ClientAdjustment({ id }: { id: string }) {
           <p className="font-medium">Próxima cobrança prevista</p>
           <p className="text-muted-foreground mt-1">
             {formatDate(current.currentPeriodEnd, "dd/MM/yyyy")}. Os aumentos
-            serão liberados após a confirmação no Asaas. Reduções entram em vigor
-            após o pagamento do novo ciclo. Cobranças já emitidas não mudam.
+            serão liberados após a confirmação no Asaas. Reduções entram em
+            vigor após o pagamento do novo ciclo. Cobranças já emitidas não
+            mudam.
           </p>
         </div>
         <Button type="submit" disabled={mutation.isPending || !!pending}>

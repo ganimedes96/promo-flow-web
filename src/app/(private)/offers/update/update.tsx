@@ -1,6 +1,6 @@
 "use client";
 import { Offer } from "@/domains/offers/types";
-import { CreateOfferForm } from "./create";
+import { CreateOfferForm } from "../create/create";
 export function UpdateOfferForm({
   offer,
   onSuccess,

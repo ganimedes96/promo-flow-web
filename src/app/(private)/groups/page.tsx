@@ -1,4 +1,4 @@
-import { Groups } from "./components/groups";
+import { Groups } from "./list/groups";
 
 export default function GroupsPage() {
   return <Groups />;

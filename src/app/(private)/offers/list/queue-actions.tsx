@@ -2,7 +2,7 @@
 import { ExternalLink } from "lucide-react";
 import { MirrorOfferAction } from "./mirror-offer";
 import { FormSheet } from "@/components/form/containers/form-sheet";
-import { UpdateOfferForm } from "../form/update";
+import { UpdateOfferForm } from "../update/update";
 import { ReviewSend } from "./review-send";
 import { ActionDelete } from "@/components/action-delete";
 import { deleteOffer } from "@/domains/offers/actions";

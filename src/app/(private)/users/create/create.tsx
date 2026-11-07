@@ -9,7 +9,7 @@ import { CreateUser, User } from "@/domains/users/types";
 import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { useForm } from "react-hook-form";
-import { roleOptions } from "./helpers";
+import { roleOptions } from "../components/form-helpers";
 
 interface CreateUserFormProps {
   onSuccess?: () => void;

@@ -9,14 +9,7 @@ import type { OfferListFilters } from "@/domains/offers/types";
 import { OfferStatus } from "@/domains/offers/offer-status";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationEllipsis,
-} from "@/components/ui/pagination";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ListPagination } from "@/components/pagination";
 import { FormSheet } from "@/components/form/containers/form-sheet";
 import { EmptyStateCard } from "@/components/feedback/empty-state-card";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
@@ -30,7 +23,7 @@ import {
 import { DataTable } from "@/components/ui/data-table";
 import { getGroupedOffers } from "@/domains/offers/client";
 import { queryKeys } from "@/lib/tanstack-query/keys";
-import { CreateOfferForm } from "../form/create";
+import { CreateOfferForm } from "../create/create";
 import {
   OfferGroupActions,
   OfferDestinations,
@@ -84,13 +77,6 @@ export function OffersTable() {
   const empty =
     !loading && !list.error && !!list.data && !list.data.data.length;
   const filtered = Object.keys(filters).length > 0;
-  const pages = [
-    ...new Set(
-      [1, page - 1, page, page + 1, lastPage].filter(
-        (value) => value >= 1 && value <= lastPage
-      )
-    ),
-  ].sort((a, b) => a - b);
   if (list.data && !list.isPlaceholderData && page > lastPage)
     setPage(lastPage);
   return (
@@ -211,64 +197,14 @@ export function OffersTable() {
           />
         </div>
         {total > 0 && (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-muted-foreground text-sm">
-              Página {page} de {lastPage}
-            </p>
-            <Pagination
-              className="mx-0 w-auto"
-              aria-label="Paginação das ofertas"
-            >
-              <PaginationContent>
-                <PaginationItem>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={page <= 1 || loading}
-                    onClick={() => setPage((current) => current - 1)}
-                    aria-label="Página anterior"
-                  >
-                    <ChevronLeft className="size-4" aria-hidden="true" />
-                    Anterior
-                  </Button>
-                </PaginationItem>
-                {pages.map((value, index) => (
-                  <PaginationItem key={value} className="hidden sm:flex">
-                    {index > 0 && value - pages[index - 1] > 1 && (
-                      <PaginationEllipsis />
-                    )}
-                    <PaginationLink
-                      href="#"
-                      size="sm"
-                      isActive={value === page}
-                      aria-label={"Ir para a página " + value}
-                      aria-disabled={loading}
-                      tabIndex={loading ? -1 : 0}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        if (!loading) setPage(value);
-                      }}
-                    >
-                      {value}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={page >= lastPage || loading}
-                    onClick={() => setPage((current) => current + 1)}
-                    aria-label="Próxima página"
-                  >
-                    Próxima
-                    <ChevronRight className="size-4" aria-hidden="true" />
-                  </Button>
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+          <div className="mt-4">
+            <ListPagination
+              page={page}
+              totalPages={lastPage}
+              onPage={setPage}
+              busy={loading}
+              label="Paginação das ofertas"
+            />
           </div>
         )}
       </CardContent>

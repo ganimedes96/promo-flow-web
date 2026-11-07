@@ -1,4 +1,4 @@
-import { PromotionsCatalog } from "./components/catalog";
+import { PromotionsCatalog } from "./list/catalog";
 export default function PromotionsPage() {
   return <PromotionsCatalog />;
 }

@@ -51,8 +51,8 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { WhatsAppConnection } from "../../control-panel/components/whatsapp-connection";
-import { WhatsAppSourceList } from "./whatsapp-source-list";
-import { AddWhatsAppSource } from "./add-whatsapp-source";
+import { WhatsAppSourceList } from "../list/whatsapp-source-list";
+import { AddWhatsAppSource } from "../create/add-whatsapp-source";
 const invalidations = [
   queryKeys.collection.all,
   queryKeys.whatsapp.connections,

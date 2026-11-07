@@ -17,7 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonRegion } from "@/components/feedback/loading-skeletons";
 import type { Promotion } from "@/domains/promotions/types";
 import { formatDate } from "@/utils/date";
-import { PromotionImage } from "./promotion-image";
+import { PromotionImage } from "../components/promotion-image";
 
 const stores: Record<string, string> = {
   MERCADO_LIVRE: "Mercado Livre",

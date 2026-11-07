@@ -29,8 +29,9 @@ import { deletePromotion } from "@/domains/promotions/actions";
 import { Promotion } from "@/domains/promotions/types";
 import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
-import { CreateOfferForm } from "../../offers/components/form/create";
-import { PromotionForm } from "./form";
+import { CreateOfferForm } from "@/app/(private)/offers/create/create";
+import { PromotionForm } from "../components/form";
+import { ListPagination } from "@/components/pagination";
 import {
   PromotionHighlights,
   PromotionHighlightsSkeleton,
@@ -199,29 +200,13 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
                 loading={list.isPlaceholderData}
                 {...actions}
               />
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-muted-foreground text-xs">
-                  Página {page} de {lastPage}
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page <= 1 || list.isFetching}
-                    onClick={() => setPage((value) => value - 1)}
-                  >
-                    Anterior
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page >= lastPage || list.isFetching}
-                    onClick={() => setPage((value) => value + 1)}
-                  >
-                    Próxima
-                  </Button>
-                </div>
-              </div>
+              <ListPagination
+                page={page}
+                totalPages={lastPage}
+                onPage={setPage}
+                busy={list.isFetching}
+                label="Paginação das promoções"
+              />
             </section>
           ) : (
             <p className="bg-muted/20 text-muted-foreground rounded-xl border border-dashed px-4 py-3 text-center text-sm">

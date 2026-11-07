@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CreateOfferForm } from "@/app/(private)/offers/components/form/create";
+import { CreateOfferForm } from "@/app/(private)/offers/create/create";
 import { PromotionForm } from "@/app/(private)/promotions/components/form";
 import {
   EXTENSION_DRAFT_KEY,

@@ -8,7 +8,7 @@ import { queryKeys } from "@/lib/tanstack-query/keys";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FormSheet } from "@/components/form/containers/form-sheet";
-import { UpdateOfferForm } from "@/app/(private)/offers/components/form/update";
+import { UpdateOfferForm } from "@/app/(private)/offers/update/update";
 export function DuplicateOffersNotice({ sourceUrl }: { sourceUrl: string }) {
   const duplicates = useQuery({
     queryKey: queryKeys.offers.duplicates(sourceUrl),

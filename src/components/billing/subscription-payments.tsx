@@ -16,14 +16,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
+import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import type { BillingStatus } from "@/domains/billing/subscription-types";
 import { EmptyStateCard } from "@/components/feedback/empty-state-card";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { SubscriptionSkeleton } from "@/components/feedback/loading-skeletons";
@@ -115,6 +109,52 @@ const methods: Record<string, string> = {
   DEBIT_CARD: "Cartão de débito",
   UNDEFINED: "Não informado",
 };
+type CustomerPayment = BillingStatus["payments"][number];
+const paymentColumns: ColumnDef<CustomerPayment>[] = [
+  {
+    key: "planName",
+    header: "Plano",
+    primary: true,
+    className: "max-w-48 truncate font-medium",
+  },
+  {
+    key: "dueDate",
+    header: "Vencimento",
+    render: (_, payment) => calendarDate(payment.dueDate),
+  },
+  {
+    key: "valueCents",
+    header: "Valor",
+    render: (_, payment) => money(payment.valueCents),
+  },
+  {
+    key: "status",
+    header: "Situação",
+    isStatus: true,
+    render: (_, payment) => {
+      const state = states[payment.status] ?? {
+        label: "Em processamento",
+        className: "bg-secondary text-secondary-foreground",
+      };
+      return (
+        <Badge className={`justify-center whitespace-nowrap ${state.className}`}>
+          {state.label}
+        </Badge>
+      );
+    },
+  },
+  {
+    key: "paymentDate",
+    header: "Pago em",
+    render: (_, payment) => calendarDate(payment.paymentDate),
+  },
+  {
+    key: "billingType",
+    header: "Forma de pagamento",
+    render: (_, payment) =>
+      payment.billingType ? (methods[payment.billingType] ?? "Outro") : "—",
+  },
+];
 
 export function SubscriptionPayments() {
   const query = useSubscription();
@@ -240,73 +280,29 @@ export function SubscriptionPayments() {
               description="Quando o Asaas gerar a primeira cobrança, ela aparecerá aqui com valor, vencimento e situação."
             />
           ) : (
-            <div className="overflow-x-auto rounded-xl border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Plano</TableHead>
-                    <TableHead>Vencimento</TableHead>
-                    <TableHead>Valor</TableHead>
-                    <TableHead>Situação</TableHead>
-                    <TableHead>Pago em</TableHead>
-                    <TableHead>Forma de pagamento</TableHead>
-                    <TableHead className="text-right">Fatura</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {payments.map((payment) => {
-                    const state = states[payment.status] ?? {
-                      label: "Em processamento",
-                      className: "bg-secondary text-secondary-foreground",
-                    };
-                    return (
-                      <TableRow key={payment.id}>
-                        <TableCell className="max-w-48 truncate font-medium">
-                          {payment.planName}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {calendarDate(payment.dueDate)}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {money(payment.valueCents)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            className={`justify-center whitespace-nowrap ${state.className}`}
-                          >
-                            {state.label}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {calendarDate(payment.paymentDate)}
-                        </TableCell>
-                        <TableCell>
-                          {payment.billingType
-                            ? (methods[payment.billingType] ?? "Outro")
-                            : "—"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {payment.invoiceUrl ? (
-                            <Button asChild size="sm" variant="outline">
-                              <a
-                                href={payment.invoiceUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                Ver fatura
-                                <ExternalLink className="size-3.5" />
-                              </a>
-                            </Button>
-                          ) : (
-                            "—"
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+            <DataTable
+              data={payments}
+              columns={paymentColumns}
+              getRowKey={(payment) => payment.id}
+              actionsHeader="Fatura"
+              loadingActionsCount={1}
+              actions={(payment) =>
+                payment.invoiceUrl ? (
+                  <Button asChild size="sm" variant="outline">
+                    <a
+                      href={payment.invoiceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Ver fatura
+                      <ExternalLink className="size-3.5" />
+                    </a>
+                  </Button>
+                ) : (
+                  "—"
+                )
+              }
+            />
           )}
         </CardContent>
       </Card>

@@ -1,4 +1,4 @@
-import { OffersTable } from "./components/list/table";
+import { OffersTable } from "./list/table";
 export default function OffersPage() {
   return <OffersTable />;
 }

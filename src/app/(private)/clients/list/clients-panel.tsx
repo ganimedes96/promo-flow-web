@@ -1,32 +1,32 @@
 "use client";
-import { useState } from "react";
-import { useSession } from "next-auth/react";
-import { useQuery } from "@tanstack/react-query";
-import { useForm, useWatch } from "react-hook-form";
-import { Users, Settings2, SlidersHorizontal } from "lucide-react";
-import { getClients } from "@/domains/clients/client";
-import type { Client } from "@/domains/clients/types";
-import { queryKeys } from "@/lib/tanstack-query/keys";
-import { useDebounce } from "@/hooks/use-debounce";
+import { ApiErrorCard } from "@/components/feedback/api-error-card";
+import { EmptyStateCard } from "@/components/feedback/empty-state-card";
 import { ControlledInput } from "@/components/form/controllers/controlled-input";
 import { ControlledSelect } from "@/components/form/controllers/controlled-select";
+import { ListPagination } from "@/components/pagination";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DataTable, type ColumnDef } from "@/components/ui/data-table";
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
 } from "@/components/ui/sheet";
-import { EmptyStateCard } from "@/components/feedback/empty-state-card";
-import { ApiErrorCard } from "@/components/feedback/api-error-card";
+import { getClients } from "@/domains/clients/client";
+import type { Client } from "@/domains/clients/types";
+import { useDebounce } from "@/hooks/use-debounce";
+import { queryKeys } from "@/lib/tanstack-query/keys";
 import { formatDate } from "@/utils/date";
-import { SupportPagination } from "../../operations/components/support-pagination";
-import { ClientDetails } from "./client-details";
-import { ClientAdjustment } from "./client-adjustment";
-import { ClientStatus } from "./client-status";
+import { useQuery } from "@tanstack/react-query";
+import { Settings2, SlidersHorizontal, Users } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { ClientAdjustment } from "../update/client-adjustment";
+import { ClientDetails } from "../update/client-details";
+import { ClientStatus } from "../components/client-status";
 export function ClientsPanel() {
   const { data: session } = useSession();
   const [selected, setSelected] = useState<string | null>(null);
@@ -179,7 +179,9 @@ export function ClientsPanel() {
                   variant="outline"
                   disabled={
                     !client.subscriptionActiveUntil ||
-                    new Date(client.subscriptionActiveUntil).getTime() <= Date.now()
+                    new Date(client.subscriptionActiveUntil).getTime() <=
+                      // eslint-disable-next-line react-hooks/purity
+                      Date.now()
                   }
                   title="Ajustar limite e mensalidade para a próxima fatura"
                   onClick={() => setAdjusting(client.id)}
@@ -198,11 +200,12 @@ export function ClientsPanel() {
               </div>
             )}
           />
-          <SupportPagination
+          <ListPagination
             label="Páginas de clientes"
             page={page}
-            total={query.data.total}
+            totalPages={Math.ceil(query.data.total / query.data.perPage)}
             busy={query.isFetching}
+            hideSinglePage
             onPage={(next) => setPagination({ filterKey, page: next })}
           />
         </>

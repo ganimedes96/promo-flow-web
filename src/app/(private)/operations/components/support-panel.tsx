@@ -40,7 +40,7 @@ import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { formatDate } from "@/utils/date";
 import { toast } from "@/lib/toast";
 import { SupportStatus } from "./support-status";
-import { SupportPagination } from "./support-pagination";
+import { ListPagination } from "@/components/pagination";
 const date = (value: string | null) =>
   value ? formatDate(value, "dd/MM/yyyy HH:mm:ss") : "—";
 const statuses = [
@@ -441,11 +441,12 @@ function SupportDetails({ userId }: { userId: string }) {
                   </div>
                 )}
               />
-              <SupportPagination
+              <ListPagination
                 label="Páginas das ofertas do cliente"
                 page={filters.page}
-                total={data.offers.total}
+                totalPages={Math.ceil(data.offers.total / data.offers.perPage)}
                 busy={query.isFetching}
+                hideSinglePage
                 onPage={(page) =>
                   setFilters((current) => ({ ...current, page }))
                 }
@@ -477,11 +478,12 @@ function SupportDetails({ userId }: { userId: string }) {
                 columns={errorColumns}
                 getRowKey={(row) => row.id}
               />
-              <SupportPagination
+              <ListPagination
                 label="Páginas dos erros da API"
                 page={filters.errorPage}
-                total={data.errors.total}
+                totalPages={Math.ceil(data.errors.total / data.errors.perPage)}
                 busy={query.isFetching}
+                hideSinglePage
                 onPage={(errorPage) =>
                   setFilters((current) => ({ ...current, errorPage }))
                 }

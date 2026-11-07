@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/utils/date";
+import { ListPagination } from "@/components/pagination";
 const date = (value: string | null) =>
   value ? formatDate(value, "dd/MM HH:mm") : "Ainda não";
 const normalize = (value: string) =>
@@ -230,27 +231,13 @@ export function SourceList({
                 </Card>
               ))}
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-muted-foreground text-xs">
-              {items.length} fontes · página {currentPage} de {lastPage}
-            </p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                disabled={currentPage <= 1}
-                onClick={() => setPage(currentPage - 1)}
-              >
-                Anterior
-              </Button>
-              <Button
-                variant="outline"
-                disabled={currentPage >= lastPage}
-                onClick={() => setPage(currentPage + 1)}
-              >
-                Próxima
-              </Button>
-            </div>
-          </div>
+          <ListPagination
+            page={currentPage}
+            totalPages={lastPage}
+            onPage={setPage}
+            label="Paginação das fontes do Telegram"
+            summary={`${items.length} fontes`}
+          />
         </>
       )}
     </section>

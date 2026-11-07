@@ -28,8 +28,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { TelegramConnectionCard } from "./telegram-connection-card";
-import { SourceList } from "./source-list";
-import { AddSource } from "./add-source";
+import { SourceList } from "../list/source-list";
+import { AddSource } from "../create/add-source";
 export function SourcesManager() {
   const { data: session } = useSession();
   const [adding, setAdding] = useState(false);

@@ -1,4 +1,4 @@
-import { Connections } from "./components/connections";
+import { Connections } from "./list/connections";
 export default async function ConnectionsPage({
   searchParams,
 }: {

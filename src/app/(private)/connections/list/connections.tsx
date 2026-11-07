@@ -4,7 +4,7 @@ import {
   SupportReference,
 } from "@/components/feedback/activity-history";
 import { AnimatedChannelIcon } from "@/components/brand/animated-channel-icon";
-import { TelegramLinkDialog } from "./telegram-link";
+import { TelegramLinkDialog } from "../create/telegram-link";
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
