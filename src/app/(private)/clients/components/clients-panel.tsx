@@ -185,7 +185,7 @@ export function ClientsPanel() {
                   onClick={() => setAdjusting(client.id)}
                 >
                   <SlidersHorizontal className="size-3.5" />
-                  Ajustar plano
+                  Limites e preço
                 </Button>
                 <Button
                   size="sm"
@@ -233,9 +233,9 @@ export function ClientsPanel() {
       >
         <SheetContent className="flex flex-col gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-2xl">
           <SheetHeader className="border-b p-6">
-            <SheetTitle>Ajuste individual</SheetTitle>
+            <SheetTitle>Limites e preço do cliente</SheetTitle>
             <SheetDescription>
-              Configure limite e mensalidade para a renovação do cliente.
+              Configure todas as cotas e recursos para a renovação do cliente.
             </SheetDescription>
           </SheetHeader>
           <div className="min-h-0 flex-1 overflow-y-auto p-6">

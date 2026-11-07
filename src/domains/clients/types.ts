@@ -18,7 +18,14 @@ const snapshot = z
   .object({
     trialEndsAt: z.string().optional(),
     isDisabled: z.boolean().optional(),
-    dailyLimit: z.number().optional(),
+    limits: z.object({
+      maxGroups: z.number().optional(),
+      maxConnections: z.number().optional(),
+      maxMirroredGroups: z.number().optional(),
+      maxDailyPublications: z.number().optional(),
+      maxStores: z.number().optional(),
+      watermarkEnabled: z.boolean().optional(),
+    }).optional(),
     priceCents: z.number().optional(),
     effectiveAt: z.string().optional(),
     status: z.string().optional(),
@@ -30,9 +37,22 @@ export const clientBillingSchema = z.object({
   planCode: z.string(),
   planName: z.string(),
   priceCents: z.number(),
-  effectiveDailyLimit: z.number(),
-  maxDailyPublicationsOverride: z.number().nullable(),
-  nextMaxDailyPublications: z.number().nullable(),
+  effectiveLimits: z.object({
+    maxGroups: z.number(),
+    maxConnections: z.number(),
+    maxMirroredGroups: z.number(),
+    maxDailyPublications: z.number(),
+    maxStores: z.number(),
+    watermarkEnabled: z.boolean(),
+  }),
+  nextLimitsOverride: z.object({
+    maxGroups: z.number().optional(),
+    maxConnections: z.number().optional(),
+    maxMirroredGroups: z.number().optional(),
+    maxDailyPublications: z.number().optional(),
+    maxStores: z.number().optional(),
+    watermarkEnabled: z.boolean().optional(),
+  }).nullable(),
   nextCustomPriceCents: z.number().nullable(),
   nextCustomEffectiveAt: z.string().nullable(),
   status: z.string(),
@@ -91,7 +111,12 @@ export const changeClientSchema = z
   );
 export type ChangeClient = z.infer<typeof changeClientSchema>;
 export const adjustClientSubscriptionSchema = z.object({
-  dailyLimit: z.number().int().min(1).max(10000),
+  maxGroups: z.number().int().min(0).max(10000),
+  maxConnections: z.number().int().min(0).max(1000),
+  maxMirroredGroups: z.number().int().min(0).max(10000),
+  maxDailyPublications: z.number().int().min(0).max(100000),
+  maxStores: z.number().int().min(0).max(1000),
+  watermarkEnabled: z.boolean(),
   priceCents: z.number().int().min(100).max(1000000),
   reason: z.string().trim().min(1).max(300),
 });

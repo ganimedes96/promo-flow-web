@@ -49,13 +49,20 @@ export async function adjustClientSubscription(input: {
       }
     );
   } catch (error) {
+    const details =
+      typeof error === "object" && error !== null
+        ? (error as Partial<ApiResponseError>)
+        : undefined;
     return {
       status: "error",
-      code: 400,
+      code: typeof details?.code === "number" ? details.code : 400,
       timestamp: new Date().toISOString(),
+      requestId: typeof details?.requestId === "string" ? details.requestId : undefined,
       message:
         error instanceof Error
           ? error.message
+          : typeof details?.message === "string" && details.message
+            ? details.message
           : "Não foi possível agendar o ajuste da assinatura.",
     };
   }

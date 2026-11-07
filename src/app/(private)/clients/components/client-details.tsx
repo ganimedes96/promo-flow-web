@@ -222,7 +222,7 @@ export function ClientDetails({ id }: { id: string }) {
                 )}
                 {item.action === "ADJUST_SUBSCRIPTION" && (
                   <p className="mt-2">
-                    {item.before.dailyLimit} → {item.after.dailyLimit} publicações/dia ·{" "}
+                    {item.before.limits?.maxDailyPublications} → {item.after.limits?.maxDailyPublications} publicações/dia ·{" "}
                     {item.before.priceCents !== undefined &&
                       (item.before.priceCents / 100).toLocaleString("pt-BR", {
                         style: "currency",
@@ -237,6 +237,20 @@ export function ClientDetails({ id }: { id: string }) {
                     {item.after.effectiveAt &&
                       ` · previsto para ${date(item.after.effectiveAt)}`}
                     {item.after.status === "FAILED" && " · falhou no Asaas"}
+                  </p>
+                )}
+                {item.action === "ADJUST_SUBSCRIPTION" && item.after.limits && (
+                  <p className="text-muted-foreground mt-1">
+                    {[
+                      ["Grupos", item.before.limits?.maxGroups, item.after.limits.maxGroups],
+                      ["Conexões", item.before.limits?.maxConnections, item.after.limits.maxConnections],
+                      ["Espelhados", item.before.limits?.maxMirroredGroups, item.after.limits.maxMirroredGroups],
+                      ["Lojas", item.before.limits?.maxStores, item.after.limits.maxStores],
+                      ["Marca d’água", item.before.limits?.watermarkEnabled ? "sim" : "não", item.after.limits.watermarkEnabled ? "sim" : "não"],
+                    ]
+                      .filter(([, before, after]) => before !== after)
+                      .map(([label, before, after]) => `${label}: ${before} → ${after}`)
+                      .join(" · ")}
                   </p>
                 )}
                 {item.reason && (
