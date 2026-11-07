@@ -63,19 +63,27 @@ export function SubscriptionPanel() {
       <Card className="from-primary/10 via-card to-card bg-gradient-to-br">
         <CardHeader>
           <Badge variant="outline">
-            {beta ? (access.data?.canUseApp ? "Acesso beta" : "Acesso beta encerrado") : access.data?.status === "ACTIVE"
-              ? "Assinatura ativa"
-              : access.data?.status === "EXPIRED"
-                ? "Teste encerrado"
-                : "Período de teste gratuito"}
+            {beta
+              ? access.data?.canUseApp
+                ? "Acesso beta"
+                : "Acesso beta encerrado"
+              : access.data?.status === "ACTIVE"
+                ? "Assinatura ativa"
+                : access.data?.status === "EXPIRED"
+                  ? "Teste encerrado"
+                  : "Período de teste gratuito"}
           </Badge>
           <CardTitle className="text-2xl">
             {access.data?.plan?.name || "Seu plano no PromoFlow"}
           </CardTitle>
           <CardDescription>
-            {beta ? (access.data?.canUseApp ? "Seu acesso beta inclui os recursos e limites abaixo. Nenhuma cobrança será feita durante este período." : "Seu acesso beta terminou. Entre em contato com o administrador para solicitar uma extensão.") : access.data?.status === "EXPIRED"
-              ? "Seu período de teste terminou. Seus dados e histórico estão preservados. Novas operações ficam pausadas até a ativação de uma assinatura."
-              : "Acompanhe seu acesso e conheça os planos disponíveis."}
+            {beta
+              ? access.data?.canUseApp
+                ? "Seu acesso beta inclui os recursos e limites abaixo. Nenhuma cobrança será feita durante este período."
+                : "Seu acesso beta terminou. Entre em contato com o administrador para solicitar uma extensão."
+              : access.data?.status === "EXPIRED"
+                ? "Seu período de teste terminou. Seus dados e histórico estão preservados. Novas operações ficam pausadas até a ativação de uma assinatura."
+                : "Acompanhe seu acesso e conheça os planos disponíveis."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -269,75 +277,77 @@ export function SubscriptionPanel() {
           )}
         </CardContent>
       </Card>
-      {!beta && <>
-      <SubscriptionBillingStatus />
-      <div>
-        <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <h2 className="text-xl font-semibold">
-              {access.data?.status === "ACTIVE"
-                ? "Seu plano, no seu ritmo"
-                : "Escolha o próximo passo do seu negócio"}
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              {showPlans
-                ? "Compare os limites. A troca só acontece após sua confirmação."
-                : "Seu plano está ativo. Abra as opções quando quiser comparar ou mudar."}
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            className="shrink-0"
-            aria-expanded={showPlans}
-            aria-controls="subscription-plan-options"
-            onClick={() => setPlansExpanded(!showPlans)}
-          >
-            {showPlans ? "Recolher planos" : "Alterar plano"}
-            <ChevronDown
-              className={`size-4 motion-safe:transition-transform motion-safe:duration-300 ${showPlans ? "rotate-180" : ""}`}
-            />
-          </Button>
-        </div>
-        <div
-          id="subscription-plan-options"
-          aria-hidden={!showPlans}
-          inert={!showPlans}
-          className={`grid motion-safe:transition-[grid-template-rows,opacity] motion-safe:duration-300 ${showPlans ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
-        >
-          <div className="min-h-0 overflow-hidden">
-            <div className="p-1.5">
-              {plans.isPending ? (
-                <PlansSkeleton />
-              ) : plans.error ? (
-                <Alert variant="destructive">
-                  <AlertDescription>{plans.error.message}</AlertDescription>
-                </Alert>
-              ) : !plans.data?.length ? (
-                <EmptyStateCard
-                  icon={CreditCard}
-                  title="Os planos estão sendo preparados"
-                  description="Os valores e a forma de pagamento serão disponibilizados aqui. Nenhuma cobrança é feita automaticamente."
-                  action={
-                    <Button
-                      variant="outline"
-                      disabled={plans.isFetching}
-                      onClick={() => {
-                        void plans.refetch();
-                      }}
-                    >
-                      Atualizar planos
-                    </Button>
-                  }
+      {!beta && (
+        <>
+          <SubscriptionBillingStatus />
+          <div>
+            <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <h2 className="text-xl font-semibold">
+                  {access.data?.status === "ACTIVE"
+                    ? "Seu plano, no seu ritmo"
+                    : "Escolha o próximo passo do seu negócio"}
+                </h2>
+                <p className="text-muted-foreground text-sm">
+                  {showPlans
+                    ? "Compare os limites. A troca só acontece após sua confirmação."
+                    : "Seu plano está ativo. Abra as opções quando quiser comparar ou mudar."}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="shrink-0"
+                aria-expanded={showPlans}
+                aria-controls="subscription-plan-options"
+                onClick={() => setPlansExpanded(!showPlans)}
+              >
+                {showPlans ? "Recolher planos" : "Alterar plano"}
+                <ChevronDown
+                  className={`size-4 motion-safe:transition-transform motion-safe:duration-300 ${showPlans ? "rotate-180" : ""}`}
                 />
-              ) : (
-                <SubscriptionPlans plans={plans.data} />
-              )}
+              </Button>
+            </div>
+            <div
+              id="subscription-plan-options"
+              aria-hidden={!showPlans}
+              inert={!showPlans}
+              className={`grid motion-safe:transition-[grid-template-rows,opacity] motion-safe:duration-300 ${showPlans ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+            >
+              <div className="min-h-0 overflow-hidden">
+                <div className="p-1.5">
+                  {plans.isPending ? (
+                    <PlansSkeleton />
+                  ) : plans.error ? (
+                    <Alert variant="destructive">
+                      <AlertDescription>{plans.error.message}</AlertDescription>
+                    </Alert>
+                  ) : !plans.data?.length ? (
+                    <EmptyStateCard
+                      icon={CreditCard}
+                      title="Os planos estão sendo preparados"
+                      description="Os valores e a forma de pagamento serão disponibilizados aqui. Nenhuma cobrança é feita automaticamente."
+                      action={
+                        <Button
+                          variant="outline"
+                          disabled={plans.isFetching}
+                          onClick={() => {
+                            void plans.refetch();
+                          }}
+                        >
+                          Atualizar planos
+                        </Button>
+                      }
+                    />
+                  ) : (
+                    <SubscriptionPlans plans={plans.data} />
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      <SubscriptionPayments />
-      </>}
+          <SubscriptionPayments />
+        </>
+      )}
     </div>
   );
 }

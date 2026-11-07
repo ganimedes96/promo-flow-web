@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { OfferFilters } from "./filters";
 import type { OfferListFilters } from "@/domains/offers/types";
+import { OfferStatus } from "@/domains/offers/offer-status";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -62,7 +63,7 @@ export function OffersTable() {
       const hasPending = query.state.data?.data.some((group) =>
         group.destinations.some(
           (offer) =>
-            ["PROCESSING", "SCHEDULED", "PUBLISHING"].includes(offer.status) ||
+            new Set<OfferStatus>([OfferStatus.PROCESSING, OfferStatus.SCHEDULED, OfferStatus.PUBLISHING]).has(offer.status) ||
             offer.mirrorAffiliateStatus === "PENDING"
         )
       );

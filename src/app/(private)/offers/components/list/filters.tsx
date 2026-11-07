@@ -5,6 +5,14 @@ import { ControlledDatePicker } from "@/components/form/controllers/controlled-d
 import { ControlledInput } from "@/components/form/controllers/controlled-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { getOfferFilterGroups } from "@/domains/offers/client";
 import type { Offer, OfferListFilters } from "@/domains/offers/types";
 import { getWhatsAppConnections } from "@/domains/whatsapp/client";
@@ -13,14 +21,21 @@ import { TIMEZONE } from "@/utils/date";
 import { useQuery } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
-import { ChevronDown, Filter, Search, X } from "lucide-react";
+import { ChevronDown, CircleHelp, Filter, Search, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { Collapsible } from "radix-ui";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { statusLabels } from "./helpers";
+import {
+  OFFER_PREPARATION_STATUS_INFO,
+  OFFER_STATUS_INFO,
+  OFFER_WAIT_REASON_INFO,
+} from "@/domains/offers/offer-status";
+import { statusColors, statusLabels } from "./helpers";
+import { OfferStatus } from "@/domains/offers/offer-status";
 
 type FilterValues = {
+  waitReason: string;
   search: string;
   status: Offer["status"] | "all";
   connectionId: string;
@@ -29,6 +44,7 @@ type FilterValues = {
   dateTo: Date | undefined;
 };
 const defaults: FilterValues = {
+  waitReason: "all",
   search: "",
   status: "all",
   connectionId: "all",
@@ -81,6 +97,12 @@ export function OfferFilters({
           return;
         }
         onApply({
+          ...(activeFilters.needsAction
+            ? { needsAction: activeFilters.needsAction }
+            : {}),
+          ...(values.waitReason !== "all"
+            ? { waitReason: values.waitReason }
+            : {}),
           ...(values.search.trim() ? { search: values.search.trim() } : {}),
           ...(values.status !== "all" ? { status: values.status } : {}),
           ...(values.connectionId !== "all"
@@ -106,6 +128,58 @@ export function OfferFilters({
         });
       })}
     >
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant={activeFilters.needsAction ? "default" : "outline"}
+          aria-pressed={!!activeFilters.needsAction}
+          onClick={() => {
+            const next = { ...activeFilters };
+            if (next.needsAction) delete next.needsAction;
+            else next.needsAction = "true";
+            onApply(next);
+          }}
+        >
+          Precisam de ação
+        </Button>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button type="button" variant="outline" size="sm">
+              <CircleHelp className="size-4" />
+              Guia dos status
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="w-full gap-0 overflow-y-auto sm:max-w-xl">
+            <SheetHeader className="border-b px-5 py-5">
+              <SheetTitle className="text-lg">Entenda os status</SheetTitle>
+              <SheetDescription className="text-sm leading-relaxed">
+                O status mostra em que etapa a oferta está. Quando há uma
+                espera, o motivo indica o que precisa acontecer para continuar.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="grid gap-4 px-5 py-5">
+              <StatusGuide
+                title="Status da oferta"
+                tone="green"
+                items={Object.entries(OFFER_STATUS_INFO).map(([status, info]) => ({
+                  ...info,
+                  badgeClass: statusColors[status as OfferStatus],
+                }))}
+              />
+              <StatusGuide
+                title="Preparação e afiliado"
+                tone="violet"
+                items={Object.values(OFFER_PREPARATION_STATUS_INFO)}
+              />
+              <StatusGuide
+                title="Motivos de espera"
+                tone="amber"
+                items={Object.values(OFFER_WAIT_REASON_INFO)}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
       <Collapsible.Root
         open={open}
         onOpenChange={setOpen}
@@ -179,6 +253,19 @@ export function OfferFilters({
                 })),
               ]}
             />
+            <ControlledCombobox
+              control={control}
+              name="waitReason"
+              label="Motivo da espera"
+              placeholder="Todos os motivos"
+              options={[
+                { id: "all", name: "Todos os motivos" },
+                ...Object.entries(OFFER_WAIT_REASON_INFO).map(([id, info]) => ({
+                  id,
+                  name: info.label,
+                })),
+              ]}
+            />
             <ControlledInput
               control={control}
               name="search"
@@ -242,5 +329,56 @@ export function OfferFilters({
         </Collapsible.Content>
       </Collapsible.Root>
     </form>
+  );
+}
+
+function StatusGuide({
+  title,
+  tone,
+  items,
+}: {
+  title: string;
+  tone: "green" | "violet" | "amber";
+  items: Array<{ label: string; help: string; badgeClass?: string }>;
+}) {
+  const palette = {
+    green: {
+      panel: "border-emerald-300/70 bg-emerald-50/70 dark:border-emerald-900 dark:bg-emerald-950/25",
+      title: "text-emerald-900 dark:text-emerald-200",
+      row: "border-emerald-200/80 bg-white/80 dark:border-emerald-900/70 dark:bg-background/70",
+      badge: "border-emerald-300 bg-emerald-100 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-200",
+    },
+    violet: {
+      panel: "border-violet-300/70 bg-violet-50/70 dark:border-violet-900 dark:bg-violet-950/25",
+      title: "text-violet-900 dark:text-violet-200",
+      row: "border-violet-200/80 bg-white/80 dark:border-violet-900/70 dark:bg-background/70",
+      badge: "border-violet-300 bg-violet-100 text-violet-950 dark:border-violet-800 dark:bg-violet-950 dark:text-violet-200",
+    },
+    amber: {
+      panel: "border-amber-300/70 bg-amber-50/70 dark:border-amber-900 dark:bg-amber-950/25",
+      title: "text-amber-900 dark:text-amber-200",
+      row: "border-amber-200/80 bg-white/80 dark:border-amber-900/70 dark:bg-background/70",
+      badge: "border-amber-300 bg-amber-100 text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200",
+    },
+  }[tone];
+
+  return (
+    <section className={`space-y-3 rounded-xl border p-3 sm:p-4 ${palette.panel}`}>
+      <h3 className={`text-sm font-bold tracking-wide ${palette.title}`}>{title}</h3>
+      <ul className="space-y-2.5">
+        {items.map((item) => (
+          <li key={item.label} className={`space-y-2 rounded-lg border p-3 ${palette.row}`}>
+            <span
+              className={`inline-flex min-h-7 items-center rounded-full border px-2.5 py-1 text-xs leading-none font-semibold ${item.badgeClass ?? palette.badge}`}
+            >
+              {item.label}
+            </span>
+            <p className="text-foreground/85 text-sm leading-relaxed">
+              {item.help}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

@@ -2,16 +2,19 @@ import styles from "./animated-channel-icon.module.css";
 
 export function AnimatedChannelIcon({
   platform,
+  compact = false,
 }: {
   platform: "whatsapp" | "telegram";
+  compact?: boolean;
 }) {
   const telegram = platform === "telegram";
   return (
     <span
       aria-hidden="true"
-      className={`${styles.icon} ${telegram ? styles.telegram : styles.whatsapp}`}
+      className={`${styles.icon} ${compact ? styles.compact : ""} ${telegram ? styles.telegram : styles.whatsapp}`}
     >
       <svg
+        className="size-full"
         viewBox="0 0 48 48"
         width="44"
         height="44"

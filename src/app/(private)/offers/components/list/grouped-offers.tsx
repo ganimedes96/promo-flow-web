@@ -25,6 +25,7 @@ import {
   OfferGroup,
   OfferGroupActionResult,
 } from "@/domains/offers/types";
+import { OfferStatus } from "@/domains/offers/offer-status";
 import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { toast } from "@/lib/toast";
@@ -125,21 +126,45 @@ export const groupedColumns: ColumnDef<OfferGroup>[] = [
     render: (_value, group) => {
       const dates = group.destinations
         .flatMap((offer) =>
-          offer.status === "SCHEDULED" &&
+          offer.status === OfferStatus.SCHEDULED &&
           !offer.queueBlockedReason &&
           offer.scheduledAt
             ? [offer.scheduledAt]
             : []
         )
         .sort();
-      return dates[0]
-        ? formatDate(dates[0], "dd/MM/yyyy HH:mm")
-        : group.destinations.some(
-              (offer) =>
-                offer.status === "SCHEDULED" && offer.queueBlockedReason
-            )
-          ? "Aguardando liberação"
-          : "—";
+      if (dates[0]) {
+        const overdue = Date.parse(dates[0]) <= Date.now();
+        return (
+          <div className="space-y-1">
+            <span>{formatDate(dates[0], "dd/MM/yyyy HH:mm")}</span>
+            {overdue && (
+              <small className="text-warning block text-xs">Envio atrasado</small>
+            )}
+          </div>
+        );
+      }
+
+      const blocked = group.destinations.filter(
+        (offer) => offer.status === OfferStatus.SCHEDULED && offer.queueBlockedReason
+      );
+      const first = blocked[0];
+      if (!first) return "—";
+      if (
+        blocked.some(
+          (offer) => offer.queueBlockedCode !== first.queueBlockedCode
+        )
+      )
+        return "Confira os destinos";
+
+      return (
+        <div className="max-w-60 space-y-1">
+          <p>{offerDisplayStatus(first).label}</p>
+          <p className="text-muted-foreground whitespace-normal wrap-anywhere text-xs leading-relaxed">
+            {first.queueBlockedReason}
+          </p>
+        </div>
+      );
     },
   },
 ];
@@ -174,13 +199,13 @@ export function OfferDestinations({ group }: { group: OfferGroup }) {
 export function OfferGroupActions({ group }: { group: OfferGroup }) {
   const scheduleCount = group.destinations.filter(
     (offer) =>
-      ["READY", "FAILED", "CANCELLED"].includes(offer.status) &&
+      new Set<OfferStatus>([OfferStatus.READY, OfferStatus.FAILED, OfferStatus.CANCELLED]).has(offer.status) &&
       !!offer.whatsappGroup &&
       (!offer.mirrorAffiliateStatus ||
         offer.mirrorAffiliateStatus === "APPLIED")
   ).length;
   const cancelCount = group.destinations.filter(
-    (offer) => offer.status === "SCHEDULED"
+    (offer) => offer.status === OfferStatus.SCHEDULED
   ).length;
   const schedule = useServerAction<OfferGroupActionResult, string>({
     mutationFn: scheduleOfferGroup,
@@ -203,7 +228,7 @@ export function OfferGroupActions({ group }: { group: OfferGroup }) {
     return <MirrorOfferAction offer={group.product} />;
   if (
     group.destinations.length > 0 &&
-    group.destinations.every((offer) => offer.status === "PUBLISHED")
+    group.destinations.every((offer) => offer.status === OfferStatus.PUBLISHED)
   )
     return (
       <span

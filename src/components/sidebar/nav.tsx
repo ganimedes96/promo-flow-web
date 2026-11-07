@@ -34,15 +34,24 @@ export function Nav({ permissions }: NavProps) {
       (item) => pathname === item.href || pathname.startsWith(item.href + "/")
     )
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;
-  const overview = accessible.find((item) => item.href === "/control-panel");
+  const topItems = ["/dashboard", "/control-panel"].flatMap((href) =>
+    accessible.filter((item) => item.href === href)
+  );
   const navigate = () => {
     if (isMobile) setOpenMobile(false);
   };
   return (
     <nav aria-label="Menu principal" className="p-3">
       <SidebarMenu className="gap-2">
-        {overview && (
-          <SidebarMenuItem className="border-sidebar-border mb-2 border-b pb-3">
+        {topItems.map((overview) => (
+          <SidebarMenuItem
+            key={overview.href}
+            className={
+              overview.href === "/control-panel"
+                ? "border-sidebar-border mb-2 border-b pb-3"
+                : undefined
+            }
+          >
             <SidebarMenuButton
               asChild
               isActive={activeHref === overview.href}
@@ -59,7 +68,7 @@ export function Nav({ permissions }: NavProps) {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-        )}
+        ))}
         {sections.map((section) => (
           <NavCategory
             key={section.id}

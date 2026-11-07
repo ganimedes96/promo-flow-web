@@ -79,7 +79,7 @@ async function forward(request: NextRequest, context: Context) {
       }
       const schema =
         action === "conversion-claim"
-          ? z.object({}).strict()
+          ? z.object({ offerId: z.string().uuid().optional() }).strict()
           : z
               .object({
                 offerId: z.string().uuid(),

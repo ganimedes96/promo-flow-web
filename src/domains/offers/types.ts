@@ -1,6 +1,8 @@
 import type { ActivityEvent } from "@/domains/activity/types";
 import { z } from "zod";
 import { categorySelectionSchema } from "@/domains/categories/types";
+import { OfferStatus, OfferWaitReason } from "./offer-status";
+export { OfferStatus, OfferWaitReason } from "./offer-status";
 const httpUrl = z
   .string()
   .trim()
@@ -111,24 +113,10 @@ export interface Offer {
   publishedAt: string | null;
   errorMessage: string | null;
   attempts: number;
-  queueBlockedCode?:
-    | "PAUSED"
-    | "WAITING_CONNECTION"
-    | "GROUP_UNAVAILABLE"
-    | "WORKER_OFFLINE"
-    | "PUBLISHING_DISABLED"
-    | "PREVIOUS_UNCONFIRMED"
-    | "PREVIOUS_SENDING"
-    | null;
+  filterMatched?: boolean;
+  queueBlockedCode?: Exclude<OfferWaitReason, OfferWaitReason.AFFILIATE> | null;
   queueBlockedReason?: string | null;
-  status:
-    | "PROCESSING"
-    | "READY"
-    | "SCHEDULED"
-    | "PUBLISHING"
-    | "PUBLISHED"
-    | "FAILED"
-    | "CANCELLED";
+  status: OfferStatus;
   whatsappGroup: { id: string; name: string } | null;
 }
 
@@ -154,6 +142,8 @@ export interface OfferGroupActionResult {
 }
 
 export interface OfferListFilters {
+  needsAction?: "true";
+  waitReason?: string;
   search?: string;
   status?: Offer["status"];
   connectionId?: string;

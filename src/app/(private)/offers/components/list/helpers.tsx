@@ -2,88 +2,19 @@ import {
   ActivityHistory,
   SupportReference,
 } from "@/components/feedback/activity-history";
-import { isShopeeLink } from "@/domains/offers/affiliate-links";
+import { offerDisplayStatus } from "@/domains/offers/display-status";
 import { PromotionImage } from "@/app/(private)/promotions/components/promotion-image";
 import { OfferQueueActions } from "./queue-actions";
 import { Badge } from "@/components/ui/badge";
 import { ColumnDef } from "@/components/ui/data-table";
 import { Offer } from "@/domains/offers/types";
+import { OfferStatus } from "@/domains/offers/offer-status";
 import { formatDate } from "@/utils/date";
-export const statusLabels: Record<Offer["status"], string> = {
-  PROCESSING: "Processando",
-  READY: "Pronta",
-  SCHEDULED: "Agendada",
-  PUBLISHING: "Enviando",
-  PUBLISHED: "Publicada",
-  FAILED: "Falhou",
-  CANCELLED: "Cancelada",
-};
-export const statusColors: Record<Offer["status"], string> = {
-  PROCESSING: "border-violet-700 bg-violet-700 text-white font-semibold",
-  READY: "border-cyan-800 bg-cyan-800 text-white font-semibold",
-  SCHEDULED: "border-blue-700 bg-blue-700 text-white font-semibold",
-  PUBLISHING: "border-amber-300 bg-amber-300 text-amber-950 font-semibold",
-  PUBLISHED: "border-emerald-700 bg-emerald-700 text-white font-semibold",
-  FAILED: "border-rose-700 bg-rose-700 text-white font-semibold",
-  CANCELLED: "border-orange-700 bg-orange-700 text-white font-semibold",
-};
-export function offerDisplayStatus(offer: Offer): {
-  label: string;
-  color: string;
-} {
-  if (offer.mirrorAffiliateStatus === "PENDING")
-    return {
-      label:
-        offer.mirrorConversionStatus === "RECONNECT"
-          ? isShopeeLink(offer.sourceUrl)
-            ? "Reconectar Shopee"
-            : "Reconectar Mercado Livre"
-          : offer.mirrorConversionStatus === "CONVERTING"
-            ? "Convertendo link"
-            : offer.mirrorConversionStatus === "FAILED"
-              ? "Revisar conversão"
-              : offer.mirrorConversionStatus === "STORE_REQUIRED"
-                ? "Configurar loja"
-                : offer.mirrorConversionStatus
-                  ? "Aguardando extensão"
-                  : "Aguardando seu link",
-      color:
-        offer.mirrorConversionStatus === "FAILED" ||
-        offer.mirrorConversionStatus === "RECONNECT"
-          ? statusColors.FAILED
-          : statusColors.PUBLISHING,
-    };
-  if (offer.mirrorAffiliateStatus && !offer.whatsappGroup)
-    return { label: "Escolher destino", color: statusColors.READY };
-  if (offer.status === "PUBLISHING" && offer.errorMessage)
-    return { label: "Sem confirmação", color: statusColors.PUBLISHING };
-  if (offer.status === "SCHEDULED" && offer.queueBlockedReason) {
-    const labels: Partial<
-      Record<NonNullable<Offer["queueBlockedCode"]>, string>
-    > = {
-      PAUSED: "Pausada",
-      WAITING_CONNECTION: "Aguardando conexão",
-      GROUP_UNAVAILABLE: "Grupo indisponível",
-      WORKER_OFFLINE: "Publicador offline",
-      PUBLISHING_DISABLED: "Envios desativados",
-      PREVIOUS_UNCONFIRMED: "Aguardando conferência",
-      PREVIOUS_SENDING: "Aguardando envio anterior",
-    };
-    return {
-      label:
-        (offer.queueBlockedCode && labels[offer.queueBlockedCode]) ||
-        "Fila aguardando",
-      color:
-        offer.queueBlockedCode === "PAUSED"
-          ? statusColors.CANCELLED
-          : statusColors.PUBLISHING,
-    };
-  }
-  return {
-    label: statusLabels[offer.status],
-    color: statusColors[offer.status],
-  };
-}
+export {
+  offerDisplayStatus,
+  statusLabels,
+  statusColors,
+} from "@/domains/offers/display-status";
 export const columns: ColumnDef<Offer>[] = [
   {
     key: "title",
@@ -124,6 +55,9 @@ export const columns: ColumnDef<Offer>[] = [
     render: (_value, row) => (
       <div className="space-y-1">
         <p>{row.whatsappGroup?.name ?? "Grupo indisponível"}</p>
+        {row.filterMatched && (
+          <Badge variant="secondary">Corresponde ao filtro</Badge>
+        )}
         {row.connection && (
           <p className="text-muted-foreground text-xs">
             {row.connection.name}
@@ -165,7 +99,7 @@ export const columns: ColumnDef<Offer>[] = [
           <span>{formatDate(row.scheduledAt, "dd/MM/yyyy HH:mm")}</span>
           {row.queueBlockedReason && (
             <small className="text-muted-foreground block text-xs">
-              Aguardando liberação da fila
+              {offerDisplayStatus(row).label}
             </small>
           )}
         </div>
@@ -186,7 +120,7 @@ export const columns: ColumnDef<Offer>[] = [
       <div className="max-w-64 min-w-44 space-y-2">
         {(row.queueBlockedReason || row.errorMessage) && (
           <p
-            className="text-warning line-clamp-2 text-xs"
+            className="text-warning line-clamp-2 whitespace-normal wrap-anywhere text-xs"
             title={
               row.queueBlockedReason ||
               row.activityEvents?.[0]?.message ||
@@ -195,7 +129,7 @@ export const columns: ColumnDef<Offer>[] = [
           >
             {row.queueBlockedReason ||
               (row.activityEvents?.[0]?.message ??
-                (row.status === "PUBLISHING"
+                (row.status === OfferStatus.PUBLISHING
                   ? "Envio sem confirmação. Confira o grupo antes de reenviar."
                   : "Não foi possível concluir a operação. Consulte o histórico."))}
           </p>

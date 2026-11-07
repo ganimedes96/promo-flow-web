@@ -1,6 +1,7 @@
 import { Permission } from "@/domains/auth/enums";
 import { hasPermission } from "@/utils/permissions";
 import {
+  ChartNoAxesCombined,
   LayoutDashboard,
   Users,
   Tags,
@@ -11,10 +12,13 @@ import {
   Store,
   Activity,
   MessageCircle,
+  Zap,
 } from "lucide-react";
 
 export const identifierLinks: { [key: string]: string } = {
+  "/automations": "Automações",
   "/mirroring": "Espelhar grupos",
+  "/dashboard": "Visão geral",
   "/control-panel": "Painel de controle",
   "/connections": "Conexões",
   "/groups": "Grupos",
@@ -42,8 +46,24 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  {title:"Planos e limites",icon:<CreditCard />,href:"/plans",requiredPermissions:[Permission.managePromotions]},
-  {title:"Clientes",icon:<Users />,href:"/clients",requiredPermissions:[Permission.managePromotions]},
+  {
+    title: "Automações",
+    icon: <Zap />,
+    href: "/automations",
+    requiredPermissions: [],
+  },
+  {
+    title: "Planos e limites",
+    icon: <CreditCard />,
+    href: "/plans",
+    requiredPermissions: [Permission.managePromotions],
+  },
+  {
+    title: "Clientes",
+    icon: <Users />,
+    href: "/clients",
+    requiredPermissions: [Permission.managePromotions],
+  },
   {
     title: "Espelhar grupos",
     icon: <Radio />,
@@ -112,6 +132,12 @@ export const navItems: NavItem[] = [
     requiredPermissions: [],
   },
   {
+    title: "Visão geral",
+    icon: <ChartNoAxesCombined />,
+    href: "/dashboard",
+    requiredPermissions: [],
+  },
+  {
     title: "Painel de controle",
     icon: <LayoutDashboard />,
     href: "/control-panel",
@@ -154,7 +180,13 @@ const navSections = [
     id: "channels",
     title: "Canais",
     icon: <Smartphone />,
-    hrefs: ["/connections", "/groups", "/mirroring", "/message-settings"],
+    hrefs: [
+      "/connections",
+      "/groups",
+      "/mirroring",
+      "/message-settings",
+      "/automations",
+    ],
   },
   {
     id: "settings",

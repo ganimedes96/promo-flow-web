@@ -7,6 +7,10 @@ const usersKeys = {
 };
 
 export const queryKeys = {
+  automations: {
+    settings: (userId?: string) => ["automations", "settings", userId] as const,
+    choices: (userId?: string) => ["automations", "choices", userId] as const,
+  },
   activity: {
     history: (userId: string | undefined, resource: object) =>
       ["activity", userId, resource] as const,

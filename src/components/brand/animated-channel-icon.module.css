@@ -10,6 +10,10 @@
     0 4px 7px color-mix(in srgb, currentColor 20%, transparent)
   );
 }
+.compact {
+  width: 28px;
+  height: 28px;
+}
 .icon svg {
   overflow: visible;
 }

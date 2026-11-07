@@ -9,6 +9,7 @@ import { deleteOffer } from "@/domains/offers/actions";
 import { Button } from "@/components/ui/button";
 import { scheduleOffer, cancelOfferSchedule } from "@/domains/offers/actions";
 import { Offer } from "@/domains/offers/types";
+import { OfferStatus } from "@/domains/offers/offer-status";
 import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 
@@ -45,9 +46,9 @@ export function OfferQueueActions({ offer }: { offer: Offer }) {
       </div>
     );
   }
-  if (offer.status === "PUBLISHING" && offer.errorMessage)
+  if (offer.status === OfferStatus.PUBLISHING && offer.errorMessage)
     return <ReviewSend offer={offer} />;
-  if (offer.status === "SCHEDULED")
+  if (offer.status === OfferStatus.SCHEDULED)
     return (
       <div className="flex shrink-0 items-center gap-2">
         <Button
@@ -63,10 +64,10 @@ export function OfferQueueActions({ offer }: { offer: Offer }) {
       </div>
     );
   if (
-    offer.status === "READY" ||
-    offer.status === "CANCELLED" ||
-    offer.status === "FAILED" ||
-    offer.status === "PUBLISHED"
+    offer.status === OfferStatus.READY ||
+    offer.status === OfferStatus.CANCELLED ||
+    offer.status === OfferStatus.FAILED ||
+    offer.status === OfferStatus.PUBLISHED
   )
     return (
       <div className="flex shrink-0 items-center gap-2">
@@ -77,9 +78,9 @@ export function OfferQueueActions({ offer }: { offer: Offer }) {
           loading={schedule.isPending}
           onClick={() => schedule.mutate(offer.id)}
         >
-          {offer.status === "PUBLISHED"
+          {offer.status === OfferStatus.PUBLISHED
             ? "Republicar"
-            : offer.status === "FAILED"
+            : offer.status === OfferStatus.FAILED
               ? "Tentar novamente"
               : "Enviar"}
         </Button>
@@ -91,7 +92,12 @@ export function OfferQueueActions({ offer }: { offer: Offer }) {
 export function OfferDeleteAction({ offer }: { offer: Offer }) {
   return (
     <>
-      {["READY", "CANCELLED", "FAILED", "PUBLISHED"].includes(offer.status) &&
+      {new Set<OfferStatus>([
+        OfferStatus.READY,
+        OfferStatus.CANCELLED,
+        OfferStatus.FAILED,
+        OfferStatus.PUBLISHED,
+      ]).has(offer.status) &&
         (!offer.mirrorAffiliateStatus || !!offer.whatsappGroup) && (
           <FormSheet
             title="Editar oferta"
@@ -107,7 +113,7 @@ export function OfferDeleteAction({ offer }: { offer: Offer }) {
         onDelete={() => deleteOffer(offer.id)}
         invalidateQueries={[queryKeys.offers.all]}
         disabled={
-          offer.status === "PUBLISHING" || offer.status === "PROCESSING"
+          offer.status === OfferStatus.PUBLISHING || offer.status === OfferStatus.PROCESSING
         }
         confirmTitle="Excluir oferta"
         confirmDescription="Excluir esta oferta e seu histórico? O agendamento será removido. Mensagens já enviadas ao WhatsApp permanecerão no grupo."

@@ -1,7 +1,7 @@
 "use client";
 
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch"; // Importe o componente base que você postou
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/shadcn/utils";
 import {
   Controller,
@@ -14,6 +14,7 @@ interface ControlledSwitchProps<
 > extends UseControllerProps<FormType> {
   label: string;
   description?: string;
+  switchClassName?: string;
   className?: string;
   disabled?: boolean;
 }
@@ -25,6 +26,7 @@ export function ControlledSwitch<FormType extends FieldValues>({
   label,
   description,
   className,
+  switchClassName,
   disabled,
 }: ControlledSwitchProps<FormType>) {
   return (
@@ -37,7 +39,9 @@ export function ControlledSwitch<FormType extends FieldValues>({
           <div className="flex items-center justify-start gap-4">
             <Switch
               id={name}
-              checked={value}
+              type="button"
+              className={switchClassName}
+              checked={value === true}
               onCheckedChange={onChange}
               disabled={disabled}
             />
