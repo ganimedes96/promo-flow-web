@@ -41,6 +41,16 @@ import { formatDate } from "@/utils/date";
 import { toast } from "@/lib/toast";
 import { SupportStatus } from "./support-status";
 import { ListPagination } from "@/components/pagination";
+const conversionErrors: Record<string, string> = {
+  PRODUCT_NOT_FOUND: "Não foi possível identificar o produto no link de origem.",
+  MULTIPLE_PRODUCTS: "A página de origem apresenta mais de um produto.",
+  CAMPAIGN_INVALID: "Não foi possível localizar ou confirmar a etiqueta de campanha.",
+  GENERATOR_FORM: "Não foi possível identificar o formulário do gerador.",
+  GENERATOR_TIMEOUT: "O gerador não confirmou um novo link a tempo.",
+  GENERATION_FAILED: "A loja não confirmou a geração do link.",
+  TIMEOUT: "A tentativa de conversão expirou.",
+  LOGIN_REQUIRED: "A conta da loja precisa ser reconectada.",
+};
 const date = (value: string | null) =>
   value ? formatDate(value, "dd/MM/yyyy HH:mm:ss") : "—";
 const statuses = [
@@ -407,8 +417,9 @@ function SupportDetails({ userId }: { userId: string }) {
                         <SupportStatus status={offer.mirrorConversion.status} />
                         <span>
                           {offer.mirrorConversion.attempts} tentativa(s) ·{" "}
-                          {offer.mirrorConversion.lastErrorCode ??
-                            "Sem erro informado"}
+                          {offer.mirrorConversion.lastErrorCode
+                            ? conversionErrors[offer.mirrorConversion.lastErrorCode] ?? offer.mirrorConversion.lastErrorCode
+                            : "Sem erro informado"}
                         </span>
                       </div>
                     )}

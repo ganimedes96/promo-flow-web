@@ -87,12 +87,13 @@ export async function quotePlanChange(input: {
 export async function confirmPlanChange(input: {
   id: string;
   acceptRecurring: true;
+  password?: string;
 }): Promise<ApiResponse<PlanChange> | ApiResponseError> {
   try {
     z.literal(true).parse(input.acceptRecurring);
     const result = await fetchServer<ApiResponse<PlanChange>>(
       "/billing/plan-change/" + z.string().uuid().parse(input.id) + "/confirm",
-      { method: "POST", body: { acceptRecurring: true } }
+      { method: "POST", body: { acceptRecurring: true, ...(input.password ? { password: z.string().max(128).parse(input.password) } : {}) } }
     );
     if (result.status === "success") planChangeSchema.parse(result.data);
     return result;

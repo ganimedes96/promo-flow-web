@@ -63,9 +63,9 @@ export function requestMirrorConversion(
         finish({
           ok: false,
           message:
-            "A extensão não respondeu. Recarregue a extensão no Chrome e esta página, confira a conta e o ambiente conectados e tente novamente. A oferta permanece salva na fila.",
+            "A extensão não respondeu no tempo esperado. A solicitação pode ainda estar em andamento. Atualize a lista antes de tentar novamente e confira a conexão da extensão.",
         }),
-      15000
+      60000
     );
     window.postMessage(
       { type: "PROMOFLOW_CONVERSION_RETRY", requestId, accountId, offerId },

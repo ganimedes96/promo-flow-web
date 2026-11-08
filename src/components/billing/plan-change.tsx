@@ -21,6 +21,7 @@ import { useServerAction } from "@/hooks/use-server-action";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { formatDate } from "@/utils/date";
 import { ControlledSingleCheckbox } from "@/components/form/controllers/controlled-single-checkbox";
+import { ControlledInput } from "@/components/form/controllers/controlled-input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -116,7 +117,7 @@ function PlanChangeForm({
   quote: PlanChange;
   onDone: () => void;
 }) {
-  const form = useForm({ defaultValues: { acceptRecurring: false } });
+  const form = useForm({ defaultValues: { acceptRecurring: false, password: "" } });
   const update = useServerAction({
     mutationFn: confirmPlanChange,
     invalidateQueries: [queryKeys.billing.all],
@@ -137,7 +138,7 @@ function PlanChangeForm({
       className="space-y-4"
       onSubmit={form.handleSubmit((input) => {
         if (input.acceptRecurring)
-          update.mutate({ id: quote.id, acceptRecurring: true });
+          update.mutate({ id: quote.id, acceptRecurring: true, ...(quote.kind === "DOWNGRADE" ? { password: input.password } : {}) });
       })}
     >
       <div className="bg-primary/10 space-y-2 rounded-xl border p-4">
@@ -167,6 +168,19 @@ function PlanChangeForm({
           reiniciar o mês. Simulação válida até{" "}
           {formatDate(quote.expiresAt, "HH:mm")}.
         </p>
+      )}
+      {quote.kind === "DOWNGRADE" && (
+        <ControlledInput
+          control={form.control}
+          name="password"
+          label="Confirme sua senha"
+          placeholder="Senha da sua conta PromoFlow"
+          type="password"
+          autoComplete="current-password"
+          maxLength={128}
+          disabled={update.isPending}
+          rules={{ required: "Informe sua senha para reduzir o plano." }}
+        />
       )}
       <ControlledSingleCheckbox
         control={form.control}
