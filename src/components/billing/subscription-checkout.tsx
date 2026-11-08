@@ -160,8 +160,9 @@ export function SubscriptionBillingStatus() {
             )}
             {row.status === "REVIEW_REQUIRED" && (
               <p className="text-muted-foreground text-sm">
-                Ainda não recebemos a confirmação da contratação. Não crie outra
-                assinatura. Se persistir, procure o suporte.
+                Não foi possível confirmar a criação do checkout. Isso não indica
+                que o pagamento foi realizado. O suporte precisa conferir a
+                tentativa no Asaas antes de liberar uma nova contratação.
               </p>
             )}
             <div className="flex flex-wrap gap-2">
@@ -326,9 +327,13 @@ export function SubscribeButton({ plan }: { plan: SubscriptionPlan }) {
         {!query.data?.enabled
           ? "Pagamento em configuração"
           : hasOpen
-            ? row.planCode === plan.code
-              ? "Seu plano selecionado"
-              : "Cancele a renovação para trocar"
+            ? ["CREATING", "WAITING", "REVIEW_REQUIRED"].includes(row.status)
+              ? row.planCode === plan.code
+                ? "Contratação pendente"
+                : "Aguarde a contratação pendente"
+              : row.planCode === plan.code
+                ? "Seu plano selecionado"
+                : "Cancele a renovação para trocar"
             : "Assinar mensalmente"}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -355,9 +360,10 @@ export function SubscribeButton({ plan }: { plan: SubscriptionPlan }) {
             })}
           >
             <p className="text-muted-foreground text-sm">
-              A primeira cobrança respeita o fim do seu teste, se ainda estiver
-              válido. As seguintes são mensais. Você pode cancelar a renovação
-              nesta tela. O acesso pago será confirmado pelo Asaas.
+              A primeira mensalidade será cobrada ao concluir a assinatura,
+              mesmo que seu teste ainda esteja ativo. As próximas cobranças são
+              mensais. Você pode cancelar a renovação nesta tela. O acesso pago
+              será confirmado pelo Asaas.
             </p>
             {query.data?.environment === "sandbox" && (
               <Badge variant="outline">
@@ -367,7 +373,7 @@ export function SubscribeButton({ plan }: { plan: SubscriptionPlan }) {
             <ControlledSingleCheckbox
               control={form.control}
               name="acceptRecurring"
-              label="Concordo com a cobrança mensal e a renovação automática."
+              label="Concordo com a primeira cobrança imediata e a renovação mensal automática."
               rules={{
                 validate: (value) =>
                   value || "Confirme a assinatura recorrente para continuar.",
