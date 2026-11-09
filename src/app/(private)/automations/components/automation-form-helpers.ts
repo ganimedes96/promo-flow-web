@@ -7,7 +7,15 @@ export function toScheduleFormValues(
 ): ScheduleFormValues {
   return {
     ...settings,
-    intervalMinutes: String(settings.intervalMinutes),
+    dayRules: Array.from({ length: 7 }, (_, day) => {
+      const rule = settings.dayRules?.[day] ?? settings;
+      return {
+        start: rule.start,
+        end: rule.end,
+        dailyLimit: rule.dailyLimit,
+        intervalMinutes: String(rule.intervalMinutes),
+      };
+    }),
     dayOptions: settings.days.map(String),
     whatsappGroups: settings.groupIds.filter((id) =>
       groups.some((group) => group.id === id && group.platform === "whatsapp")

@@ -4,7 +4,7 @@ import { automationSchema, type Automation } from "@/domains/automations/types";
 import { useServerAction } from "@/hooks/use-server-action";
 import { toast } from "@/lib/toast";
 import { queryKeys } from "@/lib/tanstack-query/keys";
-import type { AutomationGroup, ScheduleFormValues } from "./automation-types";
+import { weekdays, type AutomationGroup, type ScheduleFormValues } from "./automation-types";
 import { toScheduleFormValues } from "./automation-form-helpers";
 import { PublicationMode } from "./publication-mode";
 import { DestinationSettings } from "./destination-settings";
@@ -47,7 +47,7 @@ export function AutomationForm({
     <form
       className="space-y-5"
       onSubmit={form.handleSubmit(
-        ({ dayOptions, whatsappGroups, telegramGroups, ...values }) => {
+        ({ dayOptions, dayRules, whatsappGroups, telegramGroups, ...values }) => {
           const groupIds = [...whatsappGroups, ...telegramGroups];
           if (values.enabled) {
             const message = !values.marketplaces.length
@@ -66,12 +66,29 @@ export function AutomationForm({
               return;
             }
           }
+          const days = dayOptions.map(Number);
+          const rules = dayRules.map((rule) => ({
+            ...rule,
+            dailyLimit: Number(rule.dailyLimit),
+            intervalMinutes: Number(rule.intervalMinutes),
+          }));
+          const invalidDay = rules.findIndex((rule) =>
+            !rule.start || !rule.end || rule.start >= rule.end ||
+            !Number.isInteger(rule.dailyLimit) || rule.dailyLimit < 1 ||
+            rule.dailyLimit > (planLimit ?? 100000),
+          );
+          if (invalidDay >= 0) {
+            const message = `Confira o horário e o limite de ${weekdays[invalidDay].name}.`;
+            form.setError("root", { message });
+            toast.error(message);
+            return;
+          }
           const parsed = automationSchema.safeParse({
             ...values,
             groupIds,
-            days: dayOptions.map(Number),
-            dailyLimit: Number(values.dailyLimit),
-            intervalMinutes: Number(values.intervalMinutes),
+            days,
+            dayRules: rules,
+            ...rules[days[0] ?? 0],
           });
           if (!parsed.success) {
             const message = "Confira os destinos, dias, horários e limites.";
@@ -98,7 +115,7 @@ export function AutomationForm({
       <ScheduleSettings
         control={form.control}
         planLimit={planLimit}
-        initialInterval={initial.intervalMinutes}
+        setValue={form.setValue}
       />
       <SavedAutomationSummary
         initial={initial}

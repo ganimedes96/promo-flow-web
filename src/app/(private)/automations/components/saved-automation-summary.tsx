@@ -78,15 +78,14 @@ export function SavedAutomationSummary({
             </div>
             <div className="bg-muted/40 space-y-1 rounded-lg border p-3">
               <dt className="font-semibold">Janela de envio</dt>
-              <dd className="text-muted-foreground">
-                {weekdays
-                  .filter(({ id }) => initial.days.includes(id))
-                  .map(({ name }) => name.slice(0, 3))
-                  .join(", ")}
-              </dd>
-              <dd className="font-medium tabular-nums">
-                {initial.start} às {initial.end} (Brasília)
-              </dd>
+              {weekdays.filter(({ id }) => initial.days.includes(id)).map(({ id, name }) => {
+                const rule = initial.dayRules?.[id] ?? initial;
+                return (
+                  <dd key={id} className="text-muted-foreground tabular-nums">
+                    {name}: {rule.start}–{rule.end} · {rule.dailyLimit}/dia · {rule.intervalMinutes} min
+                  </dd>
+                );
+              })}
             </div>
           </dl>
         )}

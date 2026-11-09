@@ -15,8 +15,10 @@ export const weekdays = [
   "Sábado",
 ].map((name, id) => ({ id, name }));
 
-export type ScheduleFormValues = Omit<Automation, "intervalMinutes"> & {
-  intervalMinutes: string;
+type DayRule = NonNullable<Automation["dayRules"]>[number];
+
+export type ScheduleFormValues = Omit<Automation, "dayRules"> & {
+  dayRules: (Omit<DayRule, "intervalMinutes"> & { intervalMinutes: string })[];
   dayOptions: string[];
   whatsappGroups: string[];
   telegramGroups: string[];

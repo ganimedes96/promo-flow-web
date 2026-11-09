@@ -1,4 +1,5 @@
-import { Controller, type Control, useWatch } from "react-hook-form";
+import { useState } from "react";
+import { type Control, type UseFormSetValue, useWatch } from "react-hook-form";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ControlledInput } from "@/components/form/controllers/controlled-input";
@@ -13,9 +14,8 @@ import {
 } from "@/components/ui/card";
 import { weekdays, type ScheduleFormValues } from "./automation-types";
 
-function ScheduleClock({ control }: { control: Control<ScheduleFormValues> }) {
-  const [start, end] = useWatch({ control, name: ["start", "end"] });
-  const [hours = 0, minutes = 0] = start.split(":").map(Number);
+function ScheduleClock({ start, end }: { start: string; end: string }) {
+  const [hours = 0, minutes = 0] = (start || "00:00").split(":").map(Number);
 
   return (
     <div className="bg-card/70 flex flex-col items-center justify-center gap-2 rounded-xl border p-3">
@@ -72,12 +72,17 @@ function ScheduleClock({ control }: { control: Control<ScheduleFormValues> }) {
 export function ScheduleSettings({
   control,
   planLimit,
-  initialInterval,
+  setValue,
 }: {
   control: Control<ScheduleFormValues>;
   planLimit?: number;
-  initialInterval: number;
+  setValue: UseFormSetValue<ScheduleFormValues>;
 }) {
+  const [day, selectDay] = useState(1);
+  const rules = useWatch({ control, name: "dayRules" });
+  const days = useWatch({ control, name: "dayOptions" });
+  const rule = rules[day];
+  const enabled = days.includes(String(day));
   return (
     <Card>
       <CardHeader>
@@ -89,76 +94,57 @@ export function ScheduleSettings({
       <CardContent className="space-y-4">
         <div className="border-primary/25 from-primary/10 to-card grid gap-5 rounded-2xl border bg-linear-to-br p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_10rem]">
           <div className="min-w-0 space-y-4">
-            <Controller
-              control={control}
-              name="dayOptions"
-              render={({ field }) => (
-                <fieldset className="min-w-0 space-y-2">
-                  <legend className="text-sm font-medium">Dias de envio</legend>
-                  <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
-                    {weekdays.map(({ id, name }) => {
-                      const value = String(id);
-                      const selected = field.value.includes(value);
-                      return (
-                        <Button
-                          key={id}
-                          type="button"
-                          variant="outline"
-                          aria-label={name}
-                          aria-pressed={selected}
-                          onBlur={field.onBlur}
-                          onClick={() =>
-                            field.onChange(
-                              selected
-                                ? field.value.filter((day) => day !== value)
-                                : [...field.value, value]
-                            )
-                          }
-                          className="border-border bg-card h-14 flex-col gap-1 rounded-xl px-1 aria-pressed:border-lime-700 aria-pressed:bg-lime-50 aria-pressed:text-lime-800 aria-pressed:hover:bg-lime-100 aria-pressed:hover:text-lime-800 motion-safe:transition-all motion-safe:hover:-translate-y-0.5 dark:aria-pressed:border-lime-300/60 dark:aria-pressed:bg-lime-300/10 dark:aria-pressed:text-lime-300 dark:aria-pressed:hover:bg-lime-300/15 dark:aria-pressed:hover:text-lime-300"
-                        >
-                          <span>{name.slice(0, 3)}</span>
-                          {selected ? (
-                            <span
-                              aria-hidden="true"
-                              className="grid size-3.5 place-items-center rounded-full bg-lime-300 text-lime-950"
-                            >
-                              <Check className="size-3" strokeWidth={3} />
-                            </span>
-                          ) : (
-                            <span
-                              aria-hidden="true"
-                              className="size-3.5 rounded-full border border-current opacity-40"
-                            />
-                          )}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </fieldset>
-              )}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium">Escolha um dia para editar</legend>
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
+                {weekdays.map(({ id, name }) => (
+                  <Button key={id} type="button" size="sm" aria-pressed={day === id}
+                    variant={day === id ? "default" : "outline"}
+                    aria-label={name + (days.includes(String(id)) ? ", ativo" : ", pausado")}
+                    onClick={() => selectDay(id)}>
+                    {days.includes(String(id)) && <Check className="size-3" />}
+                    {name.slice(0, 3)}
+                  </Button>
+                ))}
+              </div>
+            </fieldset>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" size="sm" variant="outline" aria-pressed={enabled}
+                onClick={() => setValue("dayOptions", enabled
+                  ? days.filter((value) => value !== String(day))
+                  : [...days, String(day)], { shouldDirty: true })}>
+                {enabled ? "Pausar" : "Ativar"} {weekdays[day].name.toLowerCase()}
+              </Button>
+              <Button type="button" size="sm" variant="outline"
+                onClick={() => setValue("dayRules", rules.map(() => ({ ...rule })), { shouldDirty: true })}>
+                Aplicar a todos os dias
+              </Button>
+            </div>
+            <p className="text-muted-foreground text-xs">
+              A cópia substitui os horários, limites e intervalos. Os dias pausados continuam pausados.
+            </p>
+            <div key={day} className="grid gap-4 sm:grid-cols-2">
               <ControlledTimePicker
                 control={control}
-                name="start"
+                name={`dayRules.${day}.start`}
                 label="Início"
                 placeholder="Selecione o início"
               />
               <ControlledTimePicker
                 control={control}
-                name="end"
+                name={`dayRules.${day}.end`}
                 label="Fim"
                 placeholder="Selecione o fim"
                 allowEndOfDay
               />
             </div>
           </div>
-          <ScheduleClock control={control} />
+          <ScheduleClock start={rule.start} end={rule.end} />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div key={day} className="grid gap-4 sm:grid-cols-2">
           <ControlledInput
             control={control}
-            name="dailyLimit"
+            name={`dayRules.${day}.dailyLimit`}
             label="Limite diário"
             type="number"
             min={1}
@@ -167,7 +153,7 @@ export function ScheduleSettings({
           />
           <ControlledSelect
             control={control}
-            name="intervalMinutes"
+            name={`dayRules.${day}.intervalMinutes`}
             label="Intervalo entre envios automáticos"
             placeholder="Selecione um intervalo"
             className="w-full"
@@ -187,7 +173,7 @@ export function ScheduleSettings({
                 360,
                 720,
                 1440,
-                initialInterval,
+                Number(rule.intervalMinutes) || 2,
               ]),
             ]
               .sort((a, b) => a - b)
