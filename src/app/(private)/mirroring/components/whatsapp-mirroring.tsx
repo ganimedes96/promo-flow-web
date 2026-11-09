@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
 import { Radio, ArrowRight, RefreshCw, Link2 } from "lucide-react";
+import { AnimatedChannelIcon } from "@/components/brand/animated-channel-icon";
 import {
   Card,
   CardContent,
@@ -14,6 +15,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ControlledCombobox } from "@/components/form/controllers/controlled-combobox";
+import { ControlledMultiSelect } from "@/components/form/controllers/controlled-multi-select";
+import { getWhatsAppGroups } from "@/domains/whatsapp/client";
+import { MirrorDestinationSettings } from "./mirror-destination-settings";
 import { PageSkeleton } from "@/components/feedback/loading-skeletons";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { EmptyStateCard } from "@/components/feedback/empty-state-card";
@@ -35,7 +39,12 @@ export function WhatsAppMirroring() {
     refetchInterval: (q) => (q.state.error ? false : 10000),
     refetchIntervalInBackground: false,
   });
-  const form = useForm({ defaultValues: { sourceId: "" } });
+  const destinations = useQuery({
+    queryKey: [...queryKeys.whatsapp.groupsFor(), session?.user.id],
+    queryFn: () => getWhatsAppGroups(),
+    enabled: !!session?.user.id,
+  });
+  const form = useForm({ defaultValues: { sourceId: "", destinationIds: [] as string[] } });
   const sourceId = useWatch({ control: form.control, name: "sourceId" });
   const update = useServerAction({
     mutationFn: updateMirrorSource,
@@ -64,19 +73,18 @@ export function WhatsAppMirroring() {
     .filter((s) => !s.selected && s.available)
     .map((s) => ({ id: s.id, name: s.name + " · " + s.connectionName }));
   const busy = update.isPending || remove.isPending;
+  const favoriteDestinations = (destinations.data ?? [])
+    .filter((group) => group.isFavorite)
+    .map(({ id, name }) => ({ id, name }));
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-primary mb-2 flex items-center gap-2 text-xs font-semibold uppercase">
-            <Radio className="size-4" />
+            <AnimatedChannelIcon platform="whatsapp" compact />
             Seus próximos achados
           </p>
-          <h1 className="text-2xl font-semibold">Espelhar grupos</h1>
-          <p className="text-muted-foreground mt-2 text-sm">
-            Acompanhe até {limit} origens entre WhatsApp e Telegram e prepare as
-            ofertas com seu próprio link.
-          </p>
+
         </div>
         <Button
           variant="outline"
@@ -87,30 +95,14 @@ export function WhatsAppMirroring() {
           Atualizar
         </Button>
       </header>
-      <Card className="border-primary/20 bg-primary/5 overflow-hidden">
-        <CardContent className="grid gap-5 p-6 md:grid-cols-[1fr_auto]">
-          <div>
-            <Badge className="mb-3">
-              {selectedCount} de {limit} origens
-            </Badge>
-            <h2 className="text-xl font-semibold">
-              Do grupo que você acompanha para o seu fluxo
-            </h2>
-            <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-relaxed">
-              Capturamos novas mensagens com links de produtos. Elas entram em
-              Ofertas, sem destino e sem envio automático. A extensão atualizada
-              converte os links do Mercado Livre e da Shopee pela sua conta,
-              mesmo com o site fechado, enquanto o Chrome estiver aberto.
-              Depois, escolha o grupo na tabela e revise antes de agendar.
-            </p>
-            <p className="text-muted-foreground mt-2 text-xs">
-              Requer extensão 0.14.0 ou superior, conectada à sua conta no
-              ambiente selecionado. Amazon precisa do seu link informado
-              manualmente. Só serão acompanhadas mensagens novas enquanto os
-              serviços de coleta estiverem ativos.
-            </p>
-          </div>
-          <Button asChild className="self-center">
+      <Card className="border-primary/20 bg-primary/5 py-0">
+        <CardContent className="flex flex-wrap items-center gap-3 px-4 py-3">
+          <Badge className="shrink-0">{selectedCount} de {limit} origens</Badge>
+          <p className="text-muted-foreground min-w-48 flex-1 text-sm">
+            Defina destinos por origem para agendar automaticamente após aplicar
+            seu link. Sem destino ou com a automação desligada, revise em Ofertas.
+          </p>
+          <Button asChild size="sm" variant="outline">
             <Link href="/offers">
               Ver minhas ofertas
               <ArrowRight className="size-4" />
@@ -129,9 +121,9 @@ export function WhatsAppMirroring() {
         <CardContent>
           <form
             onSubmit={form.handleSubmit((data) =>
-              update.mutate({ id: data.sourceId, enabled: true })
+              update.mutate({ id: data.sourceId, enabled: true, destinationIds: data.destinationIds.filter((id) => id !== data.sourceId) })
             )}
-            className="grid items-end gap-4 sm:grid-cols-[1fr_auto]"
+            className="grid items-end gap-4 sm:grid-cols-[1fr_1fr_auto]"
           >
             <ControlledCombobox
               control={form.control}
@@ -140,6 +132,16 @@ export function WhatsAppMirroring() {
               placeholder="Busque pelo nome"
               options={options}
               disabled={busy || selectedCount >= limit}
+            />
+            <ControlledMultiSelect
+              control={form.control}
+              name="destinationIds"
+              label="Enviar para"
+              placeholder="Escolher grupos favoritos"
+              options={favoriteDestinations.filter((group) => group.id !== sourceId)}
+              loading={destinations.isPending}
+              maxSelected={20}
+              searchable
             />
             <Button
               type="submit"
@@ -189,6 +191,15 @@ export function WhatsAppMirroring() {
               onToggle={() =>
                 update.mutate({ id: source.id, enabled: !source.enabled })
               }
+              destinationSettings={(
+                <MirrorDestinationSettings
+                  key={source.destinationIds.join(",")}
+                  selected={source.destinationIds}
+                  options={favoriteDestinations.filter((group) => group.id !== source.id)}
+                  busy={busy || destinations.isPending || destinations.isError}
+                  onSave={(destinationIds) => update.mutate({ id: source.id, enabled: source.enabled, destinationIds })}
+                />
+              )}
               onRemove={() => remove.mutate(source.id)}
             />
           ))}

@@ -12,6 +12,7 @@ export const mirrorSourcesSchema = z.object({
       enabled: z.boolean(),
       available: z.boolean(),
       capturedCount: z.number(),
+      destinationIds: z.array(z.string()).default([]),
       lastCapturedAt: z.string().nullable(),
     })
   ),

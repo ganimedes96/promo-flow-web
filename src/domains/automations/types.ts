@@ -16,8 +16,8 @@ export const automationSchema = z
     (s) =>
       s.start < s.end &&
       (!s.enabled ||
-        !!(s.groupIds.length && s.marketplaces.length && s.days.length)),
-    "Informe destinos, lojas, dias e uma faixa de horário válida."
+        !!(s.marketplaces.length && s.days.length)),
+    "Informe lojas, dias e uma faixa de horário válida."
   );
 
 export type Automation = z.infer<typeof automationSchema>;

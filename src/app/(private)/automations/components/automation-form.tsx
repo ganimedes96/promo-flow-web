@@ -52,9 +52,7 @@ export function AutomationForm({
           if (values.enabled) {
             const message = !values.marketplaces.length
               ? "Selecione pelo menos uma loja em Filtros de ofertas."
-              : !groupIds.length
-                ? "Selecione pelo menos um grupo favorito em Destinos."
-                : groupIds.some(
+              : groupIds.some(
                       (id) =>
                         !groups.some(
                           (group) => group.id === id && group.canPublish

@@ -1,7 +1,5 @@
 "use client";
 import {
-  MessageCircle,
-  Send,
   Radio,
   Pause,
   Play,
@@ -10,6 +8,7 @@ import {
   PackageOpen,
   ShieldCheck,
 } from "lucide-react";
+import { AnimatedChannelIcon } from "@/components/brand/animated-channel-icon";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,12 +30,13 @@ type Props = {
   toggleDisabled: boolean;
   onToggle: () => void;
   onRemove: () => void;
+  destinationSettings?: React.ReactNode;
 };
 
 export function MirrorSourceCard(props: Props) {
   const active = props.enabled && props.available;
   const telegram = props.platform === "telegram";
-  const Icon = telegram ? Send : MessageCircle;
+
   const status = !props.available
     ? props.unavailableLabel
     : props.enabled
@@ -62,7 +62,7 @@ export function MirrorSourceCard(props: Props) {
                 : "text-emerald-700 dark:text-emerald-300"
             )}
           >
-            <Icon className="size-4" />
+            <AnimatedChannelIcon platform={props.platform} compact />
             {telegram ? "Telegram" : "WhatsApp"}
           </span>
           <Badge
@@ -167,6 +167,7 @@ export function MirrorSourceCard(props: Props) {
             {props.captureError}
           </p>
         )}
+        {props.destinationSettings}
         <div className="mt-auto flex items-center gap-2 border-t pt-4">
           <Button
             className="flex-1"
@@ -195,7 +196,7 @@ export function MirrorSourceCard(props: Props) {
         </div>
         <p className="text-muted-foreground flex items-center justify-center gap-1.5 text-[11px]">
           <ShieldCheck className="size-3.5" />
-          Ofertas privadas · envio após revisão
+          Ofertas privadas
         </p>
       </CardContent>
     </Card>

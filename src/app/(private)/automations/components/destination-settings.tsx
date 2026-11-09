@@ -31,7 +31,7 @@ export function DestinationSettings({
       <CardHeader>
         <CardTitle>2. Destinos</CardTitle>
         <CardDescription>
-          Escolha os grupos que receberão as ofertas aprovadas.
+          Para grupos de origem do WhatsApp, configure os destinos em Espelhamento. Use esta lista como destino geral para as demais origens.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

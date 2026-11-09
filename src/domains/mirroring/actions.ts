@@ -30,11 +30,15 @@ async function mutate(
 export async function updateMirrorSource(body: {
   id: string;
   enabled: boolean;
+  destinationIds?: string[];
 }) {
   return mutate(
     "/mirroring/sources/" + z.string().uuid().parse(body.id),
     "PATCH",
-    { enabled: z.boolean().parse(body.enabled) }
+    {
+      enabled: z.boolean().parse(body.enabled),
+      destinationIds: z.array(z.string().uuid()).max(20).optional().parse(body.destinationIds),
+    }
   );
 }
 export async function removeMirrorSource(id: string) {

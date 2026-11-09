@@ -1,5 +1,5 @@
 "use client";
-import { MessageCircle, Send } from "lucide-react";
+import { AnimatedChannelIcon } from "@/components/brand/animated-channel-icon";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WhatsAppMirroring } from "./whatsapp-mirroring";
 import { TelegramMirroring } from "./telegram-mirroring";
@@ -14,14 +14,14 @@ export function Mirroring() {
           value="whatsapp"
           className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:text-primary-foreground data-[state=active]:hover:text-primary-foreground dark:data-[state=active]:hover:text-primary-foreground h-11 gap-2 rounded-lg px-5"
         >
-          <MessageCircle className="size-4" />
+          <AnimatedChannelIcon platform="whatsapp" compact />
           WhatsApp
         </TabsTrigger>
         <TabsTrigger
           value="telegram"
           className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:text-primary-foreground data-[state=active]:hover:text-primary-foreground dark:data-[state=active]:hover:text-primary-foreground h-11 gap-2 rounded-lg px-5"
         >
-          <Send className="size-4" />
+          <AnimatedChannelIcon platform="telegram" compact />
           Telegram
         </TabsTrigger>
       </TabsList>

@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
 import { ArrowRight, Send, RefreshCw } from "lucide-react";
+import { AnimatedChannelIcon } from "@/components/brand/animated-channel-icon";
 import { TelegramConnectionCard } from "../../promotion-sources/components/telegram-connection-card";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { useServerAction } from "@/hooks/use-server-action";
@@ -76,12 +77,10 @@ export function TelegramMirroring() {
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-primary mb-2 flex items-center gap-2 text-xs font-semibold uppercase">
-            <Send className="size-4" />
+            <AnimatedChannelIcon platform="telegram" compact />
             Seus canais, seus achados
           </p>
-          <h1 className="text-2xl font-semibold">
-            Espelhar grupos do Telegram
-          </h1>
+
           <p className="text-muted-foreground mt-2 text-sm">
             Acompanhe até {state.limit} origens no total, somando WhatsApp e
             Telegram.
