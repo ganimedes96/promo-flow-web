@@ -62,10 +62,8 @@ async function forward(request: NextRequest, context: Context) {
     if (!/^Bearer [a-f0-9]{64}$/.test(authorization))
       return failure("Conecte a extensão ao PromoFlow novamente.", 401);
     headers.Authorization = authorization;
-    if (
-      request.headers.get("x-extension-capabilities") === "shopee-affiliate-v1"
-    )
-      headers["x-extension-capabilities"] = "shopee-affiliate-v1";
+    const capabilities = (request.headers.get("x-extension-capabilities") || "").split(",").filter((item) => ["shopee-affiliate-v1", "amazon-affiliate-v1"].includes(item));
+    if (capabilities.length) headers["x-extension-capabilities"] = capabilities.join(",");
     if (conversion) {
       if (!request.headers.get("content-type")?.startsWith("application/json"))
         return failure("Use dados em JSON.", 415);
@@ -86,6 +84,9 @@ async function forward(request: NextRequest, context: Context) {
                 leaseId: z.string().uuid(),
                 outcome: z.enum(["SUCCESS", "FAILED", "RECONNECT"]),
                 affiliateUrl: z.string().url().max(2048).optional(),
+                errorCode: z.enum(["PRODUCT_NOT_FOUND", "MULTIPLE_PRODUCTS", "CAMPAIGN_INVALID", "GENERATOR_FORM", "GENERATOR_TIMEOUT", "GENERATION_FAILED"]).optional(),
+                sourceCategory: z.string().max(120).optional(),
+                affiliateCommissionRate: z.number().min(0).max(100).multipleOf(0.01).optional(),
               })
               .strict();
       const validated = schema.safeParse(parsed);

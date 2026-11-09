@@ -64,7 +64,7 @@ export function OffersTable() {
         ? 5000
         : (mirrorSources.data?.selectedCount ?? 0) > 0
           ? 10000
-          : false;
+          : page === 1 ? 30000 : false;
     },
     staleTime: 5000,
     refetchOnWindowFocus: (query) => query.state.status !== "error",

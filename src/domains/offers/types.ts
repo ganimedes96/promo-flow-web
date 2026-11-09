@@ -2,6 +2,7 @@ import type { ActivityEvent } from "@/domains/activity/types";
 import { z } from "zod";
 import { categorySelectionSchema } from "@/domains/categories/types";
 import { OfferStatus, OfferWaitReason } from "./offer-status";
+import type { Marketplace } from "@/domains/stores/types";
 export { OfferStatus, OfferWaitReason } from "./offer-status";
 const httpUrl = z
   .string()
@@ -17,6 +18,7 @@ const offerProductSchema = z.object({
     .optional(),
   categoryId: categorySelectionSchema,
   sourceCategory: z.string().trim().max(300).optional(),
+  affiliateCommissionRate: z.number().min(0).max(100).multipleOf(0.01).optional(),
   connectionId: z.string().uuid("Selecione uma conexão.").optional(),
   sourceUrl: httpUrl,
   affiliateUrl: httpUrl.optional(),
@@ -89,6 +91,7 @@ export interface Offer {
   messageHeadline?: string | null;
   categoryId?: string | null;
   sourceCategory?: string | null;
+  affiliateCommissionRate?: string | null;
   category?: { id: string; name: string } | null;
   connectionId?: string | null;
   connection?: {
@@ -151,7 +154,8 @@ export interface OfferListFilters {
   needsAction?: "true";
   waitReason?: string;
   search?: string;
-  status?: Offer["status"];
+  status?: Offer["status"] | "DESTINATION_REQUIRED";
+  marketplace?: Marketplace;
   connectionId?: string;
   groupId?: string;
   createdFrom?: string;

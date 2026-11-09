@@ -78,6 +78,11 @@ export const groupedColumns: ColumnDef<OfferGroup>[] = [
               {group.product.category.name}
             </span>
           )}
+          {group.product.sourceCategory && group.product.sourceCategory !== group.product.category?.name && (
+            <span className="text-muted-foreground block max-w-52 truncate text-xs" title={group.product.sourceCategory}>
+              Loja: {group.product.sourceCategory}
+            </span>
+          )}
         </div>
       </div>
     ),
@@ -104,6 +109,13 @@ export const groupedColumns: ColumnDef<OfferGroup>[] = [
           }).format(Number(group.product.currentPrice))
         : "—";
     },
+  },
+  {
+    key: "product.affiliateCommissionRate",
+    header: "Comissão",
+    render: (_value, group) => group.product.affiliateCommissionRate != null
+      ? <span title="Taxa informada pela Amazon na captura; não representa comissão confirmada">{new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 }).format(Number(group.product.affiliateCommissionRate))}%</span>
+      : "—",
   },
   {
     key: "destinations",

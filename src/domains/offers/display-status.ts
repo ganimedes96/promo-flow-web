@@ -1,4 +1,4 @@
-import { isShopeeLink } from "./affiliate-links";
+import { affiliateStoreLogin } from "./affiliate-links";
 import type { Offer } from "./types";
 import {
   OFFER_PREPARATION_STATUS_INFO,
@@ -29,9 +29,7 @@ export function offerDisplayStatus(offer: Offer): {
     return {
       label:
         offer.mirrorConversionStatus === "RECONNECT"
-          ? isShopeeLink(offer.sourceUrl)
-            ? OFFER_PREPARATION_STATUS_INFO[OfferPreparationStatus.RECONNECT_STORE].label.replace("loja", "Shopee")
-            : OFFER_PREPARATION_STATUS_INFO[OfferPreparationStatus.RECONNECT_STORE].label.replace("loja", "Mercado Livre")
+          ? `Faça login · ${affiliateStoreLogin(offer.sourceUrl).name}`
           : offer.mirrorConversionStatus === "CONVERTING"
             ? OFFER_PREPARATION_STATUS_INFO[OfferPreparationStatus.CONVERTING_LINK].label
             : offer.mirrorConversionStatus === "FAILED"

@@ -13,6 +13,7 @@ import {
   isConvertibleLink,
   isMercadoLivreLink,
   isShopeeLink,
+  isAmazonLink,
 } from "@/domains/offers/affiliate-links";
 function record(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -31,12 +32,13 @@ export function MercadoLivreAffiliate({
   affiliateUrl = "",
 }: {
   sourceUrl: string;
-  onReceive: (url: string) => void;
+  onReceive: (url: string, metadata?: {sourceCategory?: string; affiliateCommissionRate?: number}) => void;
   autoConvertKey?: string;
   affiliateUrl?: string;
 }) {
   const shopee = isShopeeLink(sourceUrl);
-  const storeName = shopee ? "Shopee" : "Mercado Livre";
+  const amazon = isAmazonLink(sourceUrl);
+  const storeName = amazon ? "Amazon" : shopee ? "Shopee" : "Mercado Livre";
   const { data: session } = useSession();
   const accountId = session?.user.id;
   const stores = useQuery({
@@ -48,7 +50,7 @@ export function MercadoLivreAffiliate({
     retry: false,
   });
   const store = stores.data?.find(
-    (item) => item.marketplace === (shopee ? "SHOPEE" : "MERCADO_LIVRE")
+    (item) => item.marketplace === (amazon ? "AMAZON" : shopee ? "SHOPEE" : "MERCADO_LIVRE")
   );
   const [installed, setInstalled] = useState<boolean | null>(null);
   const [feedback, setFeedback] = useState<{
@@ -86,7 +88,7 @@ export function MercadoLivreAffiliate({
       if (
         data.type === "PROMOFLOW_EXTENSION_READY" &&
         data.feature ===
-          (shopee ? "shopee-affiliate-v1" : "mercado-affiliate-v5")
+          (amazon ? "amazon-affiliate-v1" : shopee ? "shopee-affiliate-v1" : "mercado-affiliate-v5")
       ) {
         setInstalled(true);
         return;
@@ -119,8 +121,11 @@ export function MercadoLivreAffiliate({
         data.accountId === accountId &&
         typeof data.text === "string"
       ) {
-        if (timeout.current) clearTimeout(timeout.current);
-        if (data.status !== "error") {
+        if (data.status === "error" || !amazon) {
+          if (timeout.current) clearTimeout(timeout.current);
+        }
+        if (data.status === "error" && amazon) pending.current = null;
+        if (data.status !== "error" && !amazon) {
           const requestId = pending.current?.id;
           timeout.current = setTimeout(() => {
             if (!requestId || pending.current?.id !== requestId) return;
@@ -146,9 +151,9 @@ export function MercadoLivreAffiliate({
         pending.current &&
         data.accountId === accountId &&
         typeof data.affiliateUrl === "string" &&
-        (shopee
-          ? isShopeeLink(data.affiliateUrl)
-          : isMercadoLivreLink(data.affiliateUrl))
+        (amazon
+          ? isAmazonLink(data.affiliateUrl)
+          : shopee ? isShopeeLink(data.affiliateUrl) : isMercadoLivreLink(data.affiliateUrl))
       ) {
         if (
           affiliateRef.current.trim() !==
@@ -164,7 +169,10 @@ export function MercadoLivreAffiliate({
           });
           return;
         }
-        receiveRef.current(data.affiliateUrl);
+        receiveRef.current(data.affiliateUrl, amazon ? {
+          ...(typeof data.sourceCategory === "string" && data.sourceCategory.length <= 120 ? {sourceCategory:data.sourceCategory} : {}),
+          ...(typeof data.affiliateCommissionRate === "number" && Number.isFinite(data.affiliateCommissionRate) && data.affiliateCommissionRate >= 0 && data.affiliateCommissionRate <= 100 ? {affiliateCommissionRate:data.affiliateCommissionRate} : {}),
+        } : undefined);
         if (data.mode === "automatic")
           toast.success("Link de afiliado aplicado com sucesso!");
         pending.current = null;
@@ -195,7 +203,7 @@ export function MercadoLivreAffiliate({
       if (pending.current) abortConversion(pending.current.id, accountId);
       pending.current = null;
     };
-  }, [accountId, sourceUrl, shopee, storeName]);
+  }, [accountId, sourceUrl, shopee, amazon, storeName]);
   const begin = useCallback(() => {
     if (
       !accountId ||
@@ -235,12 +243,13 @@ export function MercadoLivreAffiliate({
         pending: false,
         error: true,
       });
-    }, 180000);
-  }, [accountId, sourceUrl, store, storeName]);
+    }, amazon ? 60000 : 180000);
+  }, [accountId, amazon, sourceUrl, store, storeName]);
   useEffect(() => {
     if (
       !store ||
       !autoConvertKey ||
+      amazon ||
       !accountId ||
       installed !== true ||
       !isConvertibleLink(sourceUrl) ||
@@ -258,6 +267,7 @@ export function MercadoLivreAffiliate({
     return () => clearTimeout(launch);
   }, [
     autoConvertKey,
+    amazon,
     accountId,
     installed,
     sourceUrl,
@@ -303,13 +313,12 @@ export function MercadoLivreAffiliate({
         </Button>
       </div>
     );
-  if (!store?.linkBuilderUrl)
+  if (!store || (amazon ? !store.affiliateProfile : !store.linkBuilderUrl))
     return (
       <div className="border-primary/25 bg-primary/5 space-y-2 rounded-xl border p-4 sm:col-span-2">
         <p className="text-sm font-semibold">Configure sua conta {storeName}</p>
         <p className="text-muted-foreground text-xs">
-          Cadastre seu perfil e sua etiqueta em Lojas para converter os links
-          desta oferta. Os campos já preenchidos serão mantidos.
+          {amazon ? "Cadastre seu ID de rastreamento da Amazon em Lojas para converter o link." : "Cadastre seu perfil e sua etiqueta em Lojas para converter os links desta oferta."} Os campos já preenchidos serão mantidos.
         </p>
         <Button type="button" variant="outline" size="sm" asChild>
           <Link href="/stores" target="_blank" rel="noopener noreferrer">
@@ -351,7 +360,7 @@ export function MercadoLivreAffiliate({
       </div>
     );
   }
-  if (autoConvertKey && installed === true) {
+  if (autoConvertKey && !amazon && installed === true) {
     return (
       <div
         className="border-primary/20 bg-primary/5 flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2 text-xs sm:col-span-2"
@@ -394,7 +403,7 @@ export function MercadoLivreAffiliate({
             <Link2 className="size-4" /> Seu link de {storeName}
           </p>
           <p className="text-muted-foreground mt-1 max-w-xl text-xs">
-            {autoConvertKey
+            {autoConvertKey && !amazon
               ? `Estamos preparando esta promoção com o seu link de afiliado. A extensão usa a conta ${storeName} aberta no seu Chrome e devolve o resultado a este formulário.`
               : "A extensão abre o produto, usa o gerador oficial da conta aberta no seu Chrome e preenche seu link de afiliado. Os demais campos e grupos ficam preservados."}
           </p>

@@ -44,6 +44,8 @@ export async function applyMirrorAffiliate(body: {
   id: string;
   affiliateUrl: string;
   confirmed: boolean;
+  sourceCategory?: string;
+  affiliateCommissionRate?: number;
 }) {
   return mutate(
     "/mirroring/offers/" + z.string().uuid().parse(body.id) + "/affiliate",
@@ -51,6 +53,8 @@ export async function applyMirrorAffiliate(body: {
     {
       affiliateUrl: z.string().url().max(2048).parse(body.affiliateUrl),
       confirmed: z.literal(true).parse(body.confirmed),
+      ...(body.sourceCategory ? {sourceCategory:z.string().max(300).parse(body.sourceCategory)} : {}),
+      ...(body.affiliateCommissionRate !== undefined ? {affiliateCommissionRate:z.number().min(0).max(100).multipleOf(0.01).parse(body.affiliateCommissionRate)} : {}),
     }
   );
 }

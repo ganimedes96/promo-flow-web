@@ -60,7 +60,7 @@ export const OFFER_WAIT_REASON_INFO: Record<OfferWaitReason, { label: string; he
 export const OFFER_PREPARATION_STATUS_INFO: Record<OfferPreparationStatus, { label: string; help: string }> = {
   [OfferPreparationStatus.WAITING_AFFILIATE_LINK]: { label: "Aguardando seu link", help: "Informe ou gere seu link de afiliado antes de escolher o destino." },
   [OfferPreparationStatus.CONVERTING_LINK]: { label: "Convertendo link", help: "A extensão está preparando o link de afiliado." },
-  [OfferPreparationStatus.RECONNECT_STORE]: { label: "Reconectar loja", help: "A sessão da loja expirou. Reconecte-a na extensão para tentar de novo." },
+  [OfferPreparationStatus.RECONNECT_STORE]: { label: "Faça login na loja", help: "Entre na sua conta de afiliado no mesmo Chrome em que usa a extensão. Depois, tente converter o link novamente." },
   [OfferPreparationStatus.REVIEW_CONVERSION]: { label: "Revisar conversão", help: "A conversão do link falhou. Confira o endereço e tente novamente." },
   [OfferPreparationStatus.STORE_REQUIRED]: { label: "Configurar loja", help: "Cadastre a configuração da loja na página Lojas para converter o link." },
   [OfferPreparationStatus.WAITING_EXTENSION]: { label: "Aguardando extensão", help: "Abra o Chrome com a extensão conectada para processar o link." },

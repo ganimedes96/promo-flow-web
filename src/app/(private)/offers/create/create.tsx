@@ -3,7 +3,7 @@ import { ControlledProductCategory } from "@/domains/categories/components/contr
 import { OfferFormSkeleton } from "@/components/feedback/loading-skeletons";
 import type { ImportedOfferDraft } from "@/domains/offers/extension-import";
 import { useCallback, useEffect, useRef } from "react";
-import { isConvertibleLink } from "@/domains/offers/affiliate-links";
+import { isAmazonLink, isConvertibleLink } from "@/domains/offers/affiliate-links";
 import { MercadoLivreAffiliate } from "@/domains/offers/components/mercado-livre-affiliate";
 import { useSession } from "next-auth/react";
 import type { WhatsAppConnectionAccount } from "@/domains/whatsapp/connections";
@@ -123,6 +123,7 @@ function OfferFields({
     handleSubmit,
     setError,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<OfferFormValues>({
     defaultValues: {
@@ -130,6 +131,9 @@ function OfferFields({
       categoryId: offer?.categoryId ?? initialDraft?.categoryId ?? "auto",
       sourceCategory:
         offer?.sourceCategory ?? initialDraft?.sourceCategory ?? "",
+      affiliateCommissionRate: offer?.affiliateCommissionRate != null
+        ? Number(offer.affiliateCommissionRate)
+        : initialDraft?.affiliateCommissionRate,
       messageHeadline: offer?.messageHeadline || "",
       title: offer?.title || initialDraft?.title || "",
       description: offer?.description || initialDraft?.description || "",
@@ -154,15 +158,22 @@ function OfferFields({
     },
   });
   const values = useWatch({ control });
+  const commissionSource = useRef(values.sourceUrl);
+  useEffect(() => {
+    if (commissionSource.current !== values.sourceUrl) {
+      commissionSource.current = values.sourceUrl;
+      setValue("affiliateCommissionRate", undefined, {shouldDirty:true});
+    }
+  }, [values.sourceUrl, setValue]);
   const needsCentralAffiliate =
     !!sourcePromotionId && !offer && isConvertibleLink(values.sourceUrl);
   const receiveAffiliate = useCallback(
-    (url: string) =>
-      setValue("affiliateUrl", url, {
-        shouldDirty: true,
-        shouldValidate: true,
-      }),
-    [setValue]
+    (url: string, metadata?: {sourceCategory?: string; affiliateCommissionRate?: number}) => {
+      setValue("affiliateUrl", url, { shouldDirty: true, shouldValidate: true });
+      if (metadata?.sourceCategory && !getValues("sourceCategory")) setValue("sourceCategory", metadata.sourceCategory, {shouldDirty:true});
+      if (metadata?.affiliateCommissionRate !== undefined) setValue("affiliateCommissionRate", metadata.affiliateCommissionRate, {shouldDirty:true});
+    },
+    [setValue, getValues]
   );
   const groups = allGroups.filter(
     (group) => group.connectionId === values.connectionId
@@ -210,7 +221,10 @@ function OfferFields({
         ? String(values.originalPrice)
         : null,
     currency: offer?.currency || "BRL",
-    sourceUrl: values.sourceUrl || "Link de compra",
+    sourceUrl:
+      sourcePromotionId && isAmazonLink(values.sourceUrl)
+        ? "Aguardando seu link de afiliado"
+        : values.sourceUrl || "Link de compra",
     affiliateUrl: values.affiliateUrl || null,
     couponCode: values.couponCode || null,
     messageHeadline: values.messageHeadline || null,
@@ -361,7 +375,7 @@ function OfferFields({
                 control={control}
                 name="categoryId"
                 sourceCategory={
-                  offer?.sourceCategory ?? initialDraft?.sourceCategory
+                  values.sourceCategory
                 }
               />
               <ControlledTextarea

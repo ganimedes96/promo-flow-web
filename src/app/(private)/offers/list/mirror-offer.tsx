@@ -1,5 +1,6 @@
 "use client";
-import { isShopeeLink } from "@/domains/offers/affiliate-links";
+import { affiliateStoreLogin, isAmazonLink } from "@/domains/offers/affiliate-links";
+import { MercadoLivreAffiliate } from "@/domains/offers/components/mercado-livre-affiliate";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import {
@@ -83,6 +84,8 @@ function MirrorDestinationForm({
     defaultValues: {
       affiliateUrl: offer.affiliateUrl ?? "",
       confirmed: false,
+      sourceCategory: offer.sourceCategory ?? "",
+      affiliateCommissionRate: offer.affiliateCommissionRate != null ? Number(offer.affiliateCommissionRate) : undefined as number | undefined,
     },
   });
   const values = useWatch({ control: form.control });
@@ -153,9 +156,7 @@ function MirrorDestinationForm({
         <div className="bg-primary/5 space-y-4 rounded-xl border p-4">
           <p className="text-sm font-semibold">
             {offer.mirrorConversionStatus === "RECONNECT"
-              ? isShopeeLink(offer.sourceUrl)
-                ? "Reconectar Shopee"
-                : "Reconectar Mercado Livre"
+              ? `Faça login · ${affiliateStoreLogin(offer.sourceUrl).name}`
               : offer.mirrorConversionStatus === "CONVERTING"
                 ? "A extensão está convertendo seu link"
                 : offer.mirrorConversionStatus === "STORE_REQUIRED"
@@ -167,8 +168,7 @@ function MirrorDestinationForm({
           <p className="text-muted-foreground text-xs">
             A extensão atualizada processa Mercado Livre e Shopee com o site
             fechado, enquanto o Chrome está aberto e conectado ao PromoFlow. Se
-            a conta da loja expirou, entre novamente na loja. Amazon continua
-            com link manual.
+            a conta da loja expirou, entre novamente na loja. Na Amazon, a extensão tenta usar a SiteStripe; confira o resultado antes de aplicar.
           </p>
           {offer.mirrorConversionStatus &&
             offer.mirrorConversionStatus !== "CONVERTING" && (
@@ -187,15 +187,11 @@ function MirrorDestinationForm({
                 {offer.mirrorConversionStatus === "RECONNECT" && (
                   <Button asChild type="button" size="sm" variant="outline">
                     <a
-                      href={
-                        isShopeeLink(offer.sourceUrl)
-                          ? "https://affiliate.shopee.com.br/offer/custom_link"
-                          : "https://www.mercadolivre.com.br/"
-                      }
+                      href={affiliateStoreLogin(offer.sourceUrl).url}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Entrar na loja
+                      Entrar · {affiliateStoreLogin(offer.sourceUrl).name}
                     </a>
                   </Button>
                 )}
@@ -220,6 +216,9 @@ function MirrorDestinationForm({
               {retry.error.message}
             </p>
           )}
+          {isAmazonLink(offer.sourceUrl) && (
+            <MercadoLivreAffiliate sourceUrl={offer.sourceUrl} affiliateUrl={values.affiliateUrl} onReceive={(url, metadata) => { form.setValue("affiliateUrl", url, {shouldDirty:true, shouldValidate:true}); if (metadata?.sourceCategory && !form.getValues("sourceCategory")) form.setValue("sourceCategory", metadata.sourceCategory); if (metadata?.affiliateCommissionRate !== undefined) form.setValue("affiliateCommissionRate", metadata.affiliateCommissionRate); }} />
+          )}
           <form
             className="space-y-4"
             onSubmit={form.handleSubmit((data) =>
@@ -227,6 +226,8 @@ function MirrorDestinationForm({
                 id: offer.id,
                 affiliateUrl: data.affiliateUrl,
                 confirmed: data.confirmed,
+                sourceCategory: data.sourceCategory || undefined,
+                affiliateCommissionRate: data.affiliateCommissionRate,
               })
             )}
           >

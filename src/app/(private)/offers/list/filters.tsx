@@ -14,7 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { getOfferFilterGroups } from "@/domains/offers/client";
-import type { Offer, OfferListFilters } from "@/domains/offers/types";
+import type { OfferListFilters } from "@/domains/offers/types";
 import { getWhatsAppConnections } from "@/domains/whatsapp/client";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { TIMEZONE } from "@/utils/date";
@@ -33,11 +33,13 @@ import {
 } from "@/domains/offers/offer-status";
 import { statusColors, statusLabels } from "./helpers";
 import { OfferStatus } from "@/domains/offers/offer-status";
+import { marketplaces, storeNames, type Marketplace } from "@/domains/stores/types";
 
 type FilterValues = {
   waitReason: string;
   search: string;
-  status: Offer["status"] | "all";
+  status: NonNullable<OfferListFilters["status"]> | "all";
+  marketplace: Marketplace | "all";
   connectionId: string;
   groupId: string;
   dateFrom: Date | undefined;
@@ -47,6 +49,7 @@ const defaults: FilterValues = {
   waitReason: "all",
   search: "",
   status: "all",
+  marketplace: "all",
   connectionId: "all",
   groupId: "all",
   dateFrom: undefined,
@@ -105,6 +108,9 @@ export function OfferFilters({
             : {}),
           ...(values.search.trim() ? { search: values.search.trim() } : {}),
           ...(values.status !== "all" ? { status: values.status } : {}),
+          ...(values.marketplace !== "all"
+            ? { marketplace: values.marketplace }
+            : {}),
           ...(values.connectionId !== "all"
             ? { connectionId: values.connectionId }
             : {}),
@@ -211,6 +217,16 @@ export function OfferFilters({
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <ControlledCombobox
               control={control}
+              name="marketplace"
+              label="Loja"
+              placeholder="Todas as lojas"
+              options={[
+                { id: "all", name: "Todas as lojas" },
+                ...marketplaces.map((id) => ({ id, name: storeNames[id] })),
+              ]}
+            />
+            <ControlledCombobox
+              control={control}
               name="groupId"
               label="Grupo de destino"
               placeholder="Todos os grupos"
@@ -234,6 +250,10 @@ export function OfferFilters({
               placeholder="Todos os status"
               options={[
                 { id: "all", name: "Todos os status" },
+                {
+                  id: "DESTINATION_REQUIRED",
+                  name: OFFER_PREPARATION_STATUS_INFO.DESTINATION_REQUIRED.label,
+                },
                 ...Object.entries(statusLabels).map(([id, name]) => ({
                   id,
                   name,

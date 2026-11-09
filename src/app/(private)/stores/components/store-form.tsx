@@ -14,6 +14,9 @@ import {
 import { saveStore } from "@/domains/stores/actions";
 import { queryKeys } from "@/lib/tanstack-query/keys";
 import { useServerAction } from "@/hooks/use-server-action";
+import { MercadoLivreFields } from "./mercado-livre-fields";
+import { ShopeeFields } from "./shopee-fields";
+import { AmazonFields } from "./amazon-fields";
 export function StoreForm({
   marketplace,
   store,
@@ -81,68 +84,13 @@ export function StoreForm({
         maxLength={80}
         disabled={save.isPending}
       />
-      <ControlledInput
-        control={form.control}
-        name="affiliateProfile"
-        label={
-          marketplace === "AMAZON"
-            ? "Identificação de afiliado / tag"
-            : "Identificação do perfil de afiliado"
-        }
-        placeholder={
-          marketplace === "MERCADO_LIVRE"
-            ? "Ex.: meu_perfil"
-            : "Seu identificador no programa de afiliados"
-        }
-        maxLength={80}
-        disabled={save.isPending}
-      />
-      <div className="space-y-2">
-        <ControlledInput
-          control={form.control}
-          name="campaignTag"
-          label={
-            marketplace === "SHOPEE"
-              ? "Sub_id 1 (opcional)"
-              : "Etiqueta de campanha (opcional)"
-          }
-          placeholder={
-            marketplace === "SHOPEE"
-              ? "Ex.: promoflow"
-              : "Nome exato da etiqueta na loja"
-          }
-          maxLength={100}
-          disabled={save.isPending}
-        />
-        <p className="text-muted-foreground text-xs">
-          {marketplace === "MERCADO_LIVRE"
-            ? "Informe o nome exato para a extensão selecionar no gerador oficial. Em branco, será usada a etiqueta atual do gerador."
-            : marketplace === "SHOPEE"
-              ? "A extensão preenche este identificador no Sub_id 1 do conversor oficial. Deixe vazio para não informar campanha."
-              : "Informação salva para organizar suas campanhas. A conversão automática desta plataforma ainda não está disponível."}
-        </p>
-      </div>
-      <div className="space-y-2">
-        <ControlledInput
-          control={form.control}
-          name="linkBuilderUrl"
-          label={
-            marketplace !== "AMAZON"
-              ? "URL do gerador de links"
-              : "URL do painel de afiliados (opcional)"
-          }
-          placeholder="https://..."
-          maxLength={2048}
-          disabled={save.isPending}
-        />
-        <p className="text-muted-foreground text-xs">
-          {marketplace === "MERCADO_LIVRE"
-            ? "Abra o Gerador de links oficial do Mercado Livre, copie o endereço da barra do navegador e cole aqui. A extensão usará esse endereço durante a conversão."
-            : marketplace === "SHOPEE"
-              ? "Use https://affiliate.shopee.com.br/offer/custom_link, o conversor oficial da Shopee."
-              : "Informe um endereço oficial da loja. Por enquanto, será usado apenas como atalho para o seu painel."}
-        </p>
-      </div>
+      {marketplace === "MERCADO_LIVRE" ? (
+        <MercadoLivreFields control={form.control} disabled={save.isPending} />
+      ) : marketplace === "SHOPEE" ? (
+        <ShopeeFields control={form.control} disabled={save.isPending} />
+      ) : (
+        <AmazonFields control={form.control} disabled={save.isPending} />
+      )}
       <ControlledSwitch
         control={form.control}
         name="isDefault"

@@ -50,6 +50,13 @@ export const columns: ColumnDef<Offer>[] = [
         : "—",
   },
   {
+    key: "affiliateCommissionRate",
+    header: "Comissão",
+    render: (_value, row) => row.affiliateCommissionRate != null
+      ? <span title="Taxa informada pela Amazon na captura; não representa comissão confirmada">{new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 }).format(Number(row.affiliateCommissionRate))}%</span>
+      : "—",
+  },
+  {
     key: "whatsappGroup",
     header: "Grupo",
     render: (_value, row) => (

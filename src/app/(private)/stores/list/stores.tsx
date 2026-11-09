@@ -157,7 +157,7 @@ export function Stores() {
                   >
                     {marketplace !== "AMAZON"
                       ? "Conversão pela extensão"
-                      : "Conversão ainda indisponível"}
+                      : "Conversão pela extensão"}
                   </Badge>
                   {store ? (
                     <dl className="space-y-2 text-sm">
