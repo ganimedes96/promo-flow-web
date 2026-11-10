@@ -29,7 +29,7 @@ import {
   removeMirrorSource,
 } from "@/domains/mirroring/actions";
 import { MirrorSourceCard } from "./mirror-source-card";
-export function WhatsAppMirroring() {
+export function WhatsAppMirroring({ channels = false }: { channels?: boolean }) {
   const { data: session } = useSession();
   const query = useQuery({
     queryKey: queryKeys.mirroring.sources(session?.user.id),
@@ -62,14 +62,15 @@ export function WhatsAppMirroring() {
     return (
       <ApiErrorCard
         error={query.error}
-        title="Não foi possível carregar seus grupos de origem"
+        title="Não foi possível carregar suas origens do WhatsApp"
         onRetry={() => void query.refetch()}
         retrying={query.isFetching}
       />
     );
   const { sources, limit, selectedCount } = query.data;
-  const selected = sources.filter((s) => s.selected);
-  const options = sources
+  const availableSources = sources.filter((source) => source.isChannel === channels);
+  const selected = availableSources.filter((s) => s.selected);
+  const options = availableSources
     .filter((s) => !s.selected && s.available)
     .map((s) => ({ id: s.id, name: s.name + " · " + s.connectionName }));
   const busy = update.isPending || remove.isPending;
@@ -112,10 +113,11 @@ export function WhatsAppMirroring() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Adicionar grupo de origem</CardTitle>
+          <CardTitle className="text-base">{channels ? "Adicionar canal de origem" : "Adicionar grupo de origem"}</CardTitle>
           <CardDescription>
-            Escolha um grupo de uma das suas contas conectadas. Grupos pausados
-            também ocupam uma vaga.
+            {channels
+              ? "Escolha um canal disponível na conta conectada. Só as publicações feitas após ativar o espelhamento serão capturadas."
+              : "Escolha um grupo de uma das suas contas conectadas. Grupos pausados também ocupam uma vaga."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -128,7 +130,7 @@ export function WhatsAppMirroring() {
             <ControlledCombobox
               control={form.control}
               name="sourceId"
-              label="Grupo que deseja acompanhar"
+              label={channels ? "Canal que deseja acompanhar" : "Grupo que deseja acompanhar"}
               placeholder="Busque pelo nome"
               options={options}
               disabled={busy || selectedCount >= limit}
@@ -147,7 +149,7 @@ export function WhatsAppMirroring() {
               type="submit"
               disabled={busy || !sourceId || selectedCount >= limit}
             >
-              Acompanhar grupo
+              {channels ? "Acompanhar canal" : "Acompanhar grupo"}
             </Button>
           </form>
           {selectedCount >= limit && (
@@ -158,7 +160,7 @@ export function WhatsAppMirroring() {
           )}
           {!options.length && selectedCount < limit && (
             <p className="text-muted-foreground mt-3 text-xs">
-              Não há outros grupos disponíveis.{" "}
+              {channels ? "Siga um canal no WhatsApp da conta conectada. " : "Não há outros grupos disponíveis. "}
               <Link className="text-primary underline" href="/connections">
                 Conecte seu WhatsApp
               </Link>{" "}
@@ -171,7 +173,7 @@ export function WhatsAppMirroring() {
         <EmptyStateCard
           icon={Radio}
           title="Escolha sua primeira fonte de achados"
-          description="Adicione um grupo acima. Nenhuma conversa será acompanhada sem você escolher uma origem."
+          description={channels ? "Adicione um canal acima para acompanhar as próximas ofertas." : "Adicione um grupo acima. A captura começa depois que você escolhe a origem."}
         />
       ) : (
         <div className="grid gap-4 lg:grid-cols-3">

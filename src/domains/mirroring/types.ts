@@ -7,6 +7,7 @@ export const mirrorSourcesSchema = z.object({
     z.object({
       id: z.string().uuid(),
       name: z.string(),
+      isChannel: z.boolean().default(false),
       connectionName: z.string(),
       selected: z.boolean(),
       enabled: z.boolean(),
