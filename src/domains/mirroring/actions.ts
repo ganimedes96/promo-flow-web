@@ -113,11 +113,15 @@ export async function sendPersonalTelegramPassword(body: {
 export async function updatePersonalTelegramSource(body: {
   id: string;
   enabled: boolean;
+  destinationIds?: string[];
 }) {
   return mutate(
     "/mirroring/telegram/sources/" + z.string().uuid().parse(body.id),
     "PATCH",
-    { enabled: z.boolean().parse(body.enabled) }
+    {
+      enabled: z.boolean().parse(body.enabled),
+      destinationIds: z.array(z.string().uuid()).max(20).optional().parse(body.destinationIds),
+    }
   );
 }
 export async function removePersonalTelegramSource(id: string) {

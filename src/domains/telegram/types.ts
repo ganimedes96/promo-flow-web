@@ -9,6 +9,7 @@ export const telegramSourceSchema = z.object({
   enabled: z.boolean(),
   isAvailable: z.boolean(),
   capturedCount: z.number(),
+  mirrorDestinationIds: z.array(z.string()).default([]),
   lastCapturedAt: z.string().nullable(),
   lastCheckedAt: z.string().nullable(),
   lastError: z.string().nullable(),

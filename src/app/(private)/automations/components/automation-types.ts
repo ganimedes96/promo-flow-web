@@ -18,7 +18,10 @@ export const weekdays = [
 type DayRule = NonNullable<Automation["dayRules"]>[number];
 
 export type ScheduleFormValues = Omit<Automation, "dayRules"> & {
-  dayRules: (Omit<DayRule, "intervalMinutes"> & { intervalMinutes: string })[];
+  dayRules: (Omit<DayRule, "intervalMinutes" | "dailyLimit"> & {
+    intervalMinutes: string;
+    dailyLimit: number | "";
+  })[];
   dayOptions: string[];
   whatsappGroups: string[];
   telegramGroups: string[];

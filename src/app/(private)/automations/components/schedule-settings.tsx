@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { type Control, type UseFormSetValue, useWatch } from "react-hook-form";
+import { Controller, type Control, type UseFormSetValue, useWatch } from "react-hook-form";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ControlledInput } from "@/components/form/controllers/controlled-input";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ControlledSelect } from "@/components/form/controllers/controlled-select";
 import { ControlledTimePicker } from "@/components/form/controllers/controlled-time-picker";
 import {
@@ -142,14 +143,31 @@ export function ScheduleSettings({
           <ScheduleClock start={rule.start} end={rule.end} />
         </div>
         <div key={day} className="grid gap-4 sm:grid-cols-2">
-          <ControlledInput
+          <Controller
             control={control}
             name={`dayRules.${day}.dailyLimit`}
-            label="Limite diário"
-            type="number"
-            min={1}
-            max={planLimit ?? 100000}
-            placeholder="50"
+            render={({ field }) => (
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="automation-daily-limit">Limite diário</Label>
+                <Input
+                  {...field}
+                  id="automation-daily-limit"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="50"
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    if (value === "") {
+                      field.onChange("");
+                      return;
+                    }
+                    if (/^[1-9][0-9]*$/.test(value) && Number.isSafeInteger(Number(value))) {
+                      field.onChange(Number(value));
+                    }
+                  }}
+                />
+              </div>
+            )}
           />
           <ControlledSelect
             control={control}

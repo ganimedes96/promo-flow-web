@@ -31,7 +31,7 @@ export function DestinationSettings({
       <CardHeader>
         <CardTitle>2. Destinos</CardTitle>
         <CardDescription>
-          Para grupos de origem do WhatsApp, configure os destinos em Espelhamento. Use esta lista como destino geral para as demais origens.
+          Configure os destinos das novas capturas em Espelhamento. A lista abaixo ainda vale para ofertas antigas sem rota por origem.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

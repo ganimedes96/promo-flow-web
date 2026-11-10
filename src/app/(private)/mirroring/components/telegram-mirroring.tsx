@@ -25,6 +25,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ControlledCombobox } from "@/components/form/controllers/controlled-combobox";
+import { ControlledMultiSelect } from "@/components/form/controllers/controlled-multi-select";
+import { getWhatsAppGroups } from "@/domains/whatsapp/client";
+import { MirrorDestinationSettings } from "./mirror-destination-settings";
 import { ApiErrorCard } from "@/components/feedback/api-error-card";
 import { EmptyStateCard } from "@/components/feedback/empty-state-card";
 import { PageSkeleton } from "@/components/feedback/loading-skeletons";
@@ -56,7 +59,12 @@ export function TelegramMirroring() {
     invalidateQueries: invalidations,
     successMessage: "Fonte removida. Suas ofertas foram preservadas.",
   });
-  const form = useForm({ defaultValues: { sourceId: "" } });
+  const destinations = useQuery({
+    queryKey: [...queryKeys.whatsapp.groupsFor(), session?.user.id],
+    queryFn: () => getWhatsAppGroups(),
+    enabled: !!session?.user.id,
+  });
+  const form = useForm({ defaultValues: { sourceId: "", destinationIds: [] as string[] } });
   const sourceId = useWatch({ control: form.control, name: "sourceId" });
   if (query.isPending) return <PageSkeleton variant="connections" />;
   if (query.isError || !query.data)
@@ -72,6 +80,9 @@ export function TelegramMirroring() {
     selected = state.sources.filter((source) => source.selected),
     ready = state.online && state.status === "READY";
   const busy = toggle.isPending || remove.isPending;
+  const favoriteDestinations = (destinations.data ?? [])
+    .filter((group) => group.isFavorite)
+    .map(({ id, name }) => ({ id, name }));
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
@@ -113,16 +124,16 @@ export function TelegramMirroring() {
             </Badge>
           </div>
           <CardDescription>
-            Somente os canais escolhidos serão acompanhados. Capturas entram
-            como ofertas privadas, sem destino e sem agendamento.
+            Escolha os destinos favoritos desta origem. Com a automação ativa,
+            a oferta pode ser agendada após aplicar seu link. Sem destino, ela fica para revisão.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form
             onSubmit={form.handleSubmit((data) =>
-              toggle.mutate({ id: data.sourceId, enabled: true })
+              toggle.mutate({ id: data.sourceId, enabled: true, destinationIds: data.destinationIds })
             )}
-            className="grid items-end gap-4 sm:grid-cols-[1fr_auto]"
+            className="grid items-end gap-4 sm:grid-cols-[1fr_1fr_auto]"
           >
             <ControlledCombobox
               control={form.control}
@@ -139,6 +150,16 @@ export function TelegramMirroring() {
                 }))}
               disabled={!ready || busy || state.selectedCount >= state.limit}
             />
+            <ControlledMultiSelect
+              control={form.control}
+              name="destinationIds"
+              label="Enviar para"
+              placeholder="Escolher grupos favoritos"
+              options={favoriteDestinations}
+              loading={destinations.isPending}
+              maxSelected={20}
+              searchable
+            />
             <Button
               type="submit"
               disabled={
@@ -151,6 +172,7 @@ export function TelegramMirroring() {
               Acompanhar fonte
             </Button>
           </form>
+          {destinations.isError && <p className="text-destructive text-xs">Não foi possível carregar os destinos favoritos.</p>}
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-muted-foreground text-xs">
               Grupos pausados também ocupam uma vaga. Não importamos mensagens
@@ -196,15 +218,22 @@ export function TelegramMirroring() {
               onToggle={() =>
                 toggle.mutate({ id: source.id, enabled: !source.enabled })
               }
+              destinationSettings={(
+                <MirrorDestinationSettings
+                  key={source.mirrorDestinationIds.join(",")}
+                  selected={source.mirrorDestinationIds}
+                  options={favoriteDestinations}
+                  busy={busy || destinations.isPending || destinations.isError}
+                  onSave={(destinationIds) => toggle.mutate({ id: source.id, enabled: source.enabled, destinationIds })}
+                />
+              )}
               onRemove={() => remove.mutate(source.id)}
             />
           ))}
         </div>
       )}
       <p className="text-muted-foreground text-xs">
-        Imagens e links são capturados para revisão. Mercado Livre e Shopee
-        entram na fila de conversão da extensão; outras lojas continuam com seu
-        link manual.
+        As ofertas só podem ser agendadas depois de receberem seu link de afiliado.
       </p>
     </div>
   );
