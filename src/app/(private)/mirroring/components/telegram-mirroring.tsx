@@ -39,7 +39,7 @@ export function TelegramMirroring() {
     queryFn: getPersonalTelegram,
     enabled: !!session?.user.id,
     retry: false,
-    refetchInterval: (q) => (q.state.error ? false : 5000),
+    refetchInterval: (q) => (q.state.error ? false : 15000),
     refetchIntervalInBackground: false,
   });
   const invalidations = [queryKeys.mirroring.all];

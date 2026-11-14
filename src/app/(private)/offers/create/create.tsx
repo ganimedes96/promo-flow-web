@@ -57,13 +57,13 @@ export function CreateOfferForm({
     queryKey: [...queryKeys.whatsapp.connections, session?.user.id],
     queryFn: getWhatsAppConnections,
     enabled: !!session?.user.id,
-    refetchInterval: 5000,
+    refetchInterval: (query) => query.state.error ? false : 30000,
   });
   const groups = useQuery({
     queryKey: [...queryKeys.whatsapp.groups, "all", session?.user.id],
     queryFn: () => getWhatsAppGroups(),
     enabled: !!session?.user.id,
-    refetchInterval: 5000,
+    refetchInterval: (query) => query.state.error ? false : 30000,
   });
   if (groups.isPending || connections.isPending) return <OfferFormSkeleton />;
   if (groups.error || connections.error)

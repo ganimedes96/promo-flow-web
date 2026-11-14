@@ -61,9 +61,9 @@ export function OffersTable() {
         )
       );
       return hasPending
-        ? 5000
+        ? 15000
         : (mirrorSources.data?.selectedCount ?? 0) > 0
-          ? 10000
+          ? 30000
           : page === 1 ? 30000 : false;
     },
     staleTime: 5000,

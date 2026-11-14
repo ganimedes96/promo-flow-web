@@ -36,7 +36,7 @@ export function WhatsAppMirroring({ channels = false }: { channels?: boolean }) 
     queryFn: getMirrorSources,
     enabled: !!session?.user.id,
     retry: false,
-    refetchInterval: (q) => (q.state.error ? false : 10000),
+    refetchInterval: (q) => (q.state.error ? false : 30000),
     refetchIntervalInBackground: false,
   });
   const destinations = useQuery({

@@ -49,7 +49,7 @@ export function TelegramLinkDialog({
     queryFn: () => getWhatsAppGroups(),
     enabled: open,
     retry: false,
-    refetchInterval: open ? 5000 : false,
+    refetchInterval: open ? 10000 : false,
   });
   const create = useServerAction({
     mutationFn: createTelegramPublisherLink,

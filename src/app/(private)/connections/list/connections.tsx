@@ -112,7 +112,7 @@ export function Connections({
     queryKey: [...queryKeys.whatsapp.connections, session?.user.id],
     queryFn: getWhatsAppConnections,
     enabled: !!session?.user.id,
-    refetchInterval: 5000,
+    refetchInterval: (query) => query.state.error ? false : 30000,
   });
   const change = useServerAction({
     mutationFn: updateWhatsAppConnection,

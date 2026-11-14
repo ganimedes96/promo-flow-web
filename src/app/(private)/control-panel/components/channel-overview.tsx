@@ -20,7 +20,7 @@ export function ChannelOverview() {
     queryFn: getWhatsAppConnections,
     enabled: !!session?.user.id,
     retry: false,
-    refetchInterval: 10000,
+    refetchInterval: (query) => query.state.error ? false : 30000,
   });
   const accounts = connections.data?.connections ?? [];
   const telegramAccounts = accounts.filter(
@@ -31,7 +31,7 @@ export function ChannelOverview() {
     queryFn: getTelegramPublisherStatus,
     enabled: !!session?.user.id && telegramAccounts.length > 0,
     retry: false,
-    refetchInterval: telegramAccounts.length ? 10000 : false,
+    refetchInterval: (query) => !query.state.error && telegramAccounts.length ? 30000 : false,
   });
   if (connections.isPending)
     return (

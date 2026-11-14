@@ -69,7 +69,7 @@ export function GettingStartedGuide({ userId }: { userId: string }) {
   const connections = useQuery({
     queryKey: [...queryKeys.whatsapp.connections, userId],
     queryFn: getWhatsAppConnections,
-    refetchInterval: collapsed ? false : 15000,
+    refetchInterval: collapsed ? false : 60000,
     retry: false,
   });
   const connected =
@@ -80,13 +80,13 @@ export function GettingStartedGuide({ userId }: { userId: string }) {
     queryKey: [...queryKeys.whatsapp.groupsFor(), userId],
     queryFn: () => getWhatsAppGroups(),
     enabled: connected.length > 0,
-    refetchInterval: collapsed ? false : 15000,
+    refetchInterval: collapsed ? false : 60000,
     retry: false,
   });
   const offers = useQuery({
     queryKey: queryKeys.offers.list({ userId, page: 1, limit: 1 }),
     queryFn: () => getOffers({ page: 1, limit: 1 }),
-    refetchInterval: collapsed ? false : 15000,
+    refetchInterval: collapsed ? false : 60000,
     retry: false,
   });
   const hasFavorites =
@@ -102,7 +102,7 @@ export function GettingStartedGuide({ userId }: { userId: string }) {
   const stores = useQuery({
     queryKey: queryKeys.stores.list(userId),
     queryFn: getStores,
-    refetchInterval: collapsed ? false : 15000,
+    refetchInterval: collapsed ? false : 60000,
     retry: false,
   });
   const steps = [

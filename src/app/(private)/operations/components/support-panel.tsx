@@ -148,7 +148,7 @@ function SupportDetails({ userId }: { userId: string }) {
     queryFn: () => getSupportDetails(filters),
     enabled: !!session?.user.id,
     retry: false,
-    refetchInterval: (q) => (q.state.error ? false : 15000),
+    refetchInterval: (q) => (q.state.error ? false : 30000),
     refetchIntervalInBackground: false,
   });
   if (query.isPending)

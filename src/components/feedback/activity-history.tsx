@@ -67,7 +67,7 @@ export function ActivityHistory({
     queryFn: () => getActivity(resource),
     enabled: open && !!session?.user.id,
     retry: false,
-    refetchInterval: (q) => (open && !q.state.error ? 5000 : false),
+    refetchInterval: (q) => (open && !q.state.error ? 30000 : false),
     refetchIntervalInBackground: false,
   });
   return (

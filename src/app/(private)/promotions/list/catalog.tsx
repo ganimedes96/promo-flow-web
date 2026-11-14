@@ -55,7 +55,7 @@ export function PromotionsCatalog({ manage = false }: { manage?: boolean }) {
     enabled: !!session?.user,
     refetchOnWindowFocus: "always",
     placeholderData: keepPreviousData,
-    refetchInterval: (query) => (manage && !query.state.error ? 10000 : false),
+    refetchInterval: (query) => (manage && !query.state.error ? 30000 : false),
     refetchIntervalInBackground: false,
   });
   const latest = useQuery({

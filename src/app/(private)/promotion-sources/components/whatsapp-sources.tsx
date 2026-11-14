@@ -74,14 +74,14 @@ export function WhatsAppSources() {
     queryKey: queryKeys.collection.whatsapp(session?.user.id),
     queryFn: getWhatsAppCollectionSources,
     enabled: !!session?.user,
-    refetchInterval: (query) => (query.state.error ? false : 10000),
+    refetchInterval: (query) => (query.state.error ? false : 30000),
     refetchIntervalInBackground: false,
   });
   const accounts = useQuery({
     queryKey: [...queryKeys.whatsapp.connections, session?.user.id],
     queryFn: getWhatsAppConnections,
     enabled: !!session?.user,
-    refetchInterval: (query) => (query.state.error ? false : 10000),
+    refetchInterval: (query) => (query.state.error ? false : 30000),
     refetchIntervalInBackground: false,
   });
   const connect = useServerAction<{ id: string }, { id?: string }>({

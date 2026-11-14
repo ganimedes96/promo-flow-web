@@ -27,7 +27,7 @@ const serviceNames = {RUNNING:"Em execução",STOPPED:"Parado",STARTING:"Inician
 export function LocalControlCard() {
  const { data:session } = useSession();
  const key=queryKeys.operations.localControl(session?.user.id);
- const query=useQuery({queryKey:key,queryFn:getLocalControl,enabled:!!session?.user.id,retry:false,refetchInterval:q=>q.state.error?false:5000,refetchIntervalInBackground:false});
+ const query=useQuery({queryKey:key,queryFn:getLocalControl,enabled:!!session?.user.id,retry:false,refetchInterval:q=>q.state.error?false:30000,refetchIntervalInBackground:false});
  const [confirmation,setConfirmation]=useState<LocalAction|null>(null);
  const mutation=useServerAction({mutationFn:controlLocalServices,invalidateQueries:[key],successMessage:"Comando enviado. Aguarde a confirmação do agente.",onSuccess:()=>setConfirmation(null)});
  if(query.isPending)return <Skeleton className="h-56 rounded-xl" />;

@@ -31,7 +31,10 @@ export function WhatsAppConnection({
     ],
     queryFn: () => getWhatsAppSession(connectionId),
     enabled: !!account.data?.user.id,
-    refetchInterval: 3000,
+    refetchInterval: (query) => {
+      if (query.state.error) return false;
+      return ["CONNECTING", "WAITING_QR", "AUTHENTICATED"].includes(query.state.data?.status ?? "") ? 3000 : 30000;
+    },
   });
   const connect = useServerAction({
     mutationFn: () => connectWhatsApp(connectionId),

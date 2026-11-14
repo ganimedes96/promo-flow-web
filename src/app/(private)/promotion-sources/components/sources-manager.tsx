@@ -38,7 +38,7 @@ export function SourcesManager() {
     queryKey: queryKeys.telegram.status(session?.user.id),
     queryFn: getTelegramState,
     enabled: !!session?.user,
-    refetchInterval: (query) => (query.state.error ? false : 5000),
+    refetchInterval: (query) => (query.state.error ? false : 30000),
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: "always",
   });

@@ -76,13 +76,13 @@ export function Groups() {
     queryKey: [...queryKeys.whatsapp.connections, session?.user.id],
     queryFn: getWhatsAppConnections,
     enabled: !!session?.user.id,
-    refetchInterval: 5000,
+    refetchInterval: (query) => query.state.error ? false : 30000,
   });
   const groups = useQuery({
     queryKey: [...queryKeys.whatsapp.groupsFor(), session?.user.id],
     queryFn: () => getWhatsAppGroups(),
     enabled: !!session?.user.id,
-    refetchInterval: 5000,
+    refetchInterval: (query) => query.state.error ? false : 30000,
   });
   const invalidations = [
     queryKeys.whatsapp.groups,

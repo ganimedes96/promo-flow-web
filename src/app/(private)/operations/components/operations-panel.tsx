@@ -44,7 +44,7 @@ export function OperationsPanel() {
     queryKey: queryKeys.operations.status(session?.user.id),
     queryFn: getOperationsStatus,
     enabled: !!session?.user.id,
-    refetchInterval: (query) => (query.state.error ? false : 15000),
+    refetchInterval: (query) => (query.state.error ? false : 30000),
     staleTime: 0,
     retry: false,
   });
